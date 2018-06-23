@@ -98,8 +98,15 @@ function load() {
     // Update player marker and store it for next load
     playerPosition.lat = e.latlng.lat;
     playerPosition.lon = e.latlng.lng;
-    playerMarker.setLatLng([playerPosition.lat, playerPosition.lon]);
+    var latlng = [playerPosition.lat, playerPosition.lon];
+    playerMarker.setLatLng(latlng);
     GameHelper.save();
+    // Calculate tile x and y depending on player position
+    var zoom = 20; // Native zoom of card layer
+    // See https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#ECMAScript_.28JavaScript.2FActionScript.2C_etc..29
+    playerPosition.x = (Math.floor((playerPosition.lon+180)/360*Math.pow(2,zoom)));
+    playerPosition.y = (Math.floor((1-Math.log(Math.tan(playerPosition.lat*Math.PI/180) + 1/Math.cos(playerPosition.lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom)));
+    console.log(playerPosition);
   });
   map.locate({
     watch: true,
