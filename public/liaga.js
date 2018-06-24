@@ -1,118 +1,182 @@
 /* global L */
 
-var GameHelper = {
-  game: { 
-    tiles: {},
-    position: { lat: 50.9905, lon: 11.062 }
+/**
+ * Persistable game stats for the current player
+ */
+var Game = {
+  // Position of the player
+  position: {
+    // Initial latitude when the game starts
+    lat: 50.9905,
+    // Initial longitude when the game starts
+    lon: 11.063,
   },
-  getPosition: function() {
-    return GameHelper.game.position;
+  // Tiles the player already unlocked. The attribute names are latitude
+  tiles: {}
+}
+
+/**
+ * Settings for application initialization.
+ * Used by Liaga and Locator
+ */
+var InitOptions = {
+  // Zoom level, for which the card tiles are calculated.
+  // The higher the level, the more tiles per square kilometer are rendered
+  tileZoomLevel: 21,
+  // Maximum zoom level the player can zoom into the map. 19 is a good choice.
+  maxZoomLevel: 19,
+  // Used by Locator to define whether the position change should be in high
+  // accuracy or not
+  highLocationAccuracy: true,
+}
+
+/**
+ * Root data container for entire application
+ */
+var Liaga = {
+  // Player stats
+  game: Game,
+  // Rendered map
+  map: null,
+  // Application settings
+  settings: Settings,
+  
+  // Start the application
+  init: function() {
+    // Force redirection to HTTPS to enable location watching
+    if (location.href.indexOf("http://") === 0) {
+      location.href = location.href.replace("http://", "https://");
+    }
+    // Initialize the map
+    Liaga.map = L.map("map", { // "map" is the ID of the div where the map should be rendered into.
+      // Center the map at the initial coordinates
+      center: [Game.position.lat, Game.position.lon],
+      // Default minimum zoom level
+      minZoom: InitOptions.maxZoomLevel,
+      // Maximum zoom level
+      maxZoom: InitOptions.maxZoomLevel,
+      // Initial zoom level
+      zoom: InitOptions.maxZoomLevel
+    });
+    // Create the geographical map layer
+    MapHelper.mapLayer.addTo(Liaga.map);
+    // Create the tile layer and its pane
+    Liaga.map.createPane('tileLayerPane').style.zIndex = 450;
+    Liaga.map.addLayer(MapHelper.tileLayer);
+    // Create the player marker
+    MapHelper.playerMarker.addTo(Liaga.map);
+    // Load the previous player stats
+    Liaga.load();
+    // Enable GPS location updates
+    Locator.start();
   },
-  getTile: function(x, y) {
-    var tiles = GameHelper.game.tiles;
-    var tileexists = tiles[x] && tiles[x][y];
-    var tile = tileexists ? tiles[x][y] : {
-      // Initialize tile with values or leave it empty
-    };
-    if (!tile.getDiv) {
-      // Komische Funktion, um stringify daran zu hindern, das div mit zu serialisieren
-      var div = document.createElement('div');
+  // Load stats from persistence layer
+  load: function() {
+    // Load stats from persistence, currently only from localStorage
+    Game = JSON.parse(localStorage.getItem("Game"));
+    // Update map settings (allowed zoom levels)
+    //   currently nothing to do here
+    // Force reloading the tiles which were already visited and update player position
+    Liaga.map.setView([Game.position.lat, Game.position.lon], InitOptions.maxZoomLevel);
+    MapHelper.tileLayer.redraw();
+    // Update player position
+    MapHelper.playerMarker.setLatLng([Game.position.lat, Game.position.lon]);
+  },
+  // Reset all tile stats to initial state, used for development only
+  reset: function() {
+    Game.tiles = {};
+    Liaga.save();
+    Liaga.load();
+  },
+  // Save current stats to persistence layer
+  save: function() {
+    // Currently the stats are stored only loccaly in the localStorage.
+    // Later on it will be synchronized with a server
+    localStorage.setItem("Game", JSON.stringify(Game));
+  },
+}
+
+/**
+ * Helper for watching GPS position
+ */
+var Locator = {
+  // Start watching for GPS changes
+  start: function() {
+    navigator.geolocation.watchPosition(Locator.onLocationUpdate, function(error) {}, {
+      enableHighAccuracy: InitOptions.highLocationAccuracy,
+    });
+  },
+  
+  // Callback for when the player changed its GPS location
+  onLocationUpdate: function(location) {
+    // Update player position
+    Game.position.lat = location.coords.latitude;
+    Game.position.lon = location.coords.longitude;
+    MapHelper.playerMarker.setLatLng([Game.position.lat, Game.position.lon]);
+    // Move map to player when player following is set
+    if (Settings.followLocation) {
+      Liaga.map.setView([Game.position.lat, Game.position.lon], Liaga.map.getZoom());
+    }
+    // Save stats
+    Liaga.save();
+  },
+}
+
+/**
+ * Helper functions for manipulating the map
+ */
+var MapHelper = {
+  // Layer for the geographical map
+  mapLayer: L.mapboxGL({
+    accessToken: 'not-needed',
+    style: 'https://maps.tilehosting.com/styles/basic/style.json?key=gmrAs6PJFWurGzzNpy49',
+  }),
+  // Layer for interactive tiles
+  tileLayer: new (L.GridLayer.extend({
+    // Generate a tile for specific coordinates. Called by LeafletJS on demand
+    createTile: function (coords) {
+      // Create an interactive DIV for the tile
+      var div = document.createElement("div");
       div.classList.add("card");
-      if (!tileexists) {
-        var eventListener = function() {
-          div.classList.add("checked");
-          div.removeEventListener("click", eventListener);
-          if (!tiles[x]) tiles[x] = {};
-          tiles[x][y] = tile; // Set here at first for storage
-          GameHelper.save();
-        }
-        div.addEventListener("click", eventListener);
-      } else {
+      // Check whether the player already visited the tile
+      if (Game.tiles[coords.x] && Game.tiles[coords.x][coords.y]) {
         div.classList.add("checked");
       }
-      tile.getDiv = function() {
-        return div;
-      }
-    }
-    return tile;
-  },
-  load: function() {
-    var gameFromStorage = localStorage.getItem("game");
-    if (!gameFromStorage) return;
-    GameHelper.game = JSON.parse(gameFromStorage);
-  },
-  save: function() {
-    localStorage.setItem("game", JSON.stringify(GameHelper.game));
-  },
-  setPosition(lat, lon) {
-  },
-  setTile: function(x, y, tile) {
-    // tile.div.classList.add("checked");
-    // var tiles = GameHelper.game.tiles;
-    // if (!tiles[x]) tiles[x] = [];
-    // tiles[x][y] = tile;
-  }
-};
-
-function createMapLayer(map) {
-  return L.mapboxGL({
-    accessToken: 'not-needed',
-    style: 'https://maps.tilehosting.com/styles/basic/style.json?key=gmrAs6PJFWurGzzNpy49'
-  }).addTo(map);
-}
-
-function createCardLayer(map) {
-  map.createPane('cardPane').style.zIndex = 450;
-  // https://leafletjs.com/examples/extending/extending-2-layers.html
-  var cardLayer = new (L.GridLayer.extend({
-    createTile: function (coords) {
-      var tile = GameHelper.getTile(coords.x, coords.y);
-      if (tile) return tile.getDiv();
-    }
+      // Clicking a tile will mark it as visited
+      div.addEventListener("click", function() {
+        // Mark the tile in UI
+        div.classList.add("checked");
+        // Mark the tile in persistence
+        if (!Game.tiles[coords.x]) Game.tiles[coords.x] = {};
+        if (!Game.tiles[coords.x][coords.y]) Game.tiles[coords.x][coords.y] = {};
+        // Store the changes in the persyistence
+        Liaga.save();
+      });
+      return div;
+    },
   }))({
-    pane: 'cardPane',
-    minNativeZoom: 20,
-    maxNativeZoom: 20
-  });
-  map.addLayer(cardLayer);
-  return cardLayer;
+    // Pane where to put the layer. Relevant for Z-Indexing of the layers
+    pane: 'tileLayerPane', // Needs to be generated by hand in Liaga.init()
+    // The zoom levels are set to define, how fine the tiles are calculated
+    // The higher this value, the more tiles per square kilometers are used
+    minNativeZoom: InitOptions.tileZoomLevel,
+    maxNativeZoom: InitOptions.tileZoomLevel,
+    // Force the layer to update even when the player is still dragging the map around
+    updateWhenIdle: false,
+    // Update the layer as fast as possible. It is okay because the data does not come over the network
+    updateInterval: 1,
+  }),
+  // Marker for the player wo that he can see himself on the map
+  playerMarker: L.marker([Game.position.lat, Game.position.lon]),
 }
 
-function load() {
-  GameHelper.load();
-  // Initialize map
-  var playerPosition = GameHelper.getPosition();
-  var map = L.map("map", {
-    center: [playerPosition.lat, playerPosition.lon],
-    minZoom: 19,
-    maxZoom: 19,
-    zoom: 19
-  });0
-  // Create default map layer
-  var mapLayer = createMapLayer(map);
-  // Create card overlay
-  var cardLayer = createCardLayer(map);
-  // Find player position
-  var playerMarker = L.marker([playerPosition.lat, playerPosition.lon]).addTo(map);
-  map.on('locationfound', function(e) {
-    // Update player marker and store it for next load
-    playerPosition.lat = e.latlng.lat;
-    playerPosition.lon = e.latlng.lng;
-    var latlng = [playerPosition.lat, playerPosition.lon];
-    playerMarker.setLatLng(latlng);
-    GameHelper.save();
-    // Calculate tile x and y depending on player position
-    var zoom = 20; // Native zoom of card layer
-    // See https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#ECMAScript_.28JavaScript.2FActionScript.2C_etc..29
-    playerPosition.x = (Math.floor((playerPosition.lon+180)/360*Math.pow(2,zoom)));
-    playerPosition.y = (Math.floor((1-Math.log(Math.tan(playerPosition.lat*Math.PI/180) + 1/Math.cos(playerPosition.lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom)));
-    console.log(playerPosition);
-  });
-  map.locate({
-    watch: true,
-    setView: true, 
-    maxZoom: 19
-  });
+/**
+ * Device specific current settings
+ */
+var Settings = {
+  // Define wheter the map should be centered on the player or not
+  followLocation: true,
 }
 
-window.addEventListener("load", load);
+// Initialize the app as soon as the entire page is loaded
+window.addEventListener("load", Liaga.init);
