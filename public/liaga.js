@@ -1,6 +1,13 @@
 /* global L */
 
 /**
+ * Cache for mapping DIVs to tiles for effective
+ * updates of the UI
+ */
+var DivCache = {
+}
+
+/**
  * Persistable game stats for the current player
  */
 var Game = {
@@ -73,7 +80,9 @@ var Liaga = {
   // Load stats from persistence layer
   load: function() {
     // Load stats from persistence, currently only from localStorage
-    Game = JSON.parse(localStorage.getItem("Game"));
+    var storedGame = JSON.parse(localStorage.getItem("Game"));
+    if (!storedGame) return;
+    Game = storedGame;
     // Update map settings (allowed zoom levels)
     //   currently nothing to do here
     // Force reloading the tiles which were already visited and update player position
@@ -85,6 +94,7 @@ var Liaga = {
   // Reset all tile stats to initial state, used for development only
   reset: function() {
     Game.tiles = {};
+    DivCache = {};
     Liaga.save();
     Liaga.load();
   },
@@ -113,6 +123,10 @@ var Locator = {
     Game.position.lat = location.coords.latitude;
     Game.position.lon = location.coords.longitude;
     MapHelper.playerMarker.setLatLng([Game.position.lat, Game.position.lon]);
+    // Find tile at position and mark it as visited
+    var factor = Math.pow(2, 8 - (InitOptions.tileZoomLevel - Liaga.map.getZoom())); // 2 ^8 = 256 = TileSize in pixels
+    var coords = Liaga.map.project([Game.position.lat, Game.position.lon]).divideBy(factor).floor(); // From https://github.com/Leaflet/Leaflet/issues/2490#issuecomment-36104437
+    MapHelper.selectTileAtCoords(coords);
     // Move map to player when player following is set
     if (Settings.followLocation) {
       Liaga.map.setView([Game.position.lat, Game.position.lon], Liaga.map.getZoom());
@@ -138,20 +152,17 @@ var MapHelper = {
       // Create an interactive DIV for the tile
       var div = document.createElement("div");
       div.classList.add("card");
+      // Remember the div in the cache for the Locator
+      if (!DivCache[coords.x]) DivCache[coords.x] = {};
+      if (!DivCache[coords.x][coords.y]) DivCache[coords.x][coords.y] = div;
       // Check whether the player already visited the tile
       if (Game.tiles[coords.x] && Game.tiles[coords.x][coords.y]) {
         div.classList.add("checked");
       }
-      // Clicking a tile will mark it as visited
-      div.addEventListener("click", function() {
-        // Mark the tile in UI
-        div.classList.add("checked");
-        // Mark the tile in persistence
-        if (!Game.tiles[coords.x]) Game.tiles[coords.x] = {};
-        if (!Game.tiles[coords.x][coords.y]) Game.tiles[coords.x][coords.y] = {};
-        // Store the changes in the persyistence
-        Liaga.save();
-      });
+      // // Clicking a tile will mark it as visited
+      // div.addEventListener("click", function() {
+      //   MapHelper.selectTileAtCoords(coords);
+      // });
       return div;
     },
   }))({
@@ -168,6 +179,16 @@ var MapHelper = {
   }),
   // Marker for the player wo that he can see himself on the map
   playerMarker: L.marker([Game.position.lat, Game.position.lon]),
+  // Marks a tile with the given coordinates as selected
+  selectTileAtCoords: function(coords) {
+    // Mark the tile in persistence
+    if (!Game.tiles[coords.x]) Game.tiles[coords.x] = {};
+    if (!Game.tiles[coords.x][coords.y]) Game.tiles[coords.x][coords.y] = {};
+    // Store the changes in the persyistence
+    Liaga.save();
+    // Update the corresponding div
+    DivCache[coords.x][coords.y].classList.add("checked");
+  },
 }
 
 /**
