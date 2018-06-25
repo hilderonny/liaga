@@ -1,11 +1,10 @@
-/* global L */
+/* global L, io */
 
 /**
  * Cache for mapping DIVs to tiles for effective
  * updates of the UI
  */
-var DivCache = {
-}
+var DivCache = {}
 
 /**
  * Persistable game stats for the current player
@@ -76,6 +75,8 @@ var Liaga = {
     Liaga.load();
     // Enable GPS location updates
     Locator.start();
+    // Connect websocket for keepalives
+    SocketClient.connect();
   },
   // Load stats from persistence layer
   load: function() {
@@ -187,7 +188,7 @@ var MapHelper = {
     // Store the changes in the persyistence
     Liaga.save();
     // Update the corresponding div
-    DivCache[coords.x][coords.y].classList.add("checked");
+    if (DivCache[coords.x] && DivCache[coords.x][coords.y]) DivCache[coords.x][coords.y].classList.add("checked");
   },
 }
 
@@ -197,6 +198,23 @@ var MapHelper = {
 var Settings = {
   // Define wheter the map should be centered on the player or not
   followLocation: true,
+}
+
+/**
+ * Client for socket.io websockets
+ */
+var SocketClient = {
+  // connect to the socket server
+  connect: function() {
+    SocketClient.socket = io();
+    SocketClient.socket.on("myping", SocketClient.onPing);
+  },
+  // Triggered by the server to keep the page alive even in background
+  onPing: function() {
+    SocketClient.socket.emit("mypong", Game.position);
+  },
+  // Socket object
+  socket: null
 }
 
 // Initialize the app as soon as the entire page is loaded
