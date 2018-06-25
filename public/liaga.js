@@ -76,7 +76,7 @@ var Liaga = {
     // Enable GPS location updates
     Locator.start();
     // Connect websocket for keepalives
-    SocketClient.connect();
+    // SocketClient.connect();
   },
   // Load stats from persistence layer
   load: function() {
