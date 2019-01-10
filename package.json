@@ -1,0 +1,25 @@
+{
+  "name": "liaga",
+  "version": "1.0.0",
+  "description": "LIAGA",
+  "main": "server/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hilderonny/liaga.git"
+  },
+  "author": "Ronny Hildebrandt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hilderonny/voxelhoxel/liaga"
+  },
+  "homepage": "https://github.com/hilderonny/liaga#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.4.0",
+    "monk": "^6.0.6"
+  }
+}
