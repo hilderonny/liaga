@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="/arrange/arrange.js"></script>
+    <script>
+
+        window.addEventListener('load', async function() {
+            let ac = new ArrangeClient();
+            let user = await ac.register('halli', 'galli');
+            console.log(user);
+            let allUsers = await ac.get('/api/users/listUsers');
+            console.log(allUsers);
+        });
+
+    </script>
+</head>
+
+<body>
+    Siehe Konsole
+</body>
+
+</html>

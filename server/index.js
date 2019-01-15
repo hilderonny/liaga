@@ -12,6 +12,7 @@ const server = new arrange.Server(
 // Statische Seiten unter Root-URL bereit stellen
 server.app.use('/', express.static(__dirname + '/../client'));
 // APIs definieren
-server.app.use('/api/model', require('./api/model')(server));
+server.app.use('/api/models', require('./api/models')(server));
+server.app.use('/api/users', require('./api/users')(server));
 // Server starten
 server.start();
