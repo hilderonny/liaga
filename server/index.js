@@ -1,21 +1,17 @@
-const api = require('./api');
-const bodyParser = require('body-parser');
-const compression = require('compression');
-const cors = require('cors');
+// So soll es künftig sein
 const express = require('express');
-const http = require('http');
+const arrange = require('../lib/arrange/index');
 
-const app = express();
-app.use(compression());
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname + '/../client'));
-app.use('/api', api);
-
-const port = process.env.PORT || 8080;
-
-const server = http.createServer(app);
-server.listen(port, function () {
-    console.log('Server running at port ' + port);
-});
+// Arrange mit Standardfunktionen initialisieren
+const server = new arrange.Server(
+    process.env.PORT || 8080, 
+    process.env.DBURL || '127.0.0.1:27017/liaga',
+    process.env.USECORS || true,
+    process.env.TOKENSECRET || 'sachichnich'
+);
+// Statische Seiten unter Root-URL bereit stellen
+server.app.use('/', express.static(__dirname + '/../client'));
+// APIs definieren
+server.app.use('/api/model', require('./api/model')(server));
+// Server starten
+server.start();
