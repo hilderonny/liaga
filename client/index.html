@@ -7,8 +7,12 @@
 
         window.addEventListener('load', async function() {
             let ac = new ArrangeClient();
-            let user = await ac.register('halli', 'galli');
-            console.log(user);
+            let registerResult = await ac.register('kack', 'happen');
+            console.log(registerResult);
+            let unknownUserResult = await ac.login('unknown', 'user');
+            console.log(unknownUserResult);
+            let wrongPasswordResult = await ac.login('kack', 'falsch');
+            console.log(wrongPasswordResult);
             let allUsers = await ac.get('/api/users/listUsers');
             console.log(allUsers);
         });

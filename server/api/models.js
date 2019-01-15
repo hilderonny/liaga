@@ -4,7 +4,7 @@ module.exports = function(arrangeServer) {
 
     const router = express.Router();
 
-    router.post('/saveModel', arrangeServer.auth, function(request, response) {
+    router.post('/saveModel', arrangeServer.auth.bind(arrangeServer), function(request, response) {
         const collection = arrangeServer.db('models');
         if (request.body._id) {
             collection.findOneAndUpdate({ _id: request.body._id, _ownerId: request.user._id }, { $set: request.body }).then(function(updated) {
