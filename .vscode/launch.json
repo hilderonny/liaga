@@ -7,8 +7,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug",
-            "program": "${workspaceFolder}/server/index.js"
+            "name": "Launch",
+            "program": "${workspaceFolder}/index.js",
+            "env": {
+                "PORT": "5000",
+            }
         }
     ]
 }
