@@ -1,0 +1,16 @@
+{
+  "short_name" : "LIAGA",
+  "name": "LIAGA",
+  "theme_color": "#0000ff",
+  "background_color": "#0000ff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/index.html",
+  "icons": [
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ]
+}
