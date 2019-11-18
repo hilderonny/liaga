@@ -2,21 +2,18 @@
   "name": "liaga",
   "version": "1.0.0",
   "description": "LIAGA",
-  "main": "server/index.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/hilderonny/liaga.git"
+    "url": "git+https://gogs.levelupsoftware.de/levelupsoftware/liaga.git"
   },
   "author": "Ronny Hildebrandt",
   "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.com/hilderonny/liaga/issues"
+    "url": "https://gogs.levelupsoftware.de/levelupsoftware/liaga/issues"
   },
-  "homepage": "https://gitlab.com/hilderonny/liaga#readme",
+  "homepage": "https://gogs.levelupsoftware.de/levelupsoftware/liaga#readme",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
-    "express": "^4.16.4",
-    "jsonwebtoken": "^8.5.1"
+    "@hilderonny/arrange": "^1.4.0"
   }
 }

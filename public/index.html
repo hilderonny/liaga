@@ -1,105 +1,51 @@
+<!DOCTYPE html>
 <html>
 
 <head>
+    <link rel="stylesheet" href="base.css">
+    <script src="/arrange/arrange.js"></script>
+    <script defer src="app.js"></script>
     <script>
-
-        var usertoken;
-
-        window.addEventListener('load', function () {
-
-            // Polling für irgendwas
-            setInterval(async function() {
-                console.log('Polling');
-            }, 2000);
-
+        window.addEventListener("load", async function() {
+            await App.tryautologin();
         });
-
-        // Liefert den response zurück
-        async function post(url, data, token) {
-            var options = {
-                method: 'POST',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                referrer: 'no-referrer',
-                body: JSON.stringify(data),
-            };
-            if (token) options.headers["x-access-token"] = token;
-            var response = await fetch(url, options);
-            console.log(url, data, token, response);
-            return response;
-        }
-
-        async function registrieren(form) {
-            var response = await post('/api/v3/register', {
-                username: form.elements.username.value,
-                password: form.elements.password.value,
-            });
-            if (response.status !== 200) return alert('Fehler in Registrierung!');
-            var result = await response.json();
-            usertoken = result.token;
-            console.log(result);
-            alert('Registriert und angemeldet.');
-        };
-
-        async function dologin(username, password) {
-            var response = await post('/api/v3/login', {
-                username: username,
-                password: password,
-            });
-            if (response.status !== 200) return false;
-            var result = await response.json();
-            usertoken = result.token;
-            console.log(result);
-            return true
-        }
-
-        async function anmelden(form) {
-            var ok = await dologin(form.elements.username.value, form.elements.password.value);
-            if (!ok) return alert('Fehler in Anmeldung!');
-            alert('Angemeldet.');
-        };
-
-        async function passwortaendern(form) {
-            var response = await post('/api/v3/setpassword', {
-                password: form.elements.password.value,
-            }, usertoken);
-            if (response.status !== 200) return alert('Fehler in Passwortänderung!');
-            alert('Passwort geändert.');
-        };
-
     </script>
 </head>
 
-<body style="display: flex; flex-direction: row;">
+<body>
+    <div class="forms">
 
-    <div>
-
-        <h1>Registrieren</h1>
-        <form method="POST" onsubmit="registrieren(this);return false;">
-            <div><label for="username">Benutzername</label><input type="username" name="username" value="a"></div>
-            <div><label for="password">Passwort</label><input type="password" name="password" value="a"></div>
-            <input type="submit">
+        <form onsubmit="App.register();" autocomplete="off">
+            <h1>Register</h1>
+            <div><label>Username</label><input name="username" autocomplete="new-password" /></div>
+            <div><label>Password 1</label><input name="password1" type="password" autocomplete="new-password" /></div>
+            <div><label>Password 2</label><input name="password2" type="password" autocomplete="new-password" /></div>
+            <div><input type="submit" value="Register" /></div>
         </form>
 
-        <h1>Anmelden</h1>
-        <form method="POST" onsubmit="anmelden(this);return false;" autocomplete="on">
-            <div><label for="username">Benutzername</label><input type="username" name="username"></div>
-            <div><label for="password">Passwort</label><input type="password" name="password"></div>
-            <input type="submit">
-            <button onclick="dologin('a', 'a');return false;">a</button>
-            <button onclick="dologin('b', 'b');return false;">b</button>
+        <form onsubmit="App.login();">
+            <h1>Login</h1>
+            <div><label>Username</label><input name="username" /></div>
+            <div><label>Password</label><input name="password" type="password" /></div>
+            <div><input type="submit" value="Login" /></div>
+            <div><input type="button" onclick="App.tryautologin();" value="Try auto login"/></div>
+            <div><input type="button" onclick="App.logout();" value="Logout" /></div>
         </form>
 
-        <h1>Passwort ändern</h1>
-        <form method="POST" onsubmit="passwortaendern(this);return false;">
-            <div><label for="password">Passwort</label><input type="password" name="password" value="a"></div>
-            <input type="submit">
+        <form onsubmit="App.setpassword();">
+            <h1>Update password</h1>
+            <div><label>New password</label><input name="password" type="password" /></div>
+            <div><input type="submit" value="Update" /></div>
         </form>
+    
+        <h1>Tests</h1>
+        <button onclick="App.listusers();">List users</button>
+        <button onclick="App.listmodels();">List models</button>
 
     </div>
+    <div id="output">
 
-    <div id="messages" style="flex: 1; background-color: azure;"></div>
-
+    </div>
 </body>
 
 </html>
