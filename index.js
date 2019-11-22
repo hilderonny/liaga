@@ -11,4 +11,7 @@ var server = new arrange.Server(
 // Define static HTML URL
 server.app.use('/', express.static(__dirname + '/public'));
 
+// Define APIs
+server.app.post('/api/getepthresholds', require('./api/getepthresholds'));
+
 server.start();

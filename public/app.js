@@ -7,10 +7,13 @@ var App = (function() {
     // Create arrange instance connected to the local server
     // To connect to a different server, use const arr = Arrange('https://mydomain.com')
     var arr = Arrange();
-    // Login to arrange
-    //await arr.login('myusername', 'password');
-    // Fetch a list of all entities of the "models" table
-    //var modellist = await arr.list('models');
+
+    async function _getepthresholds() {
+        var response = await fetch('/api/getepthresholds', { method: 'POST' });
+        var result = await response.json();
+        _log(result);
+        return result;
+    }
 
     async function _listmodels() {
         var result = await arr.list('models', { result: [ '_id' ]});
@@ -107,6 +110,7 @@ var App = (function() {
     }
 
     return {
+        getepthresholds: _getepthresholds,
         listmodels: _listmodels,
         listusers: _listusers,
         login: _login,
