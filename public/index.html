@@ -31,7 +31,7 @@
     <div class="forms">
 
         <form onsubmit="App.register();" autocomplete="off">
-            <h1>Register</h1>
+            <h1 onclick="this.parentNode.classList.toggle('active');">Register</h1>
             <div><label>Username</label><input name="username" autocomplete="new-password" /></div>
             <div><label>Password 1</label><input name="password1" type="password" autocomplete="new-password" /></div>
             <div><label>Password 2</label><input name="password2" type="password" autocomplete="new-password" /></div>
@@ -39,7 +39,7 @@
         </form>
 
         <form onsubmit="App.login();">
-            <h1>Login</h1>
+            <h1 onclick="this.parentNode.classList.toggle('active');">Login</h1>
             <div><label>Username</label><input name="username" /></div>
             <div><label>Password</label><input name="password" type="password" /></div>
             <div><input type="submit" value="Login" /></div>
@@ -48,7 +48,7 @@
         </form>
 
         <form onsubmit="App.setpassword();">
-            <h1>Update password</h1>
+            <h1 onclick="this.parentNode.classList.toggle('active');">Update password</h1>
             <div><label>New password</label><input name="password" type="password" /></div>
             <div><input type="submit" value="Update" /></div>
         </form>
@@ -56,7 +56,7 @@
         <h1>Tests</h1>
         <button onclick="App.listusers();">List users</button>
         <button onclick="App.listmodels();">List models</button>
-        <button onclick="App.getepthresholds();">Get EP thresholds</button>
+        <button onclick="App.log(App.epthresholds);">Get EP thresholds</button>
 
     </div>
     <div id="output">

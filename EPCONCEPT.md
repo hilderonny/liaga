@@ -4,4 +4,4 @@ Erfahrungspunkte für Quests werden abhängig vom Level gewährt, sodass der For
 
 In jedem Level muss man mehr EPs sammeln. Ich nehme dazu den Faktor `1,1`. Das sieht wichtig aus und ist nicht glatt. Intuitiv bestimmt. Für den Aufstieg von Level 0 zu LEvel 1 werden 10 EPs benötigt. Für 1 auf 2 dann 11 EPs. Bei 99 > 100 bräuchte man damit etwa 13.000.000 EPs.
 
-Die Scwellen-EPs werden in der [Excel Datei](epcalculator.xlsx) ausgerechnet und in einem Lookup-Feld fest definiert. Über die API [`getepthresholds`](api/getepthresholds.js) erhält man dieses Feld, wobei der Index den Level und der Wert die EPs, die für das Level notwendig sind, darstellen.
+Die Scwellen-EPs werden in der [Excel Datei](epcalculator.xlsx) ausgerechnet und in einem Lookup-Feld in `App.epthresholds` clientseitig fest definiert, wobei der Index den Level und der Wert die EPs, die für das Level notwendig sind, darstellen.
