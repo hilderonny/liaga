@@ -14,29 +14,16 @@ body {
     height: 100%;
 }
 
-form > div, form > button, form > input {
+.card {
     display: none;
 }
 
-form.active > div, form.active > button, form.active > input {
+body.loggedin > .card.loggedin,
+body.login > .card.login,
+body.register > .card.register {
     display: block;
 }
 
-h1 {
-    font-size: 16pt;
-}
-
-div.forms {
-    padding: 8px;
-}
-
-#output {
-    padding: 8px;
-    flex: 1;
-    overflow: auto;
-}
-
-pre {
-    font-family: monospace;
-    font-size: 8pt;
+.errormessage {
+    display: none;
 }

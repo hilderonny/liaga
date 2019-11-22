@@ -15,53 +15,45 @@
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
-    
+
     <title>LIAGA - Life is a game</title>
     <link rel="stylesheet" href="base.css">
     <script src="/arrange/arrange.js"></script>
     <script defer src="app.js"></script>
     <script>
-        window.addEventListener("load", async function() {
-            await App.tryautologin();
-        });
     </script>
 </head>
 
 <body>
-    <div class="forms">
 
-        <form onsubmit="App.register();" autocomplete="off">
-            <h1 onclick="this.parentNode.classList.toggle('active');">Register</h1>
+    <div class="card login">
+        <form onsubmit="App.login();return false;">
+            <h1>Login</h1>
+            <div><label>Username</label><input name="username" /></div>
+            <div><label>Password</label><input name="password" type="password" /></div>
+            <div><input type="submit" value="Login" /></div>
+            <div class="errormessage">Anmeldung fehlgeschlagen</div>
+        </form>
+        <button onclick="App.showregistercard();">Register</button>
+    </div>
+
+    <div class="card register">
+        <form onsubmit="App.register();return false;" autocomplete="off">
+            <h1>Register</h1>
             <div><label>Username</label><input name="username" autocomplete="new-password" /></div>
             <div><label>Password 1</label><input name="password1" type="password" autocomplete="new-password" /></div>
             <div><label>Password 2</label><input name="password2" type="password" autocomplete="new-password" /></div>
             <div><input type="submit" value="Register" /></div>
+            <div class="errormessage">Registrierung fehlgeschlagen</div>
         </form>
-
-        <form onsubmit="App.login();">
-            <h1 onclick="this.parentNode.classList.toggle('active');">Login</h1>
-            <div><label>Username</label><input name="username" /></div>
-            <div><label>Password</label><input name="password" type="password" /></div>
-            <div><input type="submit" value="Login" /></div>
-            <div><input type="button" onclick="App.tryautologin();" value="Try auto login"/></div>
-            <div><input type="button" onclick="App.logout();" value="Logout" /></div>
-        </form>
-
-        <form onsubmit="App.setpassword();">
-            <h1 onclick="this.parentNode.classList.toggle('active');">Update password</h1>
-            <div><label>New password</label><input name="password" type="password" /></div>
-            <div><input type="submit" value="Update" /></div>
-        </form>
-    
-        <h1>Tests</h1>
-        <button onclick="App.listusers();">List users</button>
-        <button onclick="App.listmodels();">List models</button>
-        <button onclick="App.log(App.epthresholds);">Get EP thresholds</button>
-
+        <button onclick="App.showlogincard();">Login</button>
     </div>
-    <div id="output">
 
+    <div class="card loggedin">
+        <p>LOGGEDIN</p>
+        <button onclick="App.logout();">Logout</button>
     </div>
+
 </body>
 
 </html>

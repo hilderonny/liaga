@@ -1,19 +1,11 @@
 var App = (function() {
 
-    var outputDiv = document.getElementById('output');
     var USERNAMEKEY = 'username';
     var PASSWORDKEY = 'password';
 
     // Create arrange instance connected to the local server
     // To connect to a different server, use const arr = Arrange('https://mydomain.com')
     var arr = Arrange();
-
-    async function _getepthresholds() {
-        var response = await fetch('/api/getepthresholds', { method: 'POST' });
-        var result = await response.json();
-        _log(result);
-        return result;
-    }
 
     async function _listmodels() {
         var result = await arr.list('models', { result: [ '_id' ]});
@@ -25,50 +17,63 @@ var App = (function() {
         _log(result);
     }
 
-    function _log() {
-        // TODO: Argumente iterieren, stringifizieren und ausgeben
-        for (var i = 0; i < arguments.length; i++) {
-            outputDiv.innerHTML += "<pre>" + JSON.stringify(arguments[i], undefined, 4) + "</pre>";
-        }
-        outputDiv.scrollTop = outputDiv.scrollHeight;
-    }
+    var _log = console.log;
 
     async function _login() {
         event.preventDefault();
+        var errormessagediv = document.querySelector('.card.login .errormessage');
+        errormessagediv.style.display = 'none';
         var username = event.target.username.value;
         var password = event.target.password.value;
         var result = await arr.login(username, password);
         if (result._id) {
             // Login succeeded
             _storeusercredentials(username, password);
+            _showloggedincard();
         }
         else if (result.error) {
+            // Login failed
+            errormessagediv.style.display = 'block';
             // Clear stored credentials on failure
             _storeusercredentials();
         }
-        _log(result);
     }
 
     async function _logout() {
         // Simply clear the local storage of user credentials
         _storeusercredentials();
+        _showlogincard();
     }
 
     async function _register() {
         event.preventDefault();
+        var errormessagediv = document.querySelector('.card.register .errormessage');
+        errormessagediv.style.display = 'none';
         var username = event.target.username.value;
         var password1 = event.target.password1.value;
         var password2 = event.target.password2.value;
         if (password1 !== password2) {
-            _log("Password mismatch");
+            errormessagediv.style.display = 'block';
             return;
         }
         var result = await arr.register(username, password1);
         if (result._id) {
             // Registration and login succeeded
             _storeusercredentials(username, password1);
+            _showloggedincard();
+        } else {
+            // Registrierung fehlgeschlagen
+            errormessagediv.style.display = 'block';
         }
-        _log(result);
+    }
+
+    function _showloggedincard() {
+        document.body.setAttribute('class', 'loggedin');
+    }
+
+    function _showlogincard() {
+        document.querySelector('.card.login .errormessage').style.display = 'none';
+        document.body.setAttribute('class', 'login');
     }
 
     async function _setpassword() {
@@ -98,16 +103,21 @@ var App = (function() {
         var password = localStorage.getItem(PASSWORDKEY);
         if (!username || !password) {
             _log("No username or password stored");
-            return false;
+            _showlogincard();
+            return;
         }
         var result = await arr.login(username, password);
         if (result.error) {
             // Clear stored credentials on failure
             _storeusercredentials();
+            _showlogincard();
         }
-        _log(result);
-        return result;
+        _showloggedincard();
     }
+
+    window.addEventListener('load', function() {
+        _tryautologin();
+    });
 
     return {
         // Schwellen-EPs werden direkt auf dem Client gespeichert. Einmal laden und fertig.
@@ -119,6 +129,11 @@ var App = (function() {
         logout: _logout,
         register: _register,
         setpassword: _setpassword,
-        tryautologin: _tryautologin,
+        showloggedincard: _showloggedincard,
+        showlogincard: _showlogincard,
+        showregistercard: function() {
+            document.querySelector('.card.register .errormessage').style.display = 'none';
+            document.body.setAttribute('class', 'register');
+        },
     };
 })();
