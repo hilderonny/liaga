@@ -1,14 +1,24 @@
-var arrange = require('@hilderonny/arrange');
 var express = require('express');
+var db = require('./utils/db');
+var http = require('http');
+var bodyparser = require('body-parser');
+var fs = require('fs');
 
-// Startup the server.
-var server = new arrange.Server(
-    process.env.PORT || 8080, 
-    process.env.DBURL || '127.0.0.1:27017/liaga',
-    process.env.TOKENSECRET || 'mytokensecret'
-);
+// Prepare the server
+var app = express();
+app.use(bodyparser.json());
+app.use('/', express.static('./public'));
+fs.readdirSync('./api/').forEach(function(apifile) {
+    var apiname = apifile.split('.')[0];
+    console.log('Adding API ' + apiname);
+    app.use('/api/' + apiname, require('./api/' + apiname)(express.Router()));
+});
 
-// Define static HTML URL
-server.app.use('/', express.static(__dirname + '/public'));
-
-server.start();
+// Connect to database and then start the server
+db.connect().then(async function() {
+    var schema = JSON.parse(fs.readFileSync('./dbschema.json'));
+    await db.init(schema);
+    http.createServer(app).listen(process.env.PORT, function() {
+        console.log('App listening on port ' + process.env.PORT);
+    });
+});

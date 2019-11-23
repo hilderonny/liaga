@@ -1,0 +1,15 @@
+[
+    {
+        "tablename": "player",
+        "columns": [
+            {
+                "name": "username",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "password",
+                "type": "varchar(255)"
+            }
+        ]
+    }
+]

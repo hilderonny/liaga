@@ -11,6 +11,11 @@
             "program": "${workspaceFolder}/index.js",
             "env": {
                 "PORT": "5000",
+                "DBHOST": "localhost",
+                "DBUSER": "liaga",
+                "DBPASSWORD": "liaga",
+                "DB": "liaga",
+                "TOKENSECRET": "mysecret"
             }
         }
     ]
