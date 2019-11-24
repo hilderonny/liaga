@@ -4,7 +4,6 @@ var db = require('./db');
 var tokensecret = process.env.TOKENSECRET || 'mytokensecret';
 
 module.exports = function(request, response, next) {
-    const self = this;
     const token = request.header('x-access-token');
     if (!token) return response.status(401).json({ error: 'Token is missing' });
     jsonwebtoken.verify(token, tokensecret, async function(error, tokenuser) {
