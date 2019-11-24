@@ -9,6 +9,115 @@
             {
                 "name": "password",
                 "type": "varchar(255)"
+            },
+            {
+                "name": "ep",
+                "type": "int"
+            },
+            {
+                "name": "rubies",
+                "type": "int"
+            }
+        ]
+    },
+    {
+        "tablename": "playerquest",
+        "columns": [
+            {
+                "name": "player",
+                "type": "int"
+            },
+            {
+                "name": "quest",
+                "type": "int"
+            },
+            {
+                "name": "epatstart",
+                "type": "int"
+            },
+            {
+                "name": "complete",
+                "type": "bool"
+            },
+            {
+                "name": "rubiesatstart",
+                "type": "int"
+            },
+            {
+                "name": "validated",
+                "type": "bool"
+            }
+        ]
+    },
+    {
+        "tablename": "quest",
+        "columns": [
+            {
+                "name": "title",
+                "type": "text"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "relep",
+                "type": "decimal(20,5)"
+            },
+            {
+                "name": "minlevel",
+                "type": "int"
+            },
+            {
+                "name": "relrubies",
+                "type": "decimal(20,5)"
+            },
+            {
+                "name": "type",
+                "type": "tinyint"
+            }
+        ]
+    },
+    {
+        "tablename": "friendship",
+        "columns": [
+            {
+                "name": "initiator",
+                "type": "int"
+            },
+            {
+                "name": "other",
+                "type": "int"
+            },
+            {
+                "name": "accepted",
+                "type": "bool"
+            }
+        ]
+    },
+    {
+        "tablename": "questavailability",
+        "columns": [
+            {
+                "name": "quest",
+                "type": "int"
+            },
+            {
+                "name": "player",
+                "type": "int"
+            }
+        ]
+    },
+    {
+        "tablename": "notification",
+        "columns": [
+            {
+                "name": "targetplayer",
+                "type": "int"
+            },
+            {
+                "name": "type",
+                "type": "tinyint"
             }
         ]
     }
