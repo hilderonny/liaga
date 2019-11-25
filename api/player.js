@@ -56,7 +56,7 @@ module.exports = function(router) {
             bcryptjs.hashSync(request.body.password),
             request.user.id
         ]);
-        response.status(200).send();
+        response.status(200).json({});
     });
 
     return router;

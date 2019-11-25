@@ -48,9 +48,90 @@
         <button onclick="App.showlogincard();">Login</button>
     </div>
 
-    <div class="card loggedin">
+    <div class="card loggedin quests">
         <p>LOGGEDIN</p>
+        <div class="tabbuttons">
+            <button class="quests" onclick="App.showqueststab();">Quests</button>
+            <button class="friends" onclick="App.showfriendstab();">Freunde</button>
+        </div>
+        <div class="tabs">
+            <div class="tab quests">
+                QUESTS
+                <div class="list"></div>
+                <div class="buttonrow">
+                    <button onclick="App.showaddquestcard();">+ Quest</button>
+                </div>
+            </div>
+            <div class="tab friends">
+                FRIENDS
+                <div class="list"></div>
+                <div class="buttonrow">
+                    <button onclick="App.showaddfriendcard();">+ Freund</button>
+                </div>
+            </div>
+        </div>
         <button onclick="App.logout();">Logout</button>
+    </div>
+
+    <div class="card addquest">
+        <form onsubmit="App.addquest();return false;">
+            <h1>Neue Quest</h1>
+            <div><label>Titel</label><input name="title" /></div>
+            <div><label>Beschreibung</label><textarea name="description"></textarea></div>
+            <div>
+                <label>Aufwand</label>
+                <select name="effort">
+                    <option value="5" selected>5 Minuten</option>
+                    <option value="30">30 Minuten</option>
+                    <option value="60">1 Stunde</option>
+                    <option value="240">4 Stunden</option>
+                    <option value="1440">1 Tag</option>
+                </select>
+            </div>
+            <div><label>Mindestlevel</label><input name="minlevel" type="number" value="0" /></div>
+            <div>
+                <label>Typ</label>
+                <select name="type">
+                    <option value="0" selected>Einmalig</option>
+                    <option value="1">Täglich</option>
+                    <option value="2">Monatlich</option>
+                    <option value="99">Beliebig oft wiederholbar</option>
+                </select>
+            </div>
+            <div><input type="submit" value="OK" /></div>
+        </form>
+        <button onclick="App.showloggedincard();">Abbrechen</button>
+    </div>
+
+    <div class="card editquest">
+        <form>
+            <h1>Quest bearbeiten</h1>
+            <div><label>Titel</label><input name="title" /></div>
+            <div><label>Beschreibung</label><textarea name="description"></textarea></div>
+            <div>
+                <label>Aufwand</label>
+                <select name="effort">
+                    <option value="5">5 Minuten</option>
+                    <option value="30">30 Minuten</option>
+                    <option value="60">1 Stunde</option>
+                    <option value="240">4 Stunden</option>
+                    <option value="1440">1 Tag</option>
+                </select>
+            </div>
+            <div><label>Mindestlevel</label><input name="minlevel" type="number" /></div>
+            <div>
+                <label>Typ</label>
+                <select name="type">
+                    <option value="0">Einmalig</option>
+                    <option value="1">Täglich</option>
+                    <option value="2">Monatlich</option>
+                    <option value="99">Beliebig oft wiederholbar</option>
+                </select>
+            </div>
+            <div><input type="submit" value="OK" /></div>
+        </form>
+        <button class="deletequest">Löschen</button>
+        <button onclick="App.showloggedincard();">Abbrechen</button>
     </div>
 
 </body>

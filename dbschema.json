@@ -61,20 +61,20 @@
                 "type": "text"
             },
             {
-                "name": "relep",
-                "type": "decimal(20,5)"
+                "name": "effort",
+                "type": "int"
             },
             {
                 "name": "minlevel",
                 "type": "int"
             },
             {
-                "name": "relrubies",
-                "type": "decimal(20,5)"
-            },
-            {
                 "name": "type",
                 "type": "tinyint"
+            },
+            {
+                "name": "creator",
+                "type": "int"
             }
         ]
     },

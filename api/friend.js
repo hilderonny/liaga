@@ -10,7 +10,7 @@ module.exports = function(router) {
         var existingfriendships = await db.query('select id from friendship where accepted = 0 and id = ? and other = ?;', [friendshipid, request.user.id]);
         if (existingfriendships.length < 1) return response.status(400).json({ error: 'Friendship not found' });
         await db.query('update friendship set accepted = 1 where id = ?;', [friendshipid]);
-        response.status(200).send();
+        response.status(200).json({});
     });
 
     // Freundschaftsanfrage an anderen Spieler senden
@@ -50,7 +50,7 @@ module.exports = function(router) {
         var existingfriendships = await db.query('select id from friendship where accepted = 0 and id = ? and other = ?;', [friendshipid, request.user.id]);
         if (existingfriendships.length < 1) return response.status(400).json({ error: 'Friendship not found' });
         await db.query('delete from friendship where id = ?;', [friendshipid]);
-        response.status(200).send();
+        response.status(200).json({});
     });
 
     return router;

@@ -8,7 +8,7 @@
 // Dieser Name ist ein Hilfsmittel, das beim Löschen des alten und Neuaufbau des neuen Caches hilft.
 // Wenn dieser Name geändert wird und der Service worker neu installiert wird. führt das bei activate()
 // dazu, dass der alte Cache gelöscht und bei fetch() dazu, dass alle zu cachenden Dateien neu geladen werden.
-var CACHE_NAME = 'voxelhoxel-2';
+var CACHE_NAME = 'voxelhoxel-6';
 
 // Diese Funktion wird bei der Neuinstallation des Service workers aufgerufen.
 self.addEventListener('install', function(evt) {
@@ -44,8 +44,8 @@ self.addEventListener('fetch', function (evt) {
                 // Versuchen, die Datei aus dem Netz zu laden. 'reload' umgeht dabei den Browser-eigenen Cache, damit die Dateien
                 // zwangsweise neu geladen werden. Ist bei js-Dateien ganz hilfreich, weil der Browser diese sonst nicht neu lädt
                 var response = await fetch(evt.request, {cache: 'reload'});
-                // Wenn der Zugriff auf das Netz geklappt hat, die Datei im Cache speichern
-                if (response.status === 200) {
+                // Wenn der Zugriff auf das Netz geklappt hat, die Datei im Cache speichern, außer es ist ein POST Request
+                if (response.status === 200 && evt.request.method !== 'POST') {
                     console.log('%c⚙ fetch: Speichere im Cache: ' + evt.request.url, 'color:lightgrey');
                     cache.put(evt.request.url, response.clone());
                 }

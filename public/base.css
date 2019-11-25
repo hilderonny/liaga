@@ -16,14 +16,45 @@ body {
 
 .card {
     display: none;
+    flex: 1;
 }
 
 body.loggedin > .card.loggedin,
 body.login > .card.login,
-body.register > .card.register {
+body.register > .card.register,
+body.addquest > .card.addquest,
+body.editquest > .card.editquest
+{
     display: block;
 }
 
 .errormessage {
     display: none;
+}
+
+.tab {
+    display: none;
+}
+
+.card.quests .tab.quests, .card.friends .tab.friends {
+    display: block;
+}
+
+.card.quests button.quests, .card.friends button.friends {
+    font-weight: bold;
+}
+
+/* Quest difficulty colors */
+.card.quests .list .effort5 { color: #00e000; }
+.card.quests .list .effort30 { color: #f0f000; }
+.card.quests .list .effort60 { color: #f08000; }
+.card.quests .list .effort240 { color: #f00000; }
+.card.quests .list .effort1440 { color: #a335ee; }
+
+.list > div {
+    cursor: pointer;
+}
+
+.list > div:hover {
+    background-color: aqua;
 }
