@@ -65,8 +65,13 @@ module.exports = function (router) {
         // Verfügbarkeit der Quest für mich löschen, wenn es eine Einmalsache ist.
         if (playerquest.type === 0) {
             await db.query('delete from questavailability where player = ? and quest = ?', [ playerid, playerquest.questid ]);
+        } else if (playerquest.type === 1) {
+            // Täglich
+            await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ Date.now() + 82800000, playerid, playerquest.questid ])
+        } else if (playerquest.type === 2) {
+            // Wöchentlich
+            await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ Date.now() + 561600000, playerid, playerquest.questid ])
         }
-        // TODO: Bei täglichen Quests muss questavailability ein frühestes Startdatum erhalten
         response.status(200).json({});
     });
 

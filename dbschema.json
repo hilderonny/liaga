@@ -117,6 +117,10 @@
             {
                 "name": "player",
                 "type": "int"
+            },
+            {
+                "name": "availablefrom",
+                "type": "bigint"
             }
         ]
     },

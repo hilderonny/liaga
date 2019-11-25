@@ -43,12 +43,14 @@ module.exports = function(router) {
             var players = request.body.players;
             var queries = [];
             var params = [];
+            var now = Date.now();
             players.forEach(function(idstring) {
                 var playerid = parseInt(idstring);
                 if (isNaN(playerid)) return;
-                queries.push('insert into questavailability (quest, player) values (?, ?);');
+                queries.push('insert into questavailability (quest, player, availablefrom) values (?, ?, ?);');
                 params.push(questid);
                 params.push(playerid);
+                params.push(now);
             });
             if (queries.length > 0) {
                 await db.query(queries.join(''), params);
@@ -90,7 +92,7 @@ module.exports = function(router) {
         var questid = request.body.id;
         var playerid = request.user.id;
         var playerlevel = request.user.level;
-        var quests = await db.query('select quest.title, quest.description from quest join questavailability on questavailability.quest = quest.id where questavailability.player = ? and quest.id = ? and quest.minlevel <= ?;', [ playerid, questid, playerlevel ]);
+        var quests = await db.query('select quest.title, quest.description from quest join questavailability on questavailability.quest = quest.id where questavailability.player = ? and quest.id = ? and quest.minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, questid, playerlevel, Date.now() ]);
         if (quests.length < 1) return response.status(400).json({ error: 'quest not found' });
         response.status(200).json(quests[0]);
     });
@@ -106,7 +108,7 @@ module.exports = function(router) {
     router.post('/listnewforme', auth, async function(request, response) {
         var playerid = request.user.id;
         var playerlevel = request.user.level;
-        var quests = await db.query('select quest.id, quest.title from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and minlevel <= ?;', [ playerid, playerlevel ]);
+        var quests = await db.query('select quest.id, quest.title from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, playerlevel, Date.now() ]);
         response.status(200).json(quests);
     });
 
@@ -145,12 +147,14 @@ module.exports = function(router) {
             var players = request.body.players;
             var queries = [];
             var params = [];
+            var now = Date.now();
             players.forEach(function(idstring) {
                 var playerid = parseInt(idstring);
                 if (isNaN(playerid)) return;
-                queries.push('insert into questavailability (quest, player) values (?, ?);');
+                queries.push('insert into questavailability (quest, player, availablefrom) values (?, ?, ?);');
                 params.push(questid);
                 params.push(playerid);
+                params.push(now);
             });
             if (queries.length > 0) {
                 await db.query(queries.join(''), params);
