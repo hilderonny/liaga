@@ -25,7 +25,8 @@ body.register > .card.register,
 body.addquest > .card.addquest,
 body.editquest > .card.editquest,
 body.addfriend > .card.addfriend,
-body.editfriend > .card.editfriend
+body.editfriend > .card.editfriend,
+body.playerquestdetails > .card.playerquestdetails
 {
     display: block;
 }
@@ -38,7 +39,7 @@ body.editfriend > .card.editfriend
     display: none;
 }
 
-.card.quests .tab.quests, .card.friends .tab.friends {
+.card.playerquests .tab.playerquests, .card.friends .tab.friends, .card.quests .tab.quests {
     display: block;
 }
 
@@ -56,6 +57,12 @@ body.editfriend > .card.editfriend
 .card.friends .list .pending { color: #f0f000; }
 .card.friends .list .incoming { color: #f00000; }
 .card.friends .list .accepted { color: #00e000; }
+
+.card.playerquests .list > div { padding-left: 18px; background-repeat: no-repeat; background-position-x: left; }
+.card.playerquests .list .pending { background-image: url(./icons/asteriskyellow.png); }
+.card.playerquests .list .running { background-image: url(./icons/questiongrey.png); }
+.card.playerquests .list .complete { background-image: url(./icons/questionblue.png); }
+.card.playerquests .list .validated { background-image: url(./icons/questionyellow.png); }
 
 .list > div {
     cursor: pointer;

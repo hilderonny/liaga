@@ -6,7 +6,7 @@ var App = (function() {
     var token;
     var playerid;
 
-    var quests = [], friends = [];
+    var playerquests = [], quests = [], friends = [];
 
     async function _post(url, data) {
         var response = await fetch(url, {
@@ -23,17 +23,24 @@ var App = (function() {
 
     var _log = console.log;
 
+    
+
+    async function _fetchfriends() {
+        friends = await _post('/api/friend/list');
+        console.log('👪', friends);
+    }
+
+    async function _fetchplayerquests() {
+        playerquests = await _post('/api/playerquest/list');
+        console.log('🥅', playerquests);
+    }
+
     async function _fetchquests() {
         quests = await _post('/api/quest/list');
         quests.sort(function(a, b) { // Erst Aufwand absteigend, dann Titel alphabetisch
             return b.effort - a.effort || a.title.localeCompare(b.title);
         });
         console.log('🧰', quests);
-    }
-
-    async function _fetchfriends() {
-        friends = await _post('/api/friend/list');
-        console.log('👪', friends);
     }
 
     async function _listfriends() {
@@ -50,6 +57,24 @@ var App = (function() {
             });
             node.innerHTML = friend.username;
             friendlist.appendChild(node);
+        });
+    }
+
+    async function _listplayerquests() {
+        await _fetchplayerquests();
+        var playerquestlist = document.querySelector('.card.loggedin .tab.playerquests .list');
+        playerquestlist.innerHTML = "";
+        playerquests.forEach(function(playerquest) {
+            var node = document.createElement('div');
+            if (!playerquest.startedat) node.classList.add('pending');
+            if (playerquest.startedat && !playerquest.complete) node.classList.add('running');
+            if (playerquest.complete && !playerquest.validated) node.classList.add('complete');
+            if (playerquest.validated) node.classList.add('validated');
+            node.addEventListener('click', function() {
+                _showplayerquestdetailscard(playerquest);
+            });
+            node.innerHTML = playerquest.title;
+            playerquestlist.appendChild(node);
         });
     }
 
@@ -81,7 +106,8 @@ var App = (function() {
             token = result.token;
             _storeusercredentials(username, password);
             _showloggedincard();
-            _showqueststab();        }
+            _showplayerqueststab();
+        }
         else  {
             // Login failed
             errormessagediv.style.display = 'block';
@@ -114,7 +140,7 @@ var App = (function() {
             token = result.token;
             _storeusercredentials(username, password1);
             _showloggedincard();
-            _showqueststab();
+            _showplayerqueststab();
         } else {
             // Registrierung fehlgeschlagen
             errormessagediv.style.display = 'block';
@@ -132,7 +158,7 @@ var App = (function() {
             acceptbutton.addEventListener('click', async function() {
                 await _post('/api/friend/accept', { id: friend.friendshipid });
                 _showloggedincard();
-                _listfriends();
+                _showfriendstab();
             });
             buttonrow.appendChild(acceptbutton);
             var rejectbutton = document.createElement('button');
@@ -140,7 +166,7 @@ var App = (function() {
             rejectbutton.addEventListener('click', async function() {
                 await _post('/api/friend/reject', { id: friend.friendshipid });
                 _showloggedincard();
-                _listfriends();
+                _showfriendstab();
             });
             buttonrow.appendChild(rejectbutton);
         } else {
@@ -150,7 +176,7 @@ var App = (function() {
                 if (!confirm('Freundschaft wirklich löschen?')) return;
                 await _post('/api/friend/delete', { id: friend.friendshipid });
                 _showloggedincard();
-                _listfriends();
+                _showfriendstab();
             });
             buttonrow.appendChild(deletebutton);
         }
@@ -158,7 +184,7 @@ var App = (function() {
         cancelbutton.innerHTML = "Abbrechen";
         cancelbutton.addEventListener('click', async function() {
             _showloggedincard();
-            _listfriends();
+            _showfriendstab();
         });
         buttonrow.appendChild(cancelbutton);
         document.body.setAttribute('class', 'editfriend');
@@ -180,7 +206,7 @@ var App = (function() {
                 players: Array.from(document.querySelectorAll('.card.editquest form .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
             });
             _showloggedincard();
-            _listquests();
+            _showqueststab();
             return false;
         };
         document.querySelector('.card.editquest .deletequest').onclick = async function() {
@@ -188,7 +214,7 @@ var App = (function() {
             if (!confirm('Quest wirklich löschen?')) return false;
             await _post('/api/quest/delete', { id: id });
             _showloggedincard();
-            _listquests();
+            _showqueststab();
             return false;
         };
         form.title.value = quest.title;
@@ -212,6 +238,36 @@ var App = (function() {
     function _showlogincard() {
         document.querySelector('.card.login .errormessage').style.display = 'none';
         document.body.setAttribute('class', 'login');
+    }
+
+    async function _showplayerquestdetailscard(playerquest) {
+        document.querySelector('.card.playerquestdetails .title').innerHTML = playerquest.title;
+        document.querySelector('.card.playerquestdetails .description').innerHTML = playerquest.description;
+        var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow');
+        buttonrow.innerHTML = "";
+        if (!playerquest.startedat) {
+            var startbutton = document.createElement('button');
+            startbutton.innerHTML = "Beginnen";
+            startbutton.addEventListener('click', async function() {
+                await _post('/api/playerquest/start', { questid: playerquest.questid });
+                _showloggedincard();
+                _showplayerqueststab();
+            });
+            buttonrow.appendChild(startbutton);
+        }
+        var backbutton = document.createElement('button');
+        backbutton.innerHTML = "Zurück";
+        backbutton.addEventListener('click', async function() {
+            _showloggedincard();
+            _showplayerqueststab();
+        });
+        buttonrow.appendChild(backbutton);
+        document.body.setAttribute('class', 'playerquestdetails');
+    }
+
+    async function _showplayerqueststab() {
+        await _listplayerquests();
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin playerquests');
     }
 
     async function _showqueststab() {
@@ -263,7 +319,7 @@ var App = (function() {
         playerid = result.id;
         token = result.token;
         _showloggedincard();
-        _showqueststab();
+        _showplayerqueststab();
     }
 
     window.addEventListener('load', function() {
@@ -326,14 +382,12 @@ var App = (function() {
         },
         showloggedincard: _showloggedincard,
         showlogincard: _showlogincard,
+        showplayerqueststab: _showplayerqueststab,
         showregistercard: function() {
             document.querySelector('.card.register .errormessage').style.display = 'none';
             document.body.setAttribute('class', 'register');
         },
         showqueststab: _showqueststab,
-        showfriendstab: function() {
-            _listfriends();
-            document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin friends');
-        },
+        showfriendstab: _showfriendstab,
     };
 })();

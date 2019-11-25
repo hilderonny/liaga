@@ -46,6 +46,14 @@
             {
                 "name": "validated",
                 "type": "bool"
+            },
+            {
+                "name": "startedat",
+                "type": "bigint"
+            },
+            {
+                "name": "completedat",
+                "type": "bigint"
             }
         ]
     },

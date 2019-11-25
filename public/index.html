@@ -48,13 +48,18 @@
         <button onclick="App.showlogincard();">Login</button>
     </div>
 
-    <div class="card loggedin quests">
+    <div class="card loggedin playerquests">
         <p>LOGGEDIN</p>
         <div class="tabbuttons">
-            <button class="quests" onclick="App.showqueststab();">Quests</button>
+            <button class="playerquests" onclick="App.showplayerqueststab();">Meine Aufgaben</button>
             <button class="friends" onclick="App.showfriendstab();">Freunde</button>
+            <button class="quests" onclick="App.showqueststab();">Quests</button>
         </div>
         <div class="tabs">
+            <div class="tab playerquests">
+                MEINE AUFGABEN
+                <div class="list"></div>
+            </div>
             <div class="tab quests">
                 QUESTS
                 <div class="list"></div>
@@ -155,7 +160,13 @@
         <h1 class="name"></h1>
         <div class="buttonrow"></div>
     </div>
-    
+
+    <div class="card playerquestdetails">
+        <h1 class="title"></h1>
+        <div class="description"></div>
+        <div class="buttonrow"></div>
+    </div>
+
 </body>
 
 </html>
