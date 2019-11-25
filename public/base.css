@@ -23,7 +23,9 @@ body.loggedin > .card.loggedin,
 body.login > .card.login,
 body.register > .card.register,
 body.addquest > .card.addquest,
-body.editquest > .card.editquest
+body.editquest > .card.editquest,
+body.addfriend > .card.addfriend,
+body.editfriend > .card.editfriend
 {
     display: block;
 }
@@ -50,6 +52,10 @@ body.editquest > .card.editquest
 .card.quests .list .effort60 { color: #f08000; }
 .card.quests .list .effort240 { color: #f00000; }
 .card.quests .list .effort1440 { color: #a335ee; }
+
+.card.friends .list .pending { color: #f0f000; }
+.card.friends .list .incoming { color: #f00000; }
+.card.friends .list .accepted { color: #00e000; }
 
 .list > div {
     cursor: pointer;

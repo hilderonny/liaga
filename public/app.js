@@ -4,6 +4,9 @@ var App = (function() {
     var PASSWORDKEY = 'password';
 
     var token;
+    var playerid;
+
+    var quests = [], friends = [];
 
     async function _post(url, data) {
         var response = await fetch(url, {
@@ -20,14 +23,40 @@ var App = (function() {
 
     var _log = console.log;
 
-    async function _listquests() {
-        var quests = await _post('/api/quest/list');
-        var questlist = document.querySelector('.card.loggedin .tab.quests .list');
-        questlist.innerHTML = "";
-        console.log(quests);
+    async function _fetchquests() {
+        quests = await _post('/api/quest/list');
         quests.sort(function(a, b) { // Erst Aufwand absteigend, dann Titel alphabetisch
             return b.effort - a.effort || a.title.localeCompare(b.title);
         });
+        console.log('🧰', quests);
+    }
+
+    async function _fetchfriends() {
+        friends = await _post('/api/friend/list');
+        console.log('👪', friends);
+    }
+
+    async function _listfriends() {
+        await _fetchfriends();
+        var friendlist = document.querySelector('.card.loggedin .tab.friends .list');
+        friendlist.innerHTML = "";
+        friends.forEach(function(friend) {
+            var node = document.createElement('div');
+            if (friend.incoming) node.classList.add('incoming');
+            if (friend.accepted) node.classList.add('accepted');
+            if (!friend.incoming && !friend.accepted) node.classList.add('pending');
+            node.addEventListener('click', function() {
+                _showeditfriendcard(friend);
+            });
+            node.innerHTML = friend.username;
+            friendlist.appendChild(node);
+        });
+    }
+
+    async function _listquests() {
+        await _fetchquests();
+        var questlist = document.querySelector('.card.loggedin .tab.quests .list');
+        questlist.innerHTML = "";
         quests.forEach(function(quest) {
             var node = document.createElement('div');
             node.classList.add('effort' + quest.effort);
@@ -48,11 +77,11 @@ var App = (function() {
         var result = await _post('/api/player/login', { username: username, password: password });
         if (result.id) {
             // Login succeeded
+            playerid = result.id;
             token = result.token;
             _storeusercredentials(username, password);
             _showloggedincard();
-            _listquests();
-        }
+            _showqueststab();        }
         else  {
             // Login failed
             errormessagediv.style.display = 'block';
@@ -81,17 +110,62 @@ var App = (function() {
         var result = await _post('/api/player/register', { username: username, password: password1 });
         if (result.id) {
             // Registration and login succeeded
+            playerid = result.id;
             token = result.token;
             _storeusercredentials(username, password1);
             _showloggedincard();
-            _listquests();
+            _showqueststab();
         } else {
             // Registrierung fehlgeschlagen
             errormessagediv.style.display = 'block';
         }
     }
 
+    async function _showeditfriendcard(friend) {
+        var h1 = document.querySelector('.card.editfriend h1');
+        h1.innerHTML = friend.username;
+        var buttonrow = document.querySelector('.card.editfriend .buttonrow');
+        buttonrow.innerHTML = "";
+        if (friend.incoming && !friend.accepted) {
+            var acceptbutton = document.createElement('button');
+            acceptbutton.innerHTML = "Annehmen";
+            acceptbutton.addEventListener('click', async function() {
+                await _post('/api/friend/accept', { id: friend.friendshipid });
+                _showloggedincard();
+                _listfriends();
+            });
+            buttonrow.appendChild(acceptbutton);
+            var rejectbutton = document.createElement('button');
+            rejectbutton.innerHTML = "Ablehnen";
+            rejectbutton.addEventListener('click', async function() {
+                await _post('/api/friend/reject', { id: friend.friendshipid });
+                _showloggedincard();
+                _listfriends();
+            });
+            buttonrow.appendChild(rejectbutton);
+        } else {
+            var deletebutton = document.createElement('button');
+            deletebutton.innerHTML = "Löschen";
+            deletebutton.addEventListener('click', async function() {
+                if (!confirm('Freundschaft wirklich löschen?')) return;
+                await _post('/api/friend/delete', { id: friend.friendshipid });
+                _showloggedincard();
+                _listfriends();
+            });
+            buttonrow.appendChild(deletebutton);
+        }
+        var cancelbutton = document.createElement('button');
+        cancelbutton.innerHTML = "Abbrechen";
+        cancelbutton.addEventListener('click', async function() {
+            _showloggedincard();
+            _listfriends();
+        });
+        buttonrow.appendChild(cancelbutton);
+        document.body.setAttribute('class', 'editfriend');
+    }
+
     async function _showeditquestcard(id) {
+        await _fetchfriends();
         var quest = await _post('/api/quest/get', { id: id });
         var form = document.querySelector('.card.editquest form');
         form.onsubmit = async function() {
@@ -103,6 +177,7 @@ var App = (function() {
                 effort: event.target.effort.value,
                 minlevel: event.target.minlevel.value,
                 type: event.target.type.value,
+                players: Array.from(document.querySelectorAll('.card.editquest form .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
             });
             _showloggedincard();
             _listquests();
@@ -121,6 +196,12 @@ var App = (function() {
         form.effort.value = quest.effort;
         form.minlevel.value = quest.minlevel;
         form.type.value = quest.type;
+        var playersdiv = document.querySelector('.card.editquest .players');
+        var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });
+        players.unshift({ name: 'Ich', id: playerid });
+        playersdiv.innerHTML = players.map(function(player) {
+            return '<label><input type="checkbox" name="players" value="' + player.id + '"' + (quest.players.indexOf(player.id) < 0 ? '' : ' checked') +  ' /><span>' + player.name + '</span></label>';
+        }).join('');
         document.body.setAttribute('class', 'editquest');
     }
 
@@ -131,6 +212,16 @@ var App = (function() {
     function _showlogincard() {
         document.querySelector('.card.login .errormessage').style.display = 'none';
         document.body.setAttribute('class', 'login');
+    }
+
+    async function _showqueststab() {
+        await _listquests();
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin quests');
+    }
+
+    async function _showfriendstab() {
+        await _listfriends();
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin friends');
     }
 
     async function _setpassword() {
@@ -169,9 +260,10 @@ var App = (function() {
             _storeusercredentials();
             _showlogincard();
         }
+        playerid = result.id;
         token = result.token;
         _showloggedincard();
-        _listquests();
+        _showqueststab();
     }
 
     window.addEventListener('load', function() {
@@ -179,6 +271,18 @@ var App = (function() {
     });
 
     return {
+        addfriend: async function() {
+            event.preventDefault();
+            var result = await _post('/api/friend/add', {
+                username: event.target.username.value,
+            });
+            if (result.error) {
+                alert(result.error);
+                return false;
+            }
+            _showloggedincard();
+            _showfriendstab();
+        },
         addquest: async function() {
             event.preventDefault();
             await _post('/api/quest/add', {
@@ -187,25 +291,37 @@ var App = (function() {
                 effort: event.target.effort.value,
                 minlevel: event.target.minlevel.value,
                 type: event.target.type.value,
+                players: Array.from(document.querySelectorAll('.card.addquest form .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
             });
-            _listquests();
             _showloggedincard();
+            _showqueststab();
         },
         // Schwellen-EPs werden direkt auf dem Client gespeichert. Einmal laden und fertig.
         epthresholds: epthresholds = [0,100,210,331,464,610,771,948,1142,1356,1591,1850,2135,2448,2793,3172,3589,4048,4553,5108,5719,6391,7131,7945,8840,9824,10907,12098,13408,14850,16436,18180,20099,22210,24532,27086,29896,32987,36387,40127,44241,48766,53744,59220,65244,71870,79159,87176,95995,105696,116367,128106,141018,155222,170846,188033,206938,227734,250610,275773,303453,333901,367393,404235,444761,489340,538377,592317,651651,716919,788714,867688,954560,1050119,1155234,1270860,1398049,1537957,1691856,1861145,2047363,2252203,2477527,2725383,2998025,3297931,3627827,3990713,4389888,4828980,5311982,5843284,6427716,7070591,7777754,8555633,9411300,10352534,11387891,12526784,13779566,],
-        listquests: _listquests,
         log: _log,
         login: _login,
         logout: _logout,
         register: _register,
         setpassword: _setpassword,
-        showaddquestcard: function() {
+        showaddfriendcard: async function() {
+            var form = document.querySelector('.card.addfriend form');
+            form.username.value = "";
+            document.body.setAttribute('class', 'addfriend');
+        },
+        showaddquestcard: async function() {
+            await _fetchfriends();
             var form = document.querySelector('.card.addquest form');
             form.title.value = "";
             form.description.value = "";
             form.effort.value = 5;
             form.minlevel.value = 0;
             form.type.value = 0;
+            var playersdiv = document.querySelector('.card.addquest .players');
+            var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });
+            players.unshift({ name: 'Ich', id: playerid });
+            playersdiv.innerHTML = players.map(function(player) {
+                return '<label><input type="checkbox" name="players" value="' + player.id + '" /><span>' + player.name + '</span></label>';
+            }).join('');
             document.body.setAttribute('class', 'addquest');
         },
         showloggedincard: _showloggedincard,
@@ -214,11 +330,9 @@ var App = (function() {
             document.querySelector('.card.register .errormessage').style.display = 'none';
             document.body.setAttribute('class', 'register');
         },
-        showqueststab: function() {
-            _listquests();
-            document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin quests');
-        },
+        showqueststab: _showqueststab,
         showfriendstab: function() {
+            _listfriends();
             document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin friends');
         },
     };

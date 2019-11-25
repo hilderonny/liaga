@@ -15,11 +15,13 @@ module.exports = function(router) {
 
     // Freundschaftsanfrage an anderen Spieler senden
     router.post('/add', auth, async function(request, response) {
-        if (!request.body.playerid) return response.status(400).json({ error: 'playerid required' });
+        if (!request.body.username) return response.status(400).json({ error: 'username required' });
+        var targetusername = request.body.username;
+        if (targetusername === request.user.username) return response.status(400).json({ error: 'Cannot add friendship to oneself' });
         var playerid = request.user.id;
-        var targetplayerid = request.body.playerid;
-        var existingplayers = await db.query('select id from player where id = ?;', [targetplayerid]);
+        var existingplayers = await db.query('select id from player where username = ?;', [ targetusername ]);
         if (existingplayers.length < 1) return response.status(400).json({ error: 'Player not found' });
+        var targetplayerid = existingplayers[0].id;
         var existingfriendships = await db.query('select id from friendship where (initiator = ? and other = ?) or (initiator = ? and other = ?);', [playerid, targetplayerid, targetplayerid, playerid]);
         if (existingfriendships.length > 0) return response.status(400).json({ error: 'Friendship already existing' });
         var insertresult = await db.query('insert into friendship (initiator, other, accepted) values (?, ?, 0);', [playerid, targetplayerid]);
@@ -28,16 +30,28 @@ module.exports = function(router) {
         response.status(200).json(insertresult.insertId);
     });
 
+    // Freundschaft löschen, sofern ich einer der beteiligten bin
+    router.post('/delete', auth, async function(request, response) {
+        if (!request.body.id) return response.status(400).json({ error: 'id required' });
+        var friendshipid = request.body.id;
+        var playerid = request.user.id;
+        var existingfriendships = await db.query('select id from friendship where id = ? and (initiator = ? or other = ?);', [ friendshipid, playerid, playerid ]);
+        if (existingfriendships.length < 1) return response.status(400).json({ error: 'Friendship not found' });
+        await db.query('delete from friendship where id = ?;', [ friendshipid ]);
+        response.status(200).json({});
+    });
+
     // Freunde und Freundschaftsanfragen auflisten
     router.post('/list', auth, async function(request, response) {
         var playerid = request.user.id;
         var friendships = await db.query('select friendship.id friendshipid, friendship.accepted, friendship.initiator friendshipinitiator, friendship.other friendshipother, initiator.username initiatorusername, other.username otherusername from friendship left join player initiator on friendship.initiator = initiator.id left join player other on friendship.other = other.id where friendship.initiator = ? or friendship.other = ?;', [playerid, playerid]);
         var result = friendships.map(function(friendship) {
             return {
-                id: friendship.friendshipinitiator === playerid ? friendship.friendshipother : friendship.friendshipinitiator,
+                friendid: friendship.friendshipinitiator === playerid ? friendship.friendshipother : friendship.friendshipinitiator,
                 username: friendship.friendshipinitiator === playerid ? friendship.otherusername : friendship.initiatorusername,
                 friendshipid: friendship.friendshipid,
-                accepted: friendship.accepted
+                accepted: friendship.accepted,
+                incoming: friendship.friendshipinitiator !== playerid
             };
         });
         response.status(200).json(result);
