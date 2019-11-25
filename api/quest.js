@@ -66,6 +66,7 @@ module.exports = function(router) {
         if (quests.length < 1) return response.status(400).json({ error: 'quest not deletable' });
         await db.query('delete from quest where id = ?;', [ questid ]);
         await db.query('delete from questavailability where quest = ?', [ questid ]);
+        await db.query('delete from playerquest where quest = ?', [ questid ]);
         response.status(200).json({});
     });
 
@@ -78,13 +79,34 @@ module.exports = function(router) {
         var quest = quests[0];
         var players = await db.query('select player from questavailability where quest = ?', [ questid ]);
         quest.players = players.map(function(player) { return player.player; });
+        var completedplayers = await db.query('select player from playerquest where quest = ? and complete = 1 and validated = 0', [ questid ]);
+        quest.completedplayers = completedplayers.map(function(player) { return player.player; });
         response.status(200).json(quest);
     });
 
-    // Von mir erstellte Quests auflisten
+    // Questdetails zum Starten der Quest für mich
+    router.post('/getforme', auth, async function(request, response) {
+        if (!request.body.id) return response.status(400).json({ error: 'id required' });
+        var questid = request.body.id;
+        var playerid = request.user.id;
+        var playerlevel = request.user.level;
+        var quests = await db.query('select quest.title, quest.description from quest join questavailability on questavailability.quest = quest.id where questavailability.player = ? and quest.id = ? and quest.minlevel <= ?;', [ playerid, questid, playerlevel ]);
+        if (quests.length < 1) return response.status(400).json({ error: 'quest not found' });
+        response.status(200).json(quests[0]);
+    });
+
+    // Von mir erstellte Quests auflisten, inkl. Info, ob eine davon auf Validierung wartet
     router.post('/list', auth, async function(request, response) {
         var playerid = request.user.id;
-        var quests = await db.query('select id, title, description, effort, type from quest where creator = ?;', [ playerid ]);
+        var quests = await db.query('select distinct quest.id, quest.title, quest.effort, (select count(*) from playerquest where complete = 1 and validated = 0 and quest = quest.id) complete from quest where creator = ?;', [ playerid ]);
+        response.status(200).json(quests);
+    });
+
+    // Liste von Quests, die ich beginnen kann und für die für mich noch keine playerquests existieren
+    router.post('/listnewforme', auth, async function(request, response) {
+        var playerid = request.user.id;
+        var playerlevel = request.user.level;
+        var quests = await db.query('select quest.id, quest.title from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and minlevel <= ?;', [ playerid, playerlevel ]);
         response.status(200).json(quests);
     });
 

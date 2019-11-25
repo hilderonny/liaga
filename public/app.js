@@ -6,7 +6,7 @@ var App = (function() {
     var token;
     var playerid;
 
-    var playerquests = [], quests = [], friends = [];
+    var newquestsforplayer = [], playerquests = [], quests = [], friends = [];
 
     async function _post(url, data) {
         var response = await fetch(url, {
@@ -27,20 +27,25 @@ var App = (function() {
 
     async function _fetchfriends() {
         friends = await _post('/api/friend/list');
-        console.log('👪', friends);
+        console.log('👪 friends', friends);
     }
 
     async function _fetchplayerquests() {
         playerquests = await _post('/api/playerquest/list');
-        console.log('🥅', playerquests);
+        console.log('🥅 playerquests', playerquests);
+    }
+
+    async function _fetchnewquestsforplayer() {
+        newquestsforplayer = await _post('/api/quest/listnewforme');
+        console.log('🥅 newquestsforplayer', newquestsforplayer);
     }
 
     async function _fetchquests() {
         quests = await _post('/api/quest/list');
         quests.sort(function(a, b) { // Erst Aufwand absteigend, dann Titel alphabetisch
-            return b.effort - a.effort || a.title.localeCompare(b.title);
+            return b.complete - a.complete || b.effort - a.effort || a.title.localeCompare(b.title);
         });
-        console.log('🧰', quests);
+        console.log('🧰 quests', quests);
     }
 
     async function _listfriends() {
@@ -60,20 +65,32 @@ var App = (function() {
         });
     }
 
+    // Listet sowohl neue verfügbare Quests für mich als auch laufende Quests auf
     async function _listplayerquests() {
+        await _fetchnewquestsforplayer();
         await _fetchplayerquests();
         var playerquestlist = document.querySelector('.card.loggedin .tab.playerquests .list');
         playerquestlist.innerHTML = "";
+        // Erst die bereits laufenden Quests
         playerquests.forEach(function(playerquest) {
             var node = document.createElement('div');
-            if (!playerquest.startedat) node.classList.add('pending');
-            if (playerquest.startedat && !playerquest.complete) node.classList.add('running');
+            if (!playerquest.complete) node.classList.add('running');
             if (playerquest.complete && !playerquest.validated) node.classList.add('complete');
             if (playerquest.validated) node.classList.add('validated');
             node.addEventListener('click', function() {
-                _showplayerquestdetailscard(playerquest);
+                _showexistingplayerquestdetailscard(playerquest.id);
             });
             node.innerHTML = playerquest.title;
+            playerquestlist.appendChild(node);
+        });
+        // Dann die neu verfügbaren Quests
+        newquestsforplayer.forEach(function(newquest) {
+            var node = document.createElement('div');
+            node.classList.add('pending');
+            node.addEventListener('click', function() {
+                _shownewplayerquestdetailscard(newquest.id);
+            });
+            node.innerHTML = newquest.title;
             playerquestlist.appendChild(node);
         });
     }
@@ -85,6 +102,7 @@ var App = (function() {
         quests.forEach(function(quest) {
             var node = document.createElement('div');
             node.classList.add('effort' + quest.effort);
+            if (quest.complete) node.classList.add('complete');
             node.addEventListener('click', function() {
                 _showeditquestcard(quest.id);
             });
@@ -193,6 +211,7 @@ var App = (function() {
     async function _showeditquestcard(id) {
         await _fetchfriends();
         var quest = await _post('/api/quest/get', { id: id });
+        console.log(quest);
         var form = document.querySelector('.card.editquest form');
         form.onsubmit = async function() {
             event.preventDefault();
@@ -225,9 +244,25 @@ var App = (function() {
         var playersdiv = document.querySelector('.card.editquest .players');
         var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });
         players.unshift({ name: 'Ich', id: playerid });
-        playersdiv.innerHTML = players.map(function(player) {
-            return '<label><input type="checkbox" name="players" value="' + player.id + '"' + (quest.players.indexOf(player.id) < 0 ? '' : ' checked') +  ' /><span>' + player.name + '</span></label>';
-        }).join('');
+        playersdiv.innerHTML = "";
+        players.forEach(function(player) {
+            var div = document.createElement('div');
+            var label = document.createElement('label');
+            label.innerHTML = '<input type="checkbox" name="players" value="' + player.id + '"' + (quest.players.indexOf(player.id) < 0 ? '' : ' checked') +  ' /><span>' + player.name + '</span>';
+            div.appendChild(label);
+            if (quest.completedplayers.indexOf(player.id) >= 0) {
+                var button = document.createElement('button');
+                button.innerHTML = "Validieren";
+                button.addEventListener('click', async function() {
+                    event.preventDefault();
+                    await _validateplayerquest(id, player.id);
+                    await _showeditquestcard(id);
+                    return false;
+                });
+                div.appendChild(button);
+            }
+            playersdiv.appendChild(div);
+        });
         document.body.setAttribute('class', 'editquest');
     }
 
@@ -240,21 +275,65 @@ var App = (function() {
         document.body.setAttribute('class', 'login');
     }
 
-    async function _showplayerquestdetailscard(playerquest) {
+    async function _showexistingplayerquestdetailscard(playerquestid) {
+        var playerquest = await _post('/api/playerquest/get', { id: playerquestid });
         document.querySelector('.card.playerquestdetails .title').innerHTML = playerquest.title;
         document.querySelector('.card.playerquestdetails .description').innerHTML = playerquest.description;
         var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow');
         buttonrow.innerHTML = "";
-        if (!playerquest.startedat) {
-            var startbutton = document.createElement('button');
-            startbutton.innerHTML = "Beginnen";
-            startbutton.addEventListener('click', async function() {
-                await _post('/api/playerquest/start', { questid: playerquest.questid });
+        if (!playerquest.complete) {
+            var completebutton = document.createElement('button');
+            completebutton.innerHTML = "Beenden";
+            completebutton.addEventListener('click', async function() {
+                await _post('/api/playerquest/complete', { playerquestid: playerquestid });
                 _showloggedincard();
                 _showplayerqueststab();
             });
-            buttonrow.appendChild(startbutton);
+            buttonrow.appendChild(completebutton);
         }
+        if (playerquest.validated) {
+            var rewardbutton = document.createElement('button');
+            rewardbutton.innerHTML = "Belohnung abholen";
+            rewardbutton.addEventListener('click', async function() {
+                await _post('/api/playerquest/reward', { playerquestid: playerquestid });
+                _showloggedincard();
+                _showplayerqueststab();
+            });
+            buttonrow.appendChild(rewardbutton);
+        }
+        var cancelbutton = document.createElement('button');
+        cancelbutton.innerHTML = "Abbrechen";
+        cancelbutton.addEventListener('click', async function() {
+            if (!confirm('Quest wirklich abbrechen?')) return;
+            await _post('/api/playerquest/cancel', { playerquestid: playerquestid });
+            _showloggedincard();
+            _showplayerqueststab();
+        });
+        buttonrow.appendChild(cancelbutton);
+        var backbutton = document.createElement('button');
+        backbutton.innerHTML = "Zurück";
+        backbutton.addEventListener('click', async function() {
+            _showloggedincard();
+            _showplayerqueststab();
+        });
+        buttonrow.appendChild(backbutton);
+        document.body.setAttribute('class', 'playerquestdetails');
+    }
+
+    async function _shownewplayerquestdetailscard(questid) {
+        var quest = await _post('/api/quest/getforme', { id: questid });
+        document.querySelector('.card.playerquestdetails .title').innerHTML = quest.title;
+        document.querySelector('.card.playerquestdetails .description').innerHTML = quest.description;
+        var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow');
+        buttonrow.innerHTML = "";
+        var startbutton = document.createElement('button');
+        startbutton.innerHTML = "Beginnen";
+        startbutton.addEventListener('click', async function() {
+            await _post('/api/playerquest/start', { questid: questid });
+            _showloggedincard();
+            _showplayerqueststab();
+        });
+        buttonrow.appendChild(startbutton);
         var backbutton = document.createElement('button');
         backbutton.innerHTML = "Zurück";
         backbutton.addEventListener('click', async function() {
@@ -322,6 +401,10 @@ var App = (function() {
         _showplayerqueststab();
     }
 
+    async function _validateplayerquest(questid, playerid) {
+        await _post('/api/playerquest/validate', { questid: questid, playerid: playerid });
+    }
+
     window.addEventListener('load', function() {
         _tryautologin();
     });
@@ -370,7 +453,7 @@ var App = (function() {
             form.title.value = "";
             form.description.value = "";
             form.effort.value = 5;
-            form.minlevel.value = 0;
+            form.minlevel.value = 1;
             form.type.value = 0;
             var playersdiv = document.querySelector('.card.addquest .players');
             var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });

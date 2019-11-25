@@ -32,7 +32,7 @@ module.exports = function(router) {
         if (!request.body.password) return response.status(400).json({ error: 'Password required' });
         var existingusers = await db.query('select username from player where username = ?;', [request.body.username]);
         if (existingusers.length > 0) return response.status(400).json({ error: 'Username already taken' });
-        var insertresult = await db.query('insert into player (username, password) values (?, ?);', [
+        var insertresult = await db.query('insert into player (username, password, ep, level, rubies) values (?, ?, 0, 1, 0);', [
             request.body.username,
             bcryptjs.hashSync(request.body.password)
         ]);
