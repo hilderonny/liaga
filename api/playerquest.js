@@ -67,10 +67,12 @@ module.exports = function (router) {
             await db.query('delete from questavailability where player = ? and quest = ?', [ playerid, playerquest.questid ]);
         } else if (playerquest.type === 1) {
             // Täglich
-            await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ Date.now() + 82800000, playerid, playerquest.questid ])
+            var tomorrow = Math.floor(Date.now() / 86400000) * 86400000 + 86400000;
+            await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ tomorrow, playerid, playerquest.questid ])
         } else if (playerquest.type === 2) {
             // Wöchentlich
-            await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ Date.now() + 561600000, playerid, playerquest.questid ])
+            var nextmonday = Math.floor(Date.now() / 604800000) * 604800000 + 950400000; // Der 1.1.1970 war ein Donnerstag, wir fangen aber montags an
+            await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ nextmonday, playerid, playerquest.questid ])
         }
         response.status(200).json({});
     });
