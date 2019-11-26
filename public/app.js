@@ -74,6 +74,7 @@ var App = (function() {
         // Erst die bereits laufenden Quests
         playerquests.forEach(function(playerquest) {
             var node = document.createElement('div');
+            node.classList.add('effort' + playerquest.effort);
             if (!playerquest.complete) node.classList.add('running');
             if (playerquest.complete && !playerquest.validated) node.classList.add('complete');
             if (playerquest.validated) node.classList.add('validated');
@@ -86,6 +87,7 @@ var App = (function() {
         // Dann die neu verfügbaren Quests
         newquestsforplayer.forEach(function(newquest) {
             var node = document.createElement('div');
+            node.classList.add('effort' + newquest.effort);
             node.classList.add('pending');
             node.addEventListener('click', function() {
                 _shownewplayerquestdetailscard(newquest.id);

@@ -65,6 +65,11 @@ body.playerquestdetails > .card.playerquestdetails
 .card.playerquests .list .running { background-image: url(./icons/questiongrey.png); }
 .card.playerquests .list .complete { background-image: url(./icons/questionblue.png); }
 .card.playerquests .list .validated { background-image: url(./icons/questionyellow.png); }
+.card.playerquests .list .effort5 { color: #00e000; }
+.card.playerquests .list .effort30 { color: #f0f000; }
+.card.playerquests .list .effort60 { color: #f08000; }
+.card.playerquests .list .effort240 { color: #f00000; }
+.card.playerquests .list .effort1440 { color: #a335ee; }
 
 .list > div {
     cursor: pointer;

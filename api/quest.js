@@ -108,7 +108,7 @@ module.exports = function(router) {
     router.post('/listnewforme', auth, async function(request, response) {
         var playerid = request.user.id;
         var playerlevel = request.user.level;
-        var quests = await db.query('select quest.id, quest.title from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, playerlevel, Date.now() ]);
+        var quests = await db.query('select quest.id, quest.title, quest.effort from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, playerlevel, Date.now() ]);
         response.status(200).json(quests);
     });
 
