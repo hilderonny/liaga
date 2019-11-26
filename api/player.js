@@ -7,6 +7,12 @@ module.exports = function(router) {
 
     var tokensecret = process.env.TOKENSECRET || 'mytokensecret';
 
+    // Eigenschaften von mir selbst
+    router.post('/getstats', auth, async function(request, response) {
+        var stats = await db.query('select username, ep, rubies, level from player where id = ?', [ request.user.id ]);
+        response.status(200).json(stats[0]);
+    });
+
     router.post('/login', async function(request, response) {
         if (!request.body.username) return response.status(400).json({ error: 'Username required' });
         if (!request.body.password) return response.status(400).json({ error: 'Password required' });

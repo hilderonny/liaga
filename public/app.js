@@ -5,6 +5,7 @@ var App = (function() {
 
     var token;
     var playerid;
+    var stats;
 
     var newquestsforplayer = [], playerquests = [], quests = [], friends = [];
 
@@ -30,14 +31,14 @@ var App = (function() {
         console.log('👪 friends', friends);
     }
 
-    async function _fetchplayerquests() {
-        playerquests = await _post('/api/playerquest/list');
-        console.log('🥅 playerquests', playerquests);
-    }
-
     async function _fetchnewquestsforplayer() {
         newquestsforplayer = await _post('/api/quest/listnewforme');
         console.log('🥅 newquestsforplayer', newquestsforplayer);
+    }
+
+    async function _fetchplayerquests() {
+        playerquests = await _post('/api/playerquest/list');
+        console.log('🥅 playerquests', playerquests);
     }
 
     async function _fetchquests(showinvisible) {
@@ -46,6 +47,18 @@ var App = (function() {
             return b.assigned - a.assigned || b.complete - a.complete || b.effort - a.effort || a.title.localeCompare(b.title);
         });
         console.log('🧰 quests', quests);
+    }
+
+    // Infos über mich laden und anzeigen
+    async function _fetchstats() {
+        stats = await _post('/api/player/getstats');
+        var eppercent = (stats.ep - ((stats.level - 1) * 400)) / 4;
+        console.log(eppercent);
+        document.querySelector('.card.loggedin .stats .level').innerHTML = stats.level;
+        document.querySelector('.card.loggedin .stats .ep .bar').style.width = eppercent + "%";
+        document.querySelector('.card.loggedin .stats .ep .text').innerHTML = "EP: " + stats.ep + " / " + (stats.level * 400);
+        document.querySelector('.card.loggedin .stats .rubies').innerHTML = "Rubine: " + stats.rubies;
+        console.log('🧑 stats', stats);
     }
 
     async function _listfriends() {
@@ -293,7 +306,8 @@ var App = (function() {
         document.body.setAttribute('class', 'editquest');
     }
 
-    function _showloggedincard() {
+    async function _showloggedincard() {
+        await _fetchstats();
         document.body.setAttribute('class', 'loggedin');
     }
 

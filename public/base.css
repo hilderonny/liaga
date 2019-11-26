@@ -92,3 +92,7 @@ body.playerquestdetails > .card.playerquestdetails
 .list .topic.closed .title { background-image: url(./icons/plus.png); }
 
 .list .topic.closed .quest { display: none; }
+
+.stats .ep { background: gray; position: relative; height: 18px; }
+.stats .ep .bar { height: 100%; position: absolute; background-color: green; }
+.stats .ep .text { position: absolute; text-align: center; width: 100%; }
