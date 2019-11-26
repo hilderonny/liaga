@@ -65,15 +65,31 @@ var App = (function() {
         });
     }
 
+    function _getorcreatetopicdiv(questlist, topicdivs, topic) {
+        if (!topicdivs[topic]) {
+            var topicdiv = document.createElement('div');
+            topicdiv.innerHTML = '<div class="title">' + topic + "</div>";
+            topicdiv.classList.add('topic');
+            topicdiv.addEventListener('click', function() {
+                topicdiv.classList.toggle('closed');
+            });
+            topicdivs[topic] = topicdiv;
+            questlist.appendChild(topicdiv);
+        }
+        return topicdivs[topic];
+    }
+
     // Listet sowohl neue verfügbare Quests für mich als auch laufende Quests auf
     async function _listplayerquests() {
         await _fetchnewquestsforplayer();
         await _fetchplayerquests();
         var playerquestlist = document.querySelector('.card.loggedin .tab.playerquests .list');
         playerquestlist.innerHTML = "";
+        var topicdivs = {};
         // Erst die bereits laufenden Quests
         playerquests.forEach(function(playerquest) {
             var node = document.createElement('div');
+            node.classList.add('quest');
             node.classList.add('effort' + playerquest.effort);
             if (!playerquest.complete) node.classList.add('running');
             if (playerquest.complete && !playerquest.validated) node.classList.add('complete');
@@ -82,18 +98,19 @@ var App = (function() {
                 _showexistingplayerquestdetailscard(playerquest.id);
             });
             node.innerHTML = playerquest.title;
-            playerquestlist.appendChild(node);
+            _getorcreatetopicdiv(playerquestlist, topicdivs, playerquest.topic || "Sonstige").appendChild(node);
         });
         // Dann die neu verfügbaren Quests
         newquestsforplayer.forEach(function(newquest) {
             var node = document.createElement('div');
+            node.classList.add('quest');
             node.classList.add('effort' + newquest.effort);
             node.classList.add('pending');
             node.addEventListener('click', function() {
                 _shownewplayerquestdetailscard(newquest.id);
             });
             node.innerHTML = newquest.title;
-            playerquestlist.appendChild(node);
+            _getorcreatetopicdiv(playerquestlist, topicdivs, newquest.topic || "Sonstige").appendChild(node);
         });
     }
 
@@ -101,8 +118,10 @@ var App = (function() {
         await _fetchquests(showinvisible);
         var questlist = document.querySelector('.card.loggedin .tab.quests .list');
         questlist.innerHTML = "";
+        var topicdivs = {};
         quests.forEach(function(quest) {
             var node = document.createElement('div');
+            node.classList.add('quest');
             if (quest.assigned > 0) {
                 node.classList.add('effort' + quest.effort);
             } else {
@@ -113,7 +132,7 @@ var App = (function() {
                 _showeditquestcard(quest.id);
             });
             node.innerHTML = quest.title;
-            questlist.appendChild(node);
+            _getorcreatetopicdiv(questlist, topicdivs, quest.topic || "Sonstige" ).appendChild(node);
         });
     }
 
@@ -223,6 +242,7 @@ var App = (function() {
             event.preventDefault();
             await _post('/api/quest/save', {
                 id: id,
+                topic: event.target.topic.value,
                 title: event.target.title.value,
                 description: event.target.description.value,
                 effort: event.target.effort.value,
@@ -242,6 +262,7 @@ var App = (function() {
             _showqueststab();
             return false;
         };
+        form.topic.value = quest.topic;
         form.title.value = quest.title;
         form.description.value = quest.description;
         form.effort.value = quest.effort;
@@ -443,19 +464,19 @@ var App = (function() {
         },
         addquest: async function() {
             event.preventDefault();
+            var form = event.target;
             await _post('/api/quest/add', {
-                title: event.target.title.value,
-                description: event.target.description.value,
-                effort: event.target.effort.value,
-                minlevel: event.target.minlevel.value,
-                type: event.target.type.value,
+                topic: form.topic.value,
+                title: form.title.value,
+                description: form.description.value,
+                effort: form.effort.value,
+                minlevel: form.minlevel.value,
+                type: form.type.value,
                 players: Array.from(document.querySelectorAll('.card.addquest form .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
             });
             _showloggedincard();
             _showqueststab();
         },
-        // Schwellen-EPs werden direkt auf dem Client gespeichert. Einmal laden und fertig.
-        epthresholds: epthresholds = [0,100,210,331,464,610,771,948,1142,1356,1591,1850,2135,2448,2793,3172,3589,4048,4553,5108,5719,6391,7131,7945,8840,9824,10907,12098,13408,14850,16436,18180,20099,22210,24532,27086,29896,32987,36387,40127,44241,48766,53744,59220,65244,71870,79159,87176,95995,105696,116367,128106,141018,155222,170846,188033,206938,227734,250610,275773,303453,333901,367393,404235,444761,489340,538377,592317,651651,716919,788714,867688,954560,1050119,1155234,1270860,1398049,1537957,1691856,1861145,2047363,2252203,2477527,2725383,2998025,3297931,3627827,3990713,4389888,4828980,5311982,5843284,6427716,7070591,7777754,8555633,9411300,10352534,11387891,12526784,13779566,],
         log: _log,
         login: _login,
         logout: _logout,
@@ -469,6 +490,7 @@ var App = (function() {
         showaddquestcard: async function() {
             await _fetchfriends();
             var form = document.querySelector('.card.addquest form');
+            form.topic.value = "";
             form.title.value = "";
             form.description.value = "";
             form.effort.value = 5;

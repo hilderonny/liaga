@@ -56,7 +56,7 @@ body.playerquestdetails > .card.playerquestdetails
 }
 
 /* Quest difficulty colors */
-.card.quests .list > div { padding-left: 18px; background-repeat: no-repeat; background-position-x: left; }
+.card.quests .list .quest { padding-left: 18px; margin-left: 18px; background-repeat: no-repeat; background-position-x: left; }
 .card.quests .list .effort5 { color: #00e000; }
 .card.quests .list .effort30 { color: #f0f000; }
 .card.quests .list .effort60 { color: #f08000; }
@@ -69,7 +69,7 @@ body.playerquestdetails > .card.playerquestdetails
 .card.friends .list .incoming { color: #f00000; }
 .card.friends .list .accepted { color: #00e000; }
 
-.card.playerquests .list > div { padding-left: 18px; background-repeat: no-repeat; background-position-x: left; }
+.card.playerquests .list .quest { padding-left: 18px; margin-left: 18px; background-repeat: no-repeat; background-position-x: left; }
 .card.playerquests .list .pending { background-image: url(./icons/asteriskyellow.png); }
 .card.playerquests .list .running { background-image: url(./icons/questiongrey.png); }
 .card.playerquests .list .complete { background-image: url(./icons/questionblue.png); }
@@ -80,10 +80,15 @@ body.playerquestdetails > .card.playerquestdetails
 .card.playerquests .list .effort240 { color: #f00000; }
 .card.playerquests .list .effort1440 { color: #a335ee; }
 
-.tab > .list > div {
+.list .quest {
     cursor: pointer;
 }
 
-.tab > .list > div:hover {
+.list .quest:hover {
     background-color: aqua;
 }
+
+.list .topic .title { cursor: pointer; padding-left: 18px; background-repeat: no-repeat; background-position-x: left; background-image: url(./icons/minus.png); }
+.list .topic.closed .title { background-image: url(./icons/plus.png); }
+
+.list .topic.closed .quest { display: none; }
