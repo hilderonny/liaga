@@ -47,6 +47,14 @@ body.playerquestdetails > .card.playerquestdetails
     font-weight: bold;
 }
 
+.card.quests button.hideinvisible, .card.quests.showinvisible button.showinvisible {
+    display: none;
+}
+
+.card.quests.showinvisible button.hideinvisible {
+    display: block;
+}
+
 /* Quest difficulty colors */
 .card.quests .list > div { padding-left: 18px; background-repeat: no-repeat; background-position-x: left; }
 .card.quests .list .effort5 { color: #00e000; }
@@ -54,6 +62,7 @@ body.playerquestdetails > .card.playerquestdetails
 .card.quests .list .effort60 { color: #f08000; }
 .card.quests .list .effort240 { color: #f00000; }
 .card.quests .list .effort1440 { color: #a335ee; }
+.card.quests .list .invisible { color: #9D9D9D; }
 .card.quests .list .complete { background-image: url(./icons/questionyellow.png); }
 
 .card.friends .list .pending { color: #f0f000; }

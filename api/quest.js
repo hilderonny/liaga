@@ -100,7 +100,12 @@ module.exports = function(router) {
     // Von mir erstellte Quests auflisten, inkl. Info, ob eine davon auf Validierung wartet
     router.post('/list', auth, async function(request, response) {
         var playerid = request.user.id;
-        var quests = await db.query('select distinct quest.id, quest.title, quest.effort, (select count(*) from playerquest where complete = 1 and validated = 0 and quest = quest.id) complete from quest where creator = ?;', [ playerid ]);
+        var quests;
+        if (request.body.showinvisible) {
+            quests = await db.query('select distinct quest.id, quest.title, quest.effort, (select count(*) from playerquest where complete = 1 and validated = 0 and quest = quest.id) complete, (select (case when count(*) > 0 then 1 else 0 end) from questavailability where quest = quest.id) assigned from quest where creator = ?;', [ playerid ]);
+        } else {
+            quests = await db.query('select distinct quest.id, quest.title, quest.effort, (select count(*) from playerquest where complete = 1 and validated = 0 and quest = quest.id) complete, 1 assigned from quest where (select count(*) from questavailability where quest = quest.id) > 0 and creator = ?;', [ playerid ]);
+        }
         response.status(200).json(quests);
     });
 

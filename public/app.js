@@ -40,10 +40,10 @@ var App = (function() {
         console.log('🥅 newquestsforplayer', newquestsforplayer);
     }
 
-    async function _fetchquests() {
-        quests = await _post('/api/quest/list');
-        quests.sort(function(a, b) { // Erst Aufwand absteigend, dann Titel alphabetisch
-            return b.complete - a.complete || b.effort - a.effort || a.title.localeCompare(b.title);
+    async function _fetchquests(showinvisible) {
+        quests = await _post('/api/quest/list', { showinvisible: showinvisible });
+        quests.sort(function(a, b) { // Erst nach solchen mit Spielern, dann nach zu validierenden, dann nach Aufwand absteigend, dann Titel alphabetisch
+            return b.assigned - a.assigned || b.complete - a.complete || b.effort - a.effort || a.title.localeCompare(b.title);
         });
         console.log('🧰 quests', quests);
     }
@@ -97,13 +97,17 @@ var App = (function() {
         });
     }
 
-    async function _listquests() {
-        await _fetchquests();
+    async function _listquests(showinvisible) {
+        await _fetchquests(showinvisible);
         var questlist = document.querySelector('.card.loggedin .tab.quests .list');
         questlist.innerHTML = "";
         quests.forEach(function(quest) {
             var node = document.createElement('div');
-            node.classList.add('effort' + quest.effort);
+            if (quest.assigned > 0) {
+                node.classList.add('effort' + quest.effort);
+            } else {
+                node.classList.add('invisible');
+            }
             if (quest.complete) node.classList.add('complete');
             node.addEventListener('click', function() {
                 _showeditquestcard(quest.id);
@@ -352,7 +356,7 @@ var App = (function() {
     }
 
     async function _showqueststab() {
-        await _listquests();
+        await _listquests(false);
         document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin quests');
     }
 
@@ -464,6 +468,12 @@ var App = (function() {
                 return '<label><input type="checkbox" name="players" value="' + player.id + '" /><span>' + player.name + '</span></label>';
             }).join('');
             document.body.setAttribute('class', 'addquest');
+        },
+        showinvisiblequests: async function(showinvisible) {
+            await _listquests(showinvisible);
+            var card = document.querySelector('.card.quests');
+            if (showinvisible) card.classList.add('showinvisible');
+            else card.classList.remove('showinvisible');
         },
         showloggedincard: _showloggedincard,
         showlogincard: _showlogincard,
