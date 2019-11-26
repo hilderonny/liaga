@@ -92,7 +92,7 @@ module.exports = function(router) {
         var questid = request.body.id;
         var playerid = request.user.id;
         var playerlevel = request.user.level;
-        var quests = await db.query('select quest.title, quest.description from quest join questavailability on questavailability.quest = quest.id where questavailability.player = ? and quest.id = ? and quest.minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, questid, playerlevel, Date.now() ]);
+        var quests = await db.query('select quest.title, quest.description, quest.effort from quest join questavailability on questavailability.quest = quest.id where questavailability.player = ? and quest.id = ? and quest.minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, questid, playerlevel, Date.now() ]);
         if (quests.length < 1) return response.status(400).json({ error: 'quest not found' });
         response.status(200).json(quests[0]);
     });

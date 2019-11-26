@@ -34,7 +34,7 @@ module.exports = function (router) {
         if (!request.body.id) return response.status(400).json({ error: 'id required' });
         var playerquestid = request.body.id;
         var playerid = request.user.id;
-        var playerquests = await db.query('select quest.title, quest.description, playerquest.complete, playerquest.validated from playerquest join quest on playerquest.quest = quest.id join questavailability on questavailability.quest = quest.id where playerquest.id = ? and questavailability.player = ?', [ playerquestid, playerid ]);
+        var playerquests = await db.query('select quest.title, quest.description, quest.effort, playerquest.complete, playerquest.validated from playerquest join quest on playerquest.quest = quest.id join questavailability on questavailability.quest = quest.id where playerquest.id = ? and questavailability.player = ?', [ playerquestid, playerid ]);
         if (playerquests.length < 1) return response.status(400).json({ error: 'playerquests not found' });
         response.status(200).json(playerquests[0]);
     });
@@ -51,14 +51,14 @@ module.exports = function (router) {
         if (!request.body.playerquestid) return response.status(400).json({ error: 'playerquestid required' });
         var playerquestid = request.body.playerquestid;
         var playerid = request.user.id;
-        var playerquests = await db.query('select quest.id questid, quest.type, playerquest.epatstart, playerquest.rubiesatstart from playerquest join quest on playerquest.quest = quest.id join questavailability on questavailability.quest = quest.id where playerquest.id = ? and playerquest.player = ? and questavailability.player = ?', [ playerquestid, playerid, playerid ]);
+        var playerquests = await db.query('select quest.id questid, quest.type, quest.effort from playerquest join quest on playerquest.quest = quest.id join questavailability on questavailability.quest = quest.id where playerquest.id = ? and playerquest.player = ? and questavailability.player = ?', [ playerquestid, playerid, playerid ]);
         if (playerquests.length < 1) return response.status(400).json({ error: 'playerquests not found' });
         var playerquest = playerquests[0];
         // Belohnung zum Spieler hinzufügen
         var player = request.user; // Von auth gesetzt
-        var newep = player.ep + playerquest.epatstart;
+        var newep = player.ep + quest.effort;
         var newlevel = 1 + Math.floor(newep / 400);
-        var newrubies = player.rubies + playerquest.rubiesatstart;
+        var newrubies = player.rubies + Math.round(quest.effort / 2);
         await db.query('update player set ep = ?, level = ?, rubies = ? where id = ?', [ newep, newlevel, newrubies, playerid ]);
         // Playerquest löschen
         await db.query('delete from playerquest where id = ?', [ playerquestid ]);
@@ -83,12 +83,10 @@ module.exports = function (router) {
         var quests = await db.query('select quest.id, quest.effort from quest join questavailability on questavailability.quest = quest.id where quest.id = ? and questavailability.player = ?', [ questid, playerid ]);
         if (quests.length < 1) return response.status(400).json({ error: 'quest not found' });
         var quest = quests[0];
-        await db.query('insert into playerquest (player, quest, epatstart, complete, rubiesatstart, validated, startedat, completedat) values (?, ?, ?, ?, ?, ?, ?, ?);', [
+        await db.query('insert into playerquest (player, quest, complete, validated, startedat, completedat) values (?, ?, ?, ?, ?, ?);', [
             playerid,
             questid,
-            quest.effort, // epatstart
             0, // complete
-            Math.round(quest.effort / 2), // rubiesatstart
             0, // validated
             Date.now(), // startedat,
             null, // completedat

@@ -36,16 +36,8 @@
                 "type": "int"
             },
             {
-                "name": "epatstart",
-                "type": "int"
-            },
-            {
                 "name": "complete",
                 "type": "bool"
-            },
-            {
-                "name": "rubiesatstart",
-                "type": "int"
             },
             {
                 "name": "validated",

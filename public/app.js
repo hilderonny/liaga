@@ -281,10 +281,24 @@ var App = (function() {
         document.body.setAttribute('class', 'login');
     }
 
+    function _escapehtml(text) {
+        return text.replace(/\&/g, '&amp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br/>');
+    }
+
+    function _showplayerquestdetails(playerquest) {
+        var efforts = { 5: "Trivial", 30: "Einfach", 60: "Mittel", 240: "Schwer", 1440: "Episch" };
+        document.querySelector('.card.playerquestdetails .title').innerHTML = _escapehtml(playerquest.title);
+        document.querySelector('.card.playerquestdetails .description').innerHTML = _escapehtml(playerquest.description);
+        document.querySelector('.card.playerquestdetails .effort .value').innerHTML = efforts[playerquest.effort];
+        document.querySelector('.card.playerquestdetails .effort').setAttribute('class', 'effort effort' + playerquest.effort);
+        document.querySelector('.card.playerquestdetails .rewards .ep').innerHTML = playerquest.effort;
+        document.querySelector('.card.playerquestdetails .rewards .rubies').innerHTML = Math.round(playerquest.effort / 2);
+        console.log('🥅', playerquest);
+    }
+
     async function _showexistingplayerquestdetailscard(playerquestid) {
         var playerquest = await _post('/api/playerquest/get', { id: playerquestid });
-        document.querySelector('.card.playerquestdetails .title').innerHTML = playerquest.title;
-        document.querySelector('.card.playerquestdetails .description').innerHTML = playerquest.description;
+        _showplayerquestdetails(playerquest);
         var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow');
         buttonrow.innerHTML = "";
         if (!playerquest.complete) {
@@ -328,8 +342,7 @@ var App = (function() {
 
     async function _shownewplayerquestdetailscard(questid) {
         var quest = await _post('/api/quest/getforme', { id: questid });
-        document.querySelector('.card.playerquestdetails .title').innerHTML = quest.title;
-        document.querySelector('.card.playerquestdetails .description').innerHTML = quest.description;
+        _showplayerquestdetails(quest);
         var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow');
         buttonrow.innerHTML = "";
         var startbutton = document.createElement('button');

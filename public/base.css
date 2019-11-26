@@ -80,10 +80,10 @@ body.playerquestdetails > .card.playerquestdetails
 .card.playerquests .list .effort240 { color: #f00000; }
 .card.playerquests .list .effort1440 { color: #a335ee; }
 
-.list > div {
+.tab > .list > div {
     cursor: pointer;
 }
 
-.list > div:hover {
+.tab > .list > div:hover {
     background-color: aqua;
 }
