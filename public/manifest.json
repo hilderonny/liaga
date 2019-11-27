@@ -1,8 +1,8 @@
 {
   "short_name" : "LIAGA",
   "name": "LIAGA",
-  "theme_color": "#0000ff",
-  "background_color": "#0000ff",
+  "theme_color": "#346E91",
+  "background_color": "#346E91",
   "display": "standalone",
   "scope": "/",
   "start_url": "/index.html",
