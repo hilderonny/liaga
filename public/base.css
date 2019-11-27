@@ -1,12 +1,15 @@
 * {
     font-family: sans-serif;
     box-sizing: border-box;
+    user-select: none;
 }
+
 html {
     margin: 0;
     padding: 0;
     height: 100%;
 }
+
 body {
     display: flex;
     margin: 0;
@@ -19,6 +22,8 @@ body.loggedin {
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-y, repeat-y, repeat-x, repeat;
     background-position: top left, top right, bottom left, bottom right, top left, top left, top right, bottom left, top left;
 }
+
+input, textarea { user-select: unset; }
 
 .card {
     display: none;
