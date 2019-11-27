@@ -55,6 +55,7 @@ var App = (function() {
         var eppercent = (stats.ep - ((stats.level - 1) * 400)) / 4;
         console.log(eppercent);
         document.querySelector('.card.loggedin .stats .level').innerHTML = stats.level;
+        document.querySelector('.card.loggedin .stats .name').innerHTML = stats.username;
         document.querySelector('.card.loggedin .stats .ep .bar').style.width = eppercent + "%";
         document.querySelector('.card.loggedin .stats .ep .text').innerHTML = "EP: " + stats.ep + " / " + (stats.level * 400);
         var rubiestext = "Rubine: ";

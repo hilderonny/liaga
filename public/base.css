@@ -30,6 +30,7 @@ input, textarea { user-select: unset; }
 .card {
     display: none;
     flex: 1;
+    flex-direction: column;
 }
 
 body.loggedin > .card.loggedin,
@@ -41,7 +42,7 @@ body.addfriend > .card.addfriend,
 body.editfriend > .card.editfriend,
 body.playerquestdetails > .card.playerquestdetails
 {
-    display: block;
+    display: flex;
 }
 
 button { cursor: pointer; }
@@ -227,6 +228,7 @@ button:focus { outline:0; }
     border: 7px solid transparent;
     background-origin: border-box;
     background-clip: border-box, border-box, border-box, border-box, padding-box;
+    flex: 1;
 }
 
 .tabs::before {
