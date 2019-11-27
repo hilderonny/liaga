@@ -10,8 +10,11 @@ html {
 body {
     display: flex;
     margin: 0;
-    padding: 14px 16px 12px 14px;
     height: 100%;
+}
+
+body.loggedin {
+    padding: 14px 16px 12px 14px;
     background-image: url(./images/body-border-top-left.png), url(./images/body-border-top-right.png), url(./images/body-border-bottom-left.png), url(./images/body-border-bottom-right.png), url(./images/body-border-top.png), url(./images/body-border-left.png), url(./images/body-border-right.png), url(./images/body-border-bottom.png), url(./images/bg-dark-sandstone.png);
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-y, repeat-y, repeat-x, repeat;
     background-position: top left, top right, bottom left, bottom right, top left, top left, top right, bottom left, top left;
@@ -46,7 +49,7 @@ body.playerquestdetails > .card.playerquestdetails
     display: block;
 }
 
-.card.quests button.quests, .card.friends button.friends {
+.card.playerquests button.playerquests, .card.quests button.quests, .card.friends button.friends {
     font-weight: bold;
 }
 
@@ -189,7 +192,89 @@ body.playerquestdetails > .card.playerquestdetails
 .stats .content .rubies .blue { background-image: url(./icons/rupee_blue.png); }
 .stats .content .rubies .red { background-image: url(./icons/rupee_red.png); }
 
+.tabs {
+    position: relative;
+    padding: 14px 16px 12px 14px;
+    background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left.png), url(./images/tabs-border-bottom-right.png), url(./images/bg-marble.png);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+    background-position: top left, top right, bottom left, bottom right, top left;
+    border: 7px solid transparent;
+    background-origin: border-box;
+    background-clip: border-box, border-box, border-box, border-box, padding-box;
+}
+
+.tabs::before {
+    content: "";
+    position: absolute;
+    background-image: url(./images/tabs-border-top.png), url(./images/tabs-border-bottom.png);
+    background-repeat: repeat-x;
+    background-position: top, bottom;
+    top: -7px;
+    left: 7px;
+    right: 7px;
+    pointer-events: none;
+    bottom: -7px;
+}
+
+.tabs::after {
+    content: "";
+    position: absolute;
+    background-image: url(./images/tabs-border-left.png), url(./images/tabs-border-right.png);
+    background-repeat: repeat-y;
+    background-position: left, right;
+    right: -7px;
+    top: 7px;
+    left: -7px;
+    bottom: 7px;
+    pointer-events: none;
+}
+
+.tabbuttons button {
+    position: relative;
+    background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left-out.png), url(./images/tabs-border-bottom-right-out.png), url(./images/bg-marble.png);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+    background-position: top left, top right, bottom left, bottom right, top left;
+    border: solid transparent;
+    background-origin: border-box;
+    background-clip: border-box, border-box, border-box, border-box, padding-box;
+    color: white;
+    border-width: 7px 7px 4px 7px;
+    padding: 5px;
+}
+
+.tabbuttons button::before {
+    content: "";
+    position: absolute;
+    background-image: url(./images/tabs-border-top.png), url(./images/tabs-border-bottom.png);
+    background-repeat: repeat-x;
+    background-position: top, bottom;
+    top: -7px;
+    left: 7px;
+    right: 7px;
+    pointer-events: none;
+    bottom: -7px;
+}
+
+.tabbuttons button::after {
+    content: "";
+    position: absolute;
+    background-image: url(./images/tabs-border-left.png), url(./images/tabs-border-right.png);
+    background-repeat: repeat-y;
+    background-position: left, right;
+    right: -7px;
+    top: 7px;
+    left: -7px;
+    bottom: 7px;
+    pointer-events: none;
+}
+
+
 /*
-.stats .ep .bar { height: 100%; position: absolute; background-color: green; }
-.stats .ep .text { position: absolute; text-align: center; width: 100%; }
+.tabs {
+    padding: 14px 16px 12px 14px;
+    background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left.png), url(./images/tabs-border-bottom-right.png), url(./images/tabs-border-top.png), url(./images/tabs-border-left.png), url(./images/tabs-border-right.png), url(./images/tabs-border-bottom.png);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-y, repeat-y, repeat-x;
+    background-position: top left, top right, bottom left, bottom right, top left, top left, top right, bottom left;
+    background-color: #000000bb;
+}
 */
