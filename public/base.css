@@ -37,6 +37,10 @@ body.playerquestdetails > .card.playerquestdetails
     display: block;
 }
 
+button { cursor: pointer; }
+
+button:focus { outline:0; }
+
 .errormessage {
     display: none;
 }
@@ -49,8 +53,23 @@ body.playerquestdetails > .card.playerquestdetails
     display: block;
 }
 
-.card.playerquests button.playerquests, .card.quests button.quests, .card.friends button.friends {
-    font-weight: bold;
+.card.playerquests button.playerquests,
+.card.quests button.quests,
+.card.friends button.friends {
+    background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left-out.png), url(./images/tabs-border-bottom-right-out.png), url(./images/button-highlight-yellow.png), url(./images/bg-marble.png);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat;
+    background-position: top left, top right, bottom left, bottom right, top left, top left;
+    background-clip: border-box, border-box, border-box, border-box, padding-box, padding-box;
+    color: #FFD100;
+    border-width: 7px 5px 4px 5px;
+    padding: 6px 5px 8px 5px;
+    top: 0;
+}
+
+.card.playerquests button.playerquests::after,
+.card.quests button.quests::after,
+.card.friends button.friends::after {
+    bottom: 7px;
 }
 
 .card.quests button.hideinvisible, .card.quests.showinvisible button.showinvisible {
@@ -229,30 +248,40 @@ body.playerquestdetails > .card.playerquestdetails
     pointer-events: none;
 }
 
+.tabbuttons {
+    margin: 0 0 -14px 11px;
+    z-index: 400;
+    position: relative;
+}
+
 .tabbuttons button {
     position: relative;
-    background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left-out.png), url(./images/tabs-border-bottom-right-out.png), url(./images/bg-marble.png);
-    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
-    background-position: top left, top right, bottom left, bottom right, top left;
+    background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/lighten.png);
+    background-repeat: no-repeat, no-repeat, repeat;
+    background-position: top left, top right, top left;
     border: solid transparent;
     background-origin: border-box;
-    background-clip: border-box, border-box, border-box, border-box, padding-box;
+    background-clip: border-box, border-box, padding-box;
     color: white;
-    border-width: 7px 7px 4px 7px;
-    padding: 5px;
+    text-shadow: 2px 2px 1px #000;
+    border-width: 7px 5px 0px 5px;
+    padding: 2px 5px 3px 5px;
+    background-color: transparent;
+    top: 0px;
+    font-size: 13px;
 }
 
 .tabbuttons button::before {
     content: "";
     position: absolute;
-    background-image: url(./images/tabs-border-top.png), url(./images/tabs-border-bottom.png);
+    background-image: url(./images/tabs-border-top.png);
     background-repeat: repeat-x;
-    background-position: top, bottom;
+    background-position: top;
     top: -7px;
-    left: 7px;
-    right: 7px;
+    left: 9px;
+    right: 9px;
     pointer-events: none;
-    bottom: -7px;
+    bottom: 0px;
 }
 
 .tabbuttons button::after {
@@ -261,10 +290,10 @@ body.playerquestdetails > .card.playerquestdetails
     background-image: url(./images/tabs-border-left.png), url(./images/tabs-border-right.png);
     background-repeat: repeat-y;
     background-position: left, right;
-    right: -7px;
+    right: -5px;
     top: 7px;
-    left: -7px;
-    bottom: 7px;
+    left: -5px;
+    bottom: 1px;
     pointer-events: none;
 }
 
