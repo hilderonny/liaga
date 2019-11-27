@@ -10,8 +10,11 @@ html {
 body {
     display: flex;
     margin: 0;
-    padding: 0;
+    padding: 14px 16px 12px 14px;
     height: 100%;
+    background-image: url(./images/body-border-top-left.png), url(./images/body-border-top-right.png), url(./images/body-border-bottom-left.png), url(./images/body-border-bottom-right.png), url(./images/body-border-top.png), url(./images/body-border-left.png), url(./images/body-border-right.png), url(./images/body-border-bottom.png), url(./images/bg-dark-sandstone.png);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-y, repeat-y, repeat-x, repeat;
+    background-position: top left, top right, bottom left, bottom right, top left, top left, top right, bottom left, top left;
 }
 
 .card {
@@ -93,6 +96,100 @@ body.playerquestdetails > .card.playerquestdetails
 
 .list .topic.closed .quest { display: none; }
 
-.stats .ep { background: gray; position: relative; height: 18px; }
+.stats {
+    color: white;
+    position: relative;
+    height: 76px;
+    padding: 0 4px 0 71px;
+    margin-right: 40px;
+    text-shadow: 0px 0px 2px #000, 0px 0px 2px #000;
+}
+
+.stats::before {
+    content: "";
+    position: absolute;
+    background: url(./images/character-panel-right.png) top right no-repeat;
+    z-index: 200;
+    width: 9px;
+    height: 76px;
+    right: 0;
+}
+
+.stats > * { position: absolute; } /* raus damit */
+
+.stats .avatar {
+    position: absolute;
+    background-image: url(./icons/avatar.png);
+    width: 60px;
+    height: 60px;
+    background-size: 100%;
+    left: 8px;
+    top: 8px;
+    border-radius: 30px;
+    background-position: 0px 0px;
+    cursor: pointer;
+}
+
+.stats .level {
+    position: absolute;
+    background-image: url(./images/ring.png);
+    width: 28px;
+    height: 24px;
+    top: 49px;
+    left: 7px;
+    z-index: 200;
+    background-color: #000000bb;
+    border-radius: 16px;
+    text-align: center;
+    color: #FFD100;
+    text-shadow: 2px 2px 1px #000;
+    font-size: 11px;
+    background-size: 28px 24px;
+    padding-top: 6px;
+}
+
+.stats .avatar::before {
+    content: "";
+    position: absolute;
+    background: url(./images/character-panel-left.png) repeat-x;
+    height: 76px;
+    z-index: 150;
+    width: 74px;
+    left: -8px;
+    top: -8px;
+}
+
+.stats .content { position: relative; }
+
+.stats .content::before {
+    content: "";
+    position: absolute;
+    background: url(./images/character-panel-center.png) repeat-x;
+    height: 76px;
+    z-index: 100;
+    width: 100%;
+}
+
+.stats .content .name { top: 18px;
+    position: relative;
+    font-size: 12px;
+    left: 4px;
+    color: #FFD100;
+    text-shadow: 2px 2px 1px #000;
+    text-align: center;
+}
+
+.stats .content .ep { background: red; position: absolute; height: 12px; width: 100%; top: 34px; }
+.stats .content .ep .bar { text-align: center; position: absolute; height: 100%; background-color: #00DF00; }
+.stats .content .ep .text { position: relative; font-size: 12px; z-index: 300; top: -1px; text-align: center; }
+
+.stats .content .rubies { position: absolute; width: 100%; top: 41px; font-size: 12px; z-index: 300;text-align: center; }
+.stats .content .rubies span { width: 8px; height: 14px; display: inline-block; background-size: 70%; background-position: 0px 5px; background-repeat: no-repeat; margin: 0px 2px }
+.stats .content .rubies .green { background-image: url(./icons/rupee_green.png); }
+.stats .content .rubies .blue { background-image: url(./icons/rupee_blue.png); }
+.stats .content .rubies .red { background-image: url(./icons/rupee_red.png); }
+
+/*
 .stats .ep .bar { height: 100%; position: absolute; background-color: green; }
 .stats .ep .text { position: absolute; text-align: center; width: 100%; }
+*/

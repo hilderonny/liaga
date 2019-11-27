@@ -57,7 +57,14 @@ var App = (function() {
         document.querySelector('.card.loggedin .stats .level').innerHTML = stats.level;
         document.querySelector('.card.loggedin .stats .ep .bar').style.width = eppercent + "%";
         document.querySelector('.card.loggedin .stats .ep .text').innerHTML = "EP: " + stats.ep + " / " + (stats.level * 400);
-        document.querySelector('.card.loggedin .stats .rubies').innerHTML = "Rubine: " + stats.rubies;
+        var rubiestext = "Rubine: ";
+        var redrubies = Math.floor(stats.rubies / 10000);
+        var bluerubies = Math.floor((stats.rubies - redrubies) / 100);
+        var greenrubies = stats.rubies - redrubies * 10000 - bluerubies * 100;
+        if (redrubies > 0) rubiestext += redrubies + '<span class="red"></span>';
+        if (bluerubies > 0) rubiestext += bluerubies + '<span class="blue"></span>';
+        rubiestext += greenrubies + '<span class="green"></span>';
+        document.querySelector('.card.loggedin .stats .rubies').innerHTML = rubiestext;
         console.log('🧑 stats', stats);
     }
 
