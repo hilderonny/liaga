@@ -68,27 +68,25 @@
         </div>
         <div class="tabs">
             <div class="tab playerquests">
-                MEINE AUFGABEN
                 <div class="list"></div>
             </div>
             <div class="tab quests">
-                QUESTS
                 <div class="list"></div>
-                <div class="buttonrow">
-                    <button onclick="App.showaddquestcard();">+ Quest</button>
-                    <button class="showinvisible" onclick="App.showinvisiblequests(true);">Ausgeblendete anzeigen</button>
-                    <button class="hideinvisible" onclick="App.showinvisiblequests(false);">Ausgeblendete verbergen</button>
-                </div>
             </div>
             <div class="tab friends">
-                FRIENDS
                 <div class="list"></div>
-                <div class="buttonrow">
-                    <button onclick="App.showaddfriendcard();">+ Freund</button>
-                </div>
             </div>
         </div>
-        <button onclick="App.logout();">Logout</button>
+        <div class="buttonrow quests">
+            <button onclick="App.showaddquestcard();">+ Quest</button>
+            <div class="spacer"></div>
+            <button class="showinvisible" onclick="App.showinvisiblequests(true);">Ausgeblendete anzeigen</button>
+            <button class="hideinvisible" onclick="App.showinvisiblequests(false);">Ausgeblendete verbergen</button>
+        </div>
+        <div class="buttonrow friends">
+            <button onclick="App.showaddfriendcard();">+ Freund</button>
+        </div>
+        <!--<button onclick="App.logout();">Logout</button>-->
     </div>
 
     <div class="card addquest">

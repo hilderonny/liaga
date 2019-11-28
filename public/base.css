@@ -27,10 +27,13 @@ body.loggedin {
 
 input, textarea { user-select: unset; }
 
+.buttonrow .spacer { flex: 1; }
+
 .card {
     display: none;
     flex: 1;
     flex-direction: column;
+    overflow: hidden;
 }
 
 body.loggedin > .card.loggedin,
@@ -45,7 +48,37 @@ body.playerquestdetails > .card.playerquestdetails
     display: flex;
 }
 
-button { cursor: pointer; }
+button {
+    cursor: pointer;
+    background-image: url(./images/button-red-up-left.png), url(./images/button-red-up-right.png), url(./images/button-red-up-middle.png);
+    background-repeat: no-repeat;
+    background-position: left, right, center;
+    border: none;
+    height: 32px;
+    min-width: 80px;
+    padding: 0 9px;
+    background-size: auto, auto, 100% 100%;
+    background-clip: border-box, border-box, content-box;
+    color: white;
+    text-shadow: 2px 2px 1px #000;
+}
+
+button:hover {
+    background-image: url(./images/button-highlight.png), url(./images/button-red-up-left.png), url(./images/button-red-up-right.png), url(./images/button-red-up-middle.png);
+    background-position: center, left, right, center;
+    background-size: 100% 100%, auto, auto, 100% 100%;
+    background-clip: border-box, border-box, border-box, content-box;
+}
+
+button:active {
+    background-image: url(./images/button-red-down-left.png), url(./images/button-red-down-right.png), url(./images/button-red-down-middle.png);
+    background-repeat: no-repeat;
+    background-position: left, right, center;
+    background-size: auto, auto, 100% 100%;
+    background-clip: border-box, border-box, content-box;
+    color: transparent;
+    text-shadow: -4px 3px 1px #fff, -2px 5px 1px #000;
+}
 
 button:focus { outline:0; }
 
@@ -55,10 +88,16 @@ button:focus { outline:0; }
 
 .tab {
     display: none;
+    flex-direction: column;
+    flex: 1;
 }
 
-.card.playerquests .tab.playerquests, .card.friends .tab.friends, .card.quests .tab.quests {
-    display: block;
+.card.playerquests .tab.playerquests,
+.card.friends .tab.friends, 
+.card.quests .tab.quests,
+.card.friends .buttonrow.friends, 
+.card.quests .buttonrow.quests {
+    display: flex;
 }
 
 .card.playerquests button.playerquests,
@@ -102,7 +141,7 @@ button:focus { outline:0; }
 .card.friends .list .incoming { color: #f00000; }
 .card.friends .list .accepted { color: #00e000; }
 
-.card.playerquests .list .quest { padding-left: 18px; margin-left: 18px; background-repeat: no-repeat; background-position-x: left; }
+.card.playerquests .list .quest { padding-left: 18px; margin-left: 18px; }
 .card.playerquests .list .pending { background-image: url(./icons/asteriskyellow.png); }
 .card.playerquests .list .running { background-image: url(./icons/questiongrey.png); }
 .card.playerquests .list .complete { background-image: url(./icons/questionblue.png); }
@@ -113,15 +152,42 @@ button:focus { outline:0; }
 .card.playerquests .list .effort240 { color: #f00000; }
 .card.playerquests .list .effort1440 { color: #a335ee; }
 
-.list .quest {
+.card.loggedin .buttonrow { display: none; margin: -3px 3px 1px 3px; }
+
+.list {
+    padding: 0 6px;
+    margin: 6px 0;
+    flex: 1;
+    overflow: auto;
+}
+
+.list div {
+    padding: 3px 0px 3px 18px;
+    background-position: left 3px;
+    background-repeat: no-repeat;
+}
+
+.list .topic {
+    padding: 0;
+}
+
+.list .quest, .tab.friends .list div {
     cursor: pointer;
 }
 
-.list .quest:hover {
-    background-color: aqua;
+.list .quest:hover, .tab.friends .list div:hover {
+    box-shadow: inset 0px 0px 10px -1px #FFD100;
+    border-radius: 12px;
 }
 
-.list .topic .title { cursor: pointer; padding-left: 18px; background-repeat: no-repeat; background-position-x: left; background-image: url(./icons/minus.png); }
+.list .topic .title {
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: left 7px;
+    background-image: url(./icons/minus.png);
+    padding: 6px 0px 2px 18px;
+}
+
 .list .topic.closed .title { background-image: url(./icons/plus.png); }
 
 .list .topic.closed .quest { display: none; }
@@ -133,6 +199,7 @@ button:focus { outline:0; }
     padding: 0 4px 0 71px;
     margin-right: 40px;
     text-shadow: 0px 0px 2px #000, 0px 0px 2px #000;
+    flex: none;
 }
 
 .stats::before {
@@ -221,14 +288,18 @@ button:focus { outline:0; }
 
 .tabs {
     position: relative;
-    padding: 14px 16px 12px 14px;
     background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left.png), url(./images/tabs-border-bottom-right.png), url(./images/bg-marble.png);
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
     background-position: top left, top right, bottom left, bottom right, top left;
-    border: 7px solid transparent;
+    border: solid transparent;
+    border-width: 4px 2px 6px 3px;
     background-origin: border-box;
     background-clip: border-box, border-box, border-box, border-box, padding-box;
     flex: 1;
+    overflow: hidden;
+    display: flex;
+    border-radius: 20px;
+    padding: 4px;
 }
 
 .tabs::before {
@@ -237,11 +308,11 @@ button:focus { outline:0; }
     background-image: url(./images/tabs-border-top.png), url(./images/tabs-border-bottom.png);
     background-repeat: repeat-x;
     background-position: top, bottom;
-    top: -7px;
+    top: -4px;
     left: 7px;
     right: 7px;
     pointer-events: none;
-    bottom: -7px;
+    bottom: -6px;
 }
 
 .tabs::after {
@@ -250,9 +321,9 @@ button:focus { outline:0; }
     background-image: url(./images/tabs-border-left.png), url(./images/tabs-border-right.png);
     background-repeat: repeat-y;
     background-position: left, right;
-    right: -7px;
+    right: -2px;
     top: 7px;
-    left: -7px;
+    left: -3px;
     bottom: 7px;
     pointer-events: none;
 }
@@ -261,6 +332,13 @@ button:focus { outline:0; }
     margin: 0 0 -14px 11px;
     z-index: 400;
     position: relative;
+    flex: none;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.tabbuttons::-webkit-scrollbar {
+    display: none;
 }
 
 .tabbuttons button {
@@ -271,13 +349,19 @@ button:focus { outline:0; }
     border: solid transparent;
     background-origin: border-box;
     background-clip: border-box, border-box, padding-box;
-    color: white;
-    text-shadow: 2px 2px 1px #000;
     border-width: 7px 5px 0px 5px;
     padding: 2px 5px 3px 5px;
     background-color: transparent;
     top: 0px;
     font-size: 13px;
+    height: auto;
+    background-size: unset;
+    min-width: unset;
+}
+
+.tabbuttons button:active {
+    color: white;
+    text-shadow: 2px 2px 1px #000;
 }
 
 .tabbuttons button::before {
@@ -305,14 +389,3 @@ button:focus { outline:0; }
     bottom: 1px;
     pointer-events: none;
 }
-
-
-/*
-.tabs {
-    padding: 14px 16px 12px 14px;
-    background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left.png), url(./images/tabs-border-bottom-right.png), url(./images/tabs-border-top.png), url(./images/tabs-border-left.png), url(./images/tabs-border-right.png), url(./images/tabs-border-bottom.png);
-    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-y, repeat-y, repeat-x;
-    background-position: top left, top right, bottom left, bottom right, top left, top left, top right, bottom left;
-    background-color: #000000bb;
-}
-*/

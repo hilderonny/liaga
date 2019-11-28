@@ -69,6 +69,23 @@ var App = (function() {
         console.log('🧑 stats', stats);
     }
 
+    function _getorcreatetopicdiv(questlist, topicdivs, topic) {
+        if (!topicdivs[topic]) {
+            var topicdiv = document.createElement('div');
+            topicdiv.classList.add('topic');
+            var titlediv = document.createElement('div');
+            titlediv.classList.add('title');
+            titlediv.innerHTML = topic;
+            titlediv.addEventListener('click', function() {
+                topicdiv.classList.toggle('closed');
+            });
+            topicdiv.appendChild(titlediv);
+            topicdivs[topic] = topicdiv;
+            questlist.appendChild(topicdiv);
+        }
+        return topicdivs[topic];
+    }
+
     async function _listfriends() {
         await _fetchfriends();
         var friendlist = document.querySelector('.card.loggedin .tab.friends .list');
@@ -84,20 +101,6 @@ var App = (function() {
             node.innerHTML = friend.username;
             friendlist.appendChild(node);
         });
-    }
-
-    function _getorcreatetopicdiv(questlist, topicdivs, topic) {
-        if (!topicdivs[topic]) {
-            var topicdiv = document.createElement('div');
-            topicdiv.innerHTML = '<div class="title">' + topic + "</div>";
-            topicdiv.classList.add('topic');
-            topicdiv.addEventListener('click', function() {
-                topicdiv.classList.toggle('closed');
-            });
-            topicdivs[topic] = topicdiv;
-            questlist.appendChild(topicdiv);
-        }
-        return topicdivs[topic];
     }
 
     // Listet sowohl neue verfügbare Quests für mich als auch laufende Quests auf
