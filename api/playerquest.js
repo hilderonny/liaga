@@ -84,8 +84,7 @@ module.exports = function (router) {
         var playerid = request.user.id;
         var quests = await db.query('select quest.id, quest.effort from quest join questavailability on questavailability.quest = quest.id where quest.id = ? and questavailability.player = ?', [ questid, playerid ]);
         if (quests.length < 1) return response.status(400).json({ error: 'quest not found' });
-        var quest = quests[0];
-        await db.query('insert into playerquest (player, quest, complete, validated, startedat, completedat) values (?, ?, ?, ?, ?, ?);', [
+        var insertresult = await db.query('insert into playerquest (player, quest, complete, validated, startedat, completedat) values (?, ?, ?, ?, ?, ?);', [
             playerid,
             questid,
             0, // complete
@@ -93,7 +92,7 @@ module.exports = function (router) {
             Date.now(), // startedat,
             null, // completedat
         ]);
-        response.status(200).json({});
+        response.status(200).json({ id : insertresult.insertId});
     });
 
     // Quest validieren

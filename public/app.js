@@ -49,6 +49,17 @@ var App = (function() {
         console.log('🧰 quests', quests);
     }
 
+    function _createrubieshtml(rubies) {
+        var rubiestext = "";
+        var redrubies = Math.floor(rubies / 10000);
+        var bluerubies = Math.floor((rubies - redrubies) / 100);
+        var greenrubies = rubies - redrubies * 10000 - bluerubies * 100;
+        if (redrubies > 0) rubiestext += redrubies + '<span class="red"></span>';
+        if (bluerubies > 0) rubiestext += bluerubies + '<span class="blue"></span>';
+        rubiestext += greenrubies + '<span class="green"></span>';
+        return rubiestext;
+    }
+
     // Infos über mich laden und anzeigen
     async function _fetchstats() {
         stats = await _post('/api/player/getstats');
@@ -58,14 +69,7 @@ var App = (function() {
         document.querySelector('.card.loggedin .stats .name').innerHTML = stats.username;
         document.querySelector('.card.loggedin .stats .ep .bar').style.width = eppercent + "%";
         document.querySelector('.card.loggedin .stats .ep .text').innerHTML = "EP: " + stats.ep + " / " + (stats.level * 400);
-        var rubiestext = "Rubine: ";
-        var redrubies = Math.floor(stats.rubies / 10000);
-        var bluerubies = Math.floor((stats.rubies - redrubies) / 100);
-        var greenrubies = stats.rubies - redrubies * 10000 - bluerubies * 100;
-        if (redrubies > 0) rubiestext += redrubies + '<span class="red"></span>';
-        if (bluerubies > 0) rubiestext += bluerubies + '<span class="blue"></span>';
-        rubiestext += greenrubies + '<span class="green"></span>';
-        document.querySelector('.card.loggedin .stats .rubies').innerHTML = rubiestext;
+        document.querySelector('.card.loggedin .stats .rubies').innerHTML = "Rubine: " + _createrubieshtml(stats.rubies);
         console.log('🧑 stats', stats);
     }
 
@@ -333,27 +337,26 @@ var App = (function() {
 
     function _showplayerquestdetails(playerquest) {
         var efforts = { 5: "Trivial", 30: "Einfach", 60: "Mittel", 240: "Schwer", 1440: "Episch" };
-        document.querySelector('.card.playerquestdetails .title').innerHTML = _escapehtml(playerquest.title);
+        var titlediv = document.querySelector('.card.playerquestdetails .content .title');
+        titlediv.innerHTML = _escapehtml(playerquest.title);
+        titlediv.setAttribute('class', 'title effort' + playerquest.effort);
         document.querySelector('.card.playerquestdetails .description').innerHTML = _escapehtml(playerquest.description);
-        document.querySelector('.card.playerquestdetails .effort .value').innerHTML = efforts[playerquest.effort];
-        document.querySelector('.card.playerquestdetails .effort').setAttribute('class', 'effort effort' + playerquest.effort);
-        document.querySelector('.card.playerquestdetails .rewards .ep').innerHTML = playerquest.effort;
-        document.querySelector('.card.playerquestdetails .rewards .rubies').innerHTML = Math.round(playerquest.effort / 2);
+        document.querySelector('.card.playerquestdetails .rewards .ep').innerHTML = playerquest.effort.toLocaleString();
+        document.querySelector('.card.playerquestdetails .rewards .rubies').innerHTML = _createrubieshtml(Math.round(playerquest.effort / 2));
         console.log('🥅', playerquest);
     }
 
     async function _showexistingplayerquestdetailscard(playerquestid) {
         var playerquest = await _post('/api/playerquest/get', { id: playerquestid });
         _showplayerquestdetails(playerquest);
-        var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow');
+        var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         if (!playerquest.complete) {
             var completebutton = document.createElement('button');
-            completebutton.innerHTML = "Beenden";
+            completebutton.innerHTML = "Abschließen";
             completebutton.addEventListener('click', async function() {
                 await _post('/api/playerquest/complete', { playerquestid: playerquestid });
-                _showloggedincard();
-                _showplayerqueststab();
+                _showexistingplayerquestdetailscard(playerquestid);
             });
             buttonrow.appendChild(completebutton);
         }
@@ -367,6 +370,9 @@ var App = (function() {
             });
             buttonrow.appendChild(rewardbutton);
         }
+        var spacer = document.createElement('div');
+        spacer.classList.add('spacer');
+        buttonrow.appendChild(spacer);
         var cancelbutton = document.createElement('button');
         cancelbutton.innerHTML = "Abbrechen";
         cancelbutton.addEventListener('click', async function() {
@@ -376,36 +382,21 @@ var App = (function() {
             _showplayerqueststab();
         });
         buttonrow.appendChild(cancelbutton);
-        var backbutton = document.createElement('button');
-        backbutton.innerHTML = "Zurück";
-        backbutton.addEventListener('click', async function() {
-            _showloggedincard();
-            _showplayerqueststab();
-        });
-        buttonrow.appendChild(backbutton);
         document.body.setAttribute('class', 'playerquestdetails');
     }
 
     async function _shownewplayerquestdetailscard(questid) {
         var quest = await _post('/api/quest/getforme', { id: questid });
         _showplayerquestdetails(quest);
-        var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow');
+        var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         var startbutton = document.createElement('button');
         startbutton.innerHTML = "Beginnen";
         startbutton.addEventListener('click', async function() {
-            await _post('/api/playerquest/start', { questid: questid });
-            _showloggedincard();
-            _showplayerqueststab();
+            var result = await _post('/api/playerquest/start', { questid: questid });
+            _showexistingplayerquestdetailscard(result.id);
         });
         buttonrow.appendChild(startbutton);
-        var backbutton = document.createElement('button');
-        backbutton.innerHTML = "Zurück";
-        backbutton.addEventListener('click', async function() {
-            _showloggedincard();
-            _showplayerqueststab();
-        });
-        buttonrow.appendChild(backbutton);
         document.body.setAttribute('class', 'playerquestdetails');
     }
 

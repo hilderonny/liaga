@@ -89,7 +89,7 @@
         <!--<button onclick="App.logout();">Logout</button>-->
     </div>
 
-    <div class="card addquest">
+    <div class="card addquest details">
         <form onsubmit="App.addquest();return false;">
             <h1>Neue Quest</h1>
             <div><label>Thema</label><input name="topic" /></div>
@@ -124,7 +124,7 @@
         <button onclick="App.showloggedincard();">Abbrechen</button>
     </div>
 
-    <div class="card editquest">
+    <div class="card editquest details">
         <form>
             <h1>Quest bearbeiten</h1>
             <div><label>Thema</label><input name="topic" /></div>
@@ -174,14 +174,13 @@
         <div class="buttonrow"></div>
     </div>
 
-    <div class="card playerquestdetails">
-        <div class="title"></div>
+    <div class="card playerquestdetails details">
+        <div class="buttonrow top">
+            <button onclick="App.showloggedincard();App.showplayerqueststab();">Zurück</button>
+        </div>
         <div class="content">
+            <div class="title"></div>
             <div class="description"></div>
-            <div class="effort">
-                <div class="title">Schwierigkeit</div>
-                <div class="value"></div>
-            </div>
         </div>
         <div class="rewards">
             <div class="title">Belohnungen</div>
@@ -190,7 +189,7 @@
                 <div class="rubies"></div>
             </div>
         </div>
-        <div class="buttonrow"></div>
+        <div class="buttonrow bottom"></div>
     </div>
 
 </body>

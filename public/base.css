@@ -16,9 +16,6 @@ body {
     height: 100%;
     color: white;
     text-shadow: 2px 2px 1px #000;
-}
-
-body.loggedin {
     padding: 14px 16px 12px 14px;
     background-image: url(./images/body-border-top-left.png), url(./images/body-border-top-right.png), url(./images/body-border-bottom-left.png), url(./images/body-border-bottom-right.png), url(./images/body-border-top.png), url(./images/body-border-left.png), url(./images/body-border-right.png), url(./images/body-border-bottom.png), url(./images/bg-dark-sandstone.png);
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-y, repeat-y, repeat-x, repeat;
@@ -59,7 +56,7 @@ button {
     padding: 0 9px;
     background-size: auto, auto, 100% 100%;
     background-clip: border-box, border-box, content-box;
-    color: white;
+    color: #FFD100;
     text-shadow: 2px 2px 1px #000;
 }
 
@@ -68,6 +65,7 @@ button:hover {
     background-position: center, left, right, center;
     background-size: 100% 100%, auto, auto, 100% 100%;
     background-clip: border-box, border-box, border-box, content-box;
+    color: white;
 }
 
 button:active {
@@ -151,6 +149,113 @@ button:focus { outline:0; }
 .card.playerquests .list .effort60 { color: #f08000; }
 .card.playerquests .list .effort240 { color: #f00000; }
 .card.playerquests .list .effort1440 { color: #a335ee; }
+
+
+.card.details {
+    background-image: url(./images/paper.png);
+    background-size: 100% 100%;
+    color: black;
+    text-shadow: none;
+    margin-bottom: 32px;
+}
+
+.card.details .buttonrow.top {
+    padding: 6px 10px;
+    background-color: #442211cc;
+    box-shadow: 0px 4px 9px 4px #442211cc;
+    z-index: 100;
+}
+
+.card.details .content {
+    padding: 10px;
+    overflow: auto;
+    font-size: 16px;
+    flex: 1;
+}
+
+.card.details .content .title {
+    font-variant: small-caps;
+    text-transform: capitalize;
+    font-size: 22px;
+    text-shadow: 1px 2px 1px #000;
+    margin: 8px 0 16px 0;
+}
+.card.details .content .title.effort5 { color: #00e000; }
+.card.details .content .title.effort30 { color: #f0f000; }
+.card.details .content .title.effort60 { color: #f08000; }
+.card.details .content .title.effort240 { color: #f00000; }
+.card.details .content .title.effort1440 { color: #a335ee; }
+
+.card.details .rewards {
+    background-color: #442211cc;
+    box-shadow: 0px -3px 3px 2px #442211cc;
+    z-index: 100;
+}
+
+.card.details .rewards .title {
+    box-shadow: inset 0px -3px 3px 0px #000, 0px 0px 3px 0px #FFD100;
+    font-variant: small-caps;
+    text-transform: capitalize;
+    font-size: 22px;
+    color: white;
+    text-align: center;
+    padding: 3px;
+}
+
+.card.details .rewards .list { display: flex; }
+.card.details .rewards .list div {
+    background-color: #000d;
+    position: relative;
+    margin: 2px 5px 2px 43px;
+    padding: 0 5px;
+    line-height: 40px;
+    flex: 1;
+    color: white;
+    text-shadow: 2px 2px 1px #000;
+    font-size: 23px;
+    box-shadow: inset -2px 1px 3px 2px #000, -1px 1px 2px -1px #fff;
+    border-radius: 3px;
+    z-index: 200;
+}
+
+.card.details .rewards .list div::before {
+    content: "";
+    width: 40px;
+    height: 40px;
+    display: block;
+    position: absolute;
+    left: -43px;
+    top: 0;
+}
+
+.card.details .rewards .list .ep::before {
+    background-image: url(./images/ep-icon.png);
+}
+
+.card.details .rewards .list .rubies::before {
+    background-image: url(./images/gold-icon.png);
+}
+
+.card.details .rewards .list .rubies span { 
+    width: 16px;
+    height: 23px;
+    display: inline-block;
+    background-position: 0px 8px;
+    background-repeat: no-repeat;
+    margin: 0px 3px;
+ }
+.card.details .rewards .list .rubies .green { background-image: url(./icons/rupee_green.png); }
+.card.details .rewards .list .rubies .blue { background-image: url(./icons/rupee_blue.png); }
+.card.details .rewards .list .rubies .red { background-image: url(./icons/rupee_red.png); }
+
+.card.details .buttonrow.bottom {
+    position: fixed;
+    bottom: 10px;
+    display: flex;
+    left: 13px;
+    right: 15px;
+}
+
 
 .card.loggedin .buttonrow { display: none; margin: -3px 3px 1px 3px; }
 
@@ -357,6 +462,7 @@ button:focus { outline:0; }
     height: auto;
     background-size: unset;
     min-width: unset;
+    color: white;
 }
 
 .tabbuttons button:active {
