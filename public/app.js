@@ -198,11 +198,10 @@ var App = (function() {
     }
 
     async function _login() {
-        event.preventDefault();
         var errormessagediv = document.querySelector('.card.login .errormessage');
         errormessagediv.style.display = 'none';
-        var username = event.target.username.value;
-        var password = event.target.password.value;
+        var username = document.querySelector('.card.login [name="username"]').value;
+        var password = document.querySelector('.card.login [name="password"]').value;
         var result = await _post('/api/player/login', { username: username, password: password });
         if (result.id) {
             // Login succeeded
@@ -227,12 +226,11 @@ var App = (function() {
     }
 
     async function _register() {
-        event.preventDefault();
         var errormessagediv = document.querySelector('.card.register .errormessage');
         errormessagediv.style.display = 'none';
-        var username = event.target.username.value;
-        var password1 = event.target.password1.value;
-        var password2 = event.target.password2.value;
+        var username = document.querySelector('.card.register [name="username"]').value;
+        var password1 = document.querySelector('.card.register [name="password1"]').value;
+        var password2 = document.querySelector('.card.register [name="password2"]').value;
         if (password1 !== password2) {
             errormessagediv.style.display = 'block';
             return;

@@ -87,6 +87,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 
 .errormessage {
     display: none;
+    color: red;
+    text-align: center;
 }
 
 .tab {
@@ -325,6 +327,10 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 
 .card.input .players div { display: flex; }
 .card.input .players div label { margin-right: 6px; }
+
+.card.login, .card.register { margin-bottom: 0; }
+.card.login .content, .card.register .content { flex: unset; }
+.card.login .buttonrow, .card.register .buttonrow { text-align: center; }
 
 .card.loggedin .buttonrow { display: none; margin: -3px 3px 1px 3px; }
 
