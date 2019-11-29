@@ -58,7 +58,7 @@ module.exports = function (router) {
         var player = request.user; // Von auth gesetzt
         var newep = player.ep + playerquest.effort;
         var newlevel = 1 + Math.floor(newep / 400);
-        var newrubies = player.rubies + Math.round(playerquest.effort / 2);
+        var newrubies = player.rubies + ((newlevel - player.level) * 125) + Math.round(playerquest.effort / 2);
         await db.query('update player set ep = ?, level = ?, rubies = ? where id = ?', [ newep, newlevel, newrubies, playerid ]);
         // Playerquest löschen
         await db.query('delete from playerquest where id = ?', [ playerquestid ]);
