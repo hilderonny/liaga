@@ -49,6 +49,12 @@ var App = (function() {
         console.log('🧰 quests', quests);
     }
 
+    async function _fetchtopics() {
+        topics = await _post('/api/quest/topics');
+        document.getElementById("topics").innerHTML = topics.map(function(topic) { return topic.topic ? '<option value="' + topic.topic + '"/>' : ''; }).join('');
+        console.log('🧰 topics', topics);
+    }
+
     function _createrubieshtml(rubies) {
         var rubiestext = "";
         var redrubies = Math.floor(rubies / 10000);
@@ -263,24 +269,22 @@ var App = (function() {
 
     async function _showeditquestcard(id) {
         await _fetchfriends();
+        await _fetchtopics();
         var quest = await _post('/api/quest/get', { id: id });
-        console.log(quest);
+        console.log('🧰 quest', quest);
         var form = document.querySelector('.card.editquest form');
-        form.onsubmit = async function() {
-            event.preventDefault();
+        document.querySelector('.card.editquest .savequest').onclick = async function() {
             await _post('/api/quest/save', {
                 id: id,
-                topic: event.target.topic.value,
-                title: event.target.title.value,
-                description: event.target.description.value,
-                effort: event.target.effort.value,
-                minlevel: event.target.minlevel.value,
-                type: event.target.type.value,
-                players: Array.from(document.querySelectorAll('.card.editquest form .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
+                topic: document.querySelector('.card.editquest [name="topic"]').value,
+                title: document.querySelector('.card.editquest [name="title"]').value,
+                description: document.querySelector('.card.editquest [name="description"]').value,
+                effort: document.querySelector('.card.editquest [name="effort"]').value,
+                type: document.querySelector('.card.editquest [name="type"]').value,
+                players: Array.from(document.querySelectorAll('.card.editquest .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
             });
             _showloggedincard();
             _showqueststab();
-            return false;
         };
         document.querySelector('.card.editquest .deletequest').onclick = async function() {
             event.preventDefault();
@@ -290,12 +294,12 @@ var App = (function() {
             _showqueststab();
             return false;
         };
-        form.topic.value = quest.topic;
-        form.title.value = quest.title;
-        form.description.value = quest.description;
-        form.effort.value = quest.effort;
-        form.minlevel.value = quest.minlevel;
-        form.type.value = quest.type;
+        document.querySelector('.card.editquest [name="topic"]').value = quest.topic;
+        document.querySelector('.card.editquest .title').innerHTML = quest.title;
+        document.querySelector('.card.editquest [name="title"]').value = quest.title;
+        document.querySelector('.card.editquest [name="description"]').value = quest.description;
+        document.querySelector('.card.editquest [name="effort"]').value = quest.effort;
+        document.querySelector('.card.editquest [name="type"]').value = quest.type;
         var playersdiv = document.querySelector('.card.editquest .players');
         var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });
         players.unshift({ name: 'Ich', id: playerid });
@@ -309,10 +313,8 @@ var App = (function() {
                 var button = document.createElement('button');
                 button.innerHTML = "Validieren";
                 button.addEventListener('click', async function() {
-                    event.preventDefault();
                     await _validateplayerquest(id, player.id);
                     await _showeditquestcard(id);
-                    return false;
                 });
                 div.appendChild(button);
             }
@@ -370,6 +372,14 @@ var App = (function() {
             });
             buttonrow.appendChild(rewardbutton);
         }
+        if (playerquest.ismyquest) {
+            var editbutton = document.createElement('button');
+            editbutton.innerHTML = "Bearbeiten";
+            editbutton.addEventListener('click', async function() {
+                _showeditquestcard(playerquest.quest);
+            });
+            buttonrow.appendChild(editbutton);
+        }
         var spacer = document.createElement('div');
         spacer.classList.add('spacer');
         buttonrow.appendChild(spacer);
@@ -397,6 +407,14 @@ var App = (function() {
             _showexistingplayerquestdetailscard(result.id);
         });
         buttonrow.appendChild(startbutton);
+        if (quest.ismyquest) {
+            var editbutton = document.createElement('button');
+            editbutton.innerHTML = "Bearbeiten";
+            editbutton.addEventListener('click', async function() {
+                _showeditquestcard(questid);
+            });
+            buttonrow.appendChild(editbutton);
+        }
         document.body.setAttribute('class', 'playerquestdetails');
     }
 
@@ -479,16 +497,13 @@ var App = (function() {
             _showfriendstab();
         },
         addquest: async function() {
-            event.preventDefault();
-            var form = event.target;
             await _post('/api/quest/add', {
-                topic: form.topic.value,
-                title: form.title.value,
-                description: form.description.value,
-                effort: form.effort.value,
-                minlevel: form.minlevel.value,
-                type: form.type.value,
-                players: Array.from(document.querySelectorAll('.card.addquest form .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
+                topic: document.querySelector('.card.addquest [name="topic"]').value,
+                title: document.querySelector('.card.addquest [name="title"]').value,
+                description: document.querySelector('.card.addquest [name="description"]').value,
+                effort: document.querySelector('.card.addquest [name="effort"]').value,
+                type: document.querySelector('.card.addquest [name="type"]').value,
+                players: Array.from(document.querySelectorAll('.card.addquest .players input')).filter(function(a) { return a.checked; }).map(function(b) { return b.value; }),
             });
             _showloggedincard();
             _showqueststab();
@@ -505,13 +520,12 @@ var App = (function() {
         },
         showaddquestcard: async function() {
             await _fetchfriends();
-            var form = document.querySelector('.card.addquest form');
-            form.topic.value = "";
-            form.title.value = "";
-            form.description.value = "";
-            form.effort.value = 5;
-            form.minlevel.value = 1;
-            form.type.value = 0;
+            await _fetchtopics();
+            document.querySelector('.card.addquest [name="topic"]').value = "";
+            document.querySelector('.card.addquest [name="title"]').value = "";
+            document.querySelector('.card.addquest [name="description"]').value = "";
+            document.querySelector('.card.addquest [name="effort"]').value = 5;
+            document.querySelector('.card.addquest [name="type"]').value = 0;
             var playersdiv = document.querySelector('.card.addquest .players');
             var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });
             players.unshift({ name: 'Ich', id: playerid });

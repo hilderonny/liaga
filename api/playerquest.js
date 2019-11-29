@@ -34,7 +34,7 @@ module.exports = function (router) {
         if (!request.body.id) return response.status(400).json({ error: 'id required' });
         var playerquestid = request.body.id;
         var playerid = request.user.id;
-        var playerquests = await db.query('select quest.title, quest.description, quest.effort, playerquest.complete, playerquest.validated from playerquest join quest on playerquest.quest = quest.id join questavailability on questavailability.quest = quest.id where playerquest.id = ? and questavailability.player = ?', [ playerquestid, playerid ]);
+        var playerquests = await db.query('select quest.title, quest.description, quest.effort, playerquest.complete, playerquest.validated, (quest.creator = playerquest.player) ismyquest, playerquest.quest from playerquest join quest on playerquest.quest = quest.id join questavailability on questavailability.quest = quest.id where playerquest.id = ? and questavailability.player = ?', [ playerquestid, playerid ]);
         if (playerquests.length < 1) return response.status(400).json({ error: 'playerquests not found' });
         response.status(200).json(playerquests[0]);
     });

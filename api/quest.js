@@ -15,12 +15,9 @@ module.exports = function(router) {
         if (!request.body.title) return response.status(400).json({ error: 'title required' });
         if (!request.body.description) return response.status(400).json({ error: 'description required' });
         if (!request.body.effort) return response.status(400).json({ error: 'effort required' });
-        if (!request.body.minlevel) return response.status(400).json({ error: 'minlevel required' });
         if (!request.body.type) return response.status(400).json({ error: 'type required' });
         var effort = parseInt(request.body.effort);
         if (!effort) return response.status(400).json({ error: 'effort invalid' });
-        var minlevel = parseInt(request.body.minlevel);
-        if (isNaN(minlevel)) return response.status(400).json({ error: 'minlevel invalid' });
         var type = parseInt(request.body.type);
         if (types.indexOf(type) < 0) return response.status(400).json({ error: 'type invalid' });
         var topic = request.body.topic || "";
@@ -31,12 +28,11 @@ module.exports = function(router) {
         if (description.length > 65535) description = description.subString(0, 65535);
         var playerid = request.user.id;
         // Quest erstellen
-        var questresult = await db.query('insert into quest (topic, title, description, effort, minlevel, type, creator) values (?, ?, ?, ?, ?, ?, ?);', [
+        var questresult = await db.query('insert into quest (topic, title, description, effort, type, creator) values (?, ?, ?, ?, ?, ?);', [
             topic,
             title,
             description,
             effort,
-            minlevel,
             type,
             playerid
         ]);
@@ -79,7 +75,7 @@ module.exports = function(router) {
     router.post('/get', auth, async function(request, response) {
         if (!request.body.id) return response.status(400).json({ error: 'id required' });
         var questid = request.body.id;
-        var quests = await db.query('select id, topic, title, description, effort, minlevel, type, creator from quest where id = ?;', [ questid ]);
+        var quests = await db.query('select id, topic, title, description, effort, type, creator from quest where id = ?;', [ questid ]);
         if (quests.length < 1) return response.status(400).json({ error: 'quest not found' });
         var quest = quests[0];
         var players = await db.query('select player from questavailability where quest = ?', [ questid ]);
@@ -94,8 +90,7 @@ module.exports = function(router) {
         if (!request.body.id) return response.status(400).json({ error: 'id required' });
         var questid = request.body.id;
         var playerid = request.user.id;
-        var playerlevel = request.user.level;
-        var quests = await db.query('select quest.title, quest.description, quest.effort from quest join questavailability on questavailability.quest = quest.id where questavailability.player = ? and quest.id = ? and quest.minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, questid, playerlevel, Date.now() ]);
+        var quests = await db.query('select quest.title, quest.description, quest.effort, (quest.creator = questavailability.player) ismyquest from quest join questavailability on questavailability.quest = quest.id where questavailability.player = ? and quest.id = ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, questid, Date.now() ]);
         if (quests.length < 1) return response.status(400).json({ error: 'quest not found' });
         response.status(200).json(quests[0]);
     });
@@ -115,8 +110,7 @@ module.exports = function(router) {
     // Liste von Quests, die ich beginnen kann und für die für mich noch keine playerquests existieren
     router.post('/listnewforme', auth, async function(request, response) {
         var playerid = request.user.id;
-        var playerlevel = request.user.level;
-        var quests = await db.query('select quest.id, quest.topic, quest.title, quest.effort from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and minlevel <= ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, playerlevel, Date.now() ]);
+        var quests = await db.query('select quest.id, quest.topic, quest.title, quest.effort from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, Date.now() ]);
         response.status(200).json(quests);
     });
 
@@ -127,12 +121,9 @@ module.exports = function(router) {
         if (!request.body.title) return response.status(400).json({ error: 'title required' });
         if (!request.body.description) return response.status(400).json({ error: 'description required' });
         if (!request.body.effort) return response.status(400).json({ error: 'effort required' });
-        if (!request.body.minlevel) return response.status(400).json({ error: 'minlevel required' });
         if (!request.body.type) return response.status(400).json({ error: 'type required' });
         var effort = parseInt(request.body.effort);
         if (!effort) return response.status(400).json({ error: 'effort invalid' });
-        var minlevel = parseInt(request.body.minlevel);
-        if (isNaN(minlevel)) return response.status(400).json({ error: 'minlevel invalid' });
         var type = parseInt(request.body.type);
         if (types.indexOf(type) < 0) return response.status(400).json({ error: 'type invalid' });
         var topic = request.body.topic || "";
@@ -142,12 +133,11 @@ module.exports = function(router) {
         var description = request.body.description;
         if (description.length > 65535) description = description.subString(0, 65535);
         // Quest speichern
-        await db.query('update quest set topic = ?, title = ?, description = ?, effort = ?, minlevel = ?, type = ? where id = ? and creator = ?;', [
+        await db.query('update quest set topic = ?, title = ?, description = ?, effort = ?, type = ? where id = ? and creator = ?;', [
             topic,
             title,
             description,
             effort,
-            minlevel,
             type,
             questid,
             request.user.id
@@ -172,6 +162,13 @@ module.exports = function(router) {
             }
         }
         response.status(200).json({});
+    });
+
+    // Gibt alle meine Themen für Themenliste zurück
+    router.post('/topics', auth, async function(request, response) {
+        var playerid = request.user.id;
+        var quests = await db.query('select distinct topic from quest where creator = ? order by topic;', [ playerid ]);
+        response.status(200).json(quests);
     });
 
     return router;

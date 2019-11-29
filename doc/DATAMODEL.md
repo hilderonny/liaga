@@ -18,7 +18,6 @@ Beschreibung und Grunddaten zu Quests.
 |---|---|---|
 |description|Text|Aufgabenbeschreibung|
 |relep|Dezimalzahl|Relative Anzahl von Erfahrungspunkten zum Spielerlevel|
-|minlevel|Ganzzahl|Mindestlevel, den ein Spieler haben muss, um die Quest beginnen zu können|
 |relrubies|Dezimalzahl|Relative Anzahl von Rubinen, die ein Spieler abhängig von seinem Level bekommt|
 
 

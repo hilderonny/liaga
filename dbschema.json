@@ -73,10 +73,6 @@
                 "type": "int"
             },
             {
-                "name": "minlevel",
-                "type": "int"
-            },
-            {
                 "name": "type",
                 "type": "tinyint"
             },

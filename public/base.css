@@ -80,6 +80,10 @@ button:active {
 
 button:focus { outline:0; }
 
+input[type="checkbox"] { visibility: hidden; }
+input[type="checkbox"]::before { content: ""; display: block; width: 16px; height: 16px; background: url('./icons/checkbox-unselected.png'); visibility: visible; }
+input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selected.png'); }
+
 .errormessage {
     display: none;
 }
@@ -215,7 +219,6 @@ button:focus { outline:0; }
     font-size: 23px;
     box-shadow: inset -2px 1px 3px 2px #000, -1px 1px 2px -1px #fff;
     border-radius: 3px;
-    z-index: 200;
 }
 
 .card.details .rewards .list div::before {
@@ -256,6 +259,33 @@ button:focus { outline:0; }
     right: 15px;
 }
 
+.card.input .content { display: flex; flex-direction: column; }
+.card.input .content label { display: block; line-height: 30px; }
+.card.input .content > input,.card.input .content > select {
+    display: block;
+    background: transparent;
+    padding: 4px 8px;
+    box-shadow: inset -1px 1px 2px 0px #0009, -1px 1px 2px 0px #fff, inset 0px 0px 0px 16px #fff7;
+    border-radius: 3px;
+    font-size: 16px;
+    border: none;
+    margin: 0px 6px 5px 3px;
+}
+.card.input .content > textarea {
+    display: block;
+    background: #fff7;
+    padding: 4px 8px;
+    box-shadow: inset -1px 1px 2px 0px #0009, -1px 1px 2px 0px #fff;
+    border-radius: 3px;
+    font-size: 16px;
+    border: none;
+    margin: 2px 6px 10px 3px;
+    flex: 1;
+    min-height: 100px;
+}
+
+.card.input .players div { display: flex; }
+.card.input .players div label { margin-right: 6px; }
 
 .card.loggedin .buttonrow { display: none; margin: -3px 3px 1px 3px; }
 
