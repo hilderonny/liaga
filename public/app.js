@@ -71,7 +71,6 @@ var App = (function() {
     async function _fetchstats() {
         stats = await _post('/api/player/getstats');
         var eppercent = (stats.ep - ((stats.level - 1) * 400)) / 4;
-        console.log(eppercent);
         document.querySelector('.card.loggedin .stats .level').innerHTML = stats.level;
         document.querySelector('.card.loggedin .stats .name').innerHTML = stats.username;
         document.querySelector('.card.loggedin .stats .ep .bar').style.width = eppercent + "%";
@@ -554,3 +553,13 @@ var App = (function() {
         showfriendstab: _showfriendstab,
     };
 })();
+
+// Service worker einbinden. Dieser muss im Stammverzeichnis der App in der Datei "serviceworker.js"
+// enthalten sein.
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        var serviceWorkerFile = 'serviceworker.js';
+        console.log('%c🧰 load: Registriere service worker aus Datei ' + serviceWorkerFile, 'color:yellow');
+        navigator.serviceWorker.register(serviceWorkerFile);
+    });
+}
