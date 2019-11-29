@@ -374,7 +374,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     position: relative;
     height: 76px;
     padding: 0 4px 0 71px;
-    margin-right: 40px;
+    margin-right: 2px;
     text-shadow: 0px 0px 2px #000, 0px 0px 2px #000;
     flex: none;
 }
