@@ -83,6 +83,7 @@ var App = (function() {
     function _getorcreatetopicdiv(questlist, topicdivs, topic) {
         if (!topicdivs[topic]) {
             var topicdiv = document.createElement('div');
+            topicdiv.topic = topic;
             topicdiv.classList.add('topic');
             var titlediv = document.createElement('div');
             titlediv.classList.add('title');
@@ -140,6 +141,21 @@ var App = (function() {
         });
     }
 
+    // Sortiert die Questliste nach Themen, Status, Schwierigkeit und  Bezeichnung
+    function _sortquestlist(questlist) {
+        // Themen sortieren
+        var topiclist = Array.from(questlist.childNodes).sort(function(a, b) { return a.topic.localeCompare(b.topic); });
+        // in den Themen die Quests sortieren
+        topiclist.forEach(function(topicnode) { 
+            Array.from(topicnode.querySelectorAll('.quest')).sort(function(a, b) {
+                return a.quest.isnew - b.quest.isnew || b.quest.validated - a.quest.validated || b.quest.complete - a.quest.complete || b.quest.effort - a.quest.effort || a.quest.title.localeCompare(b.quest.title);
+            }).forEach(function(questnode) {
+                topicnode.appendChild(questnode);
+            });
+            questlist.appendChild(topicnode);
+        });
+    }
+
     // Listet sowohl neue verfügbare Quests für mich als auch laufende Quests auf
     async function _listplayerquests() {
         await _fetchnewquestsforplayer();
@@ -150,6 +166,8 @@ var App = (function() {
         // Erst die bereits laufenden Quests
         playerquests.forEach(function(playerquest) {
             var node = document.createElement('div');
+            node.quest = playerquest;
+            playerquest.isnew = 0;
             node.classList.add('quest');
             node.classList.add('effort' + playerquest.effort);
             if (!playerquest.complete) node.classList.add('running');
@@ -164,6 +182,10 @@ var App = (function() {
         // Dann die neu verfügbaren Quests
         newquestsforplayer.forEach(function(newquest) {
             var node = document.createElement('div');
+            node.quest = newquest;
+            newquest.validated = 0;
+            newquest.complete = 0;
+            newquest.isnew = 1;
             node.classList.add('quest');
             node.classList.add('effort' + newquest.effort);
             node.classList.add('pending');
@@ -173,6 +195,7 @@ var App = (function() {
             node.innerHTML = newquest.title;
             _getorcreatetopicdiv(playerquestlist, topicdivs, newquest.topic || "Sonstige").appendChild(node);
         });
+        _sortquestlist(playerquestlist);
     }
 
     async function _listquests(showinvisible) {
