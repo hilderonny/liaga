@@ -4,23 +4,23 @@
         "columns": [
             {
                 "name": "username",
-                "type": "varchar(255)"
+                "type": "varchar(255) not null"
             },
             {
                 "name": "password",
-                "type": "varchar(255)"
+                "type": "varchar(255) not null"
             },
             {
                 "name": "ep",
-                "type": "int"
+                "type": "int not null default 0"
             },
             {
                 "name": "level",
-                "type": "int"
+                "type": "int not null default 1"
             },
             {
                 "name": "rubies",
-                "type": "int"
+                "type": "int not null default 0"
             }
         ]
     },
@@ -29,27 +29,27 @@
         "columns": [
             {
                 "name": "player",
-                "type": "int"
+                "type": "int not null"
             },
             {
                 "name": "quest",
-                "type": "int"
+                "type": "int not null"
             },
             {
                 "name": "complete",
-                "type": "bool"
+                "type": "bool not null default 0"
             },
             {
                 "name": "validated",
-                "type": "bool"
+                "type": "bool not null default 0"
             },
             {
                 "name": "startedat",
-                "type": "bigint"
+                "type": "bigint not null default 0"
             },
             {
                 "name": "completedat",
-                "type": "bigint"
+                "type": "bigint not null default 0"
             }
         ]
     },
@@ -62,23 +62,23 @@
             },
             {
                 "name": "title",
-                "type": "text"
+                "type": "text not null"
             },
             {
                 "name": "description",
-                "type": "text"
+                "type": "text not null"
             },
             {
                 "name": "effort",
-                "type": "int"
+                "type": "int not null default 0"
             },
             {
                 "name": "type",
-                "type": "tinyint"
+                "type": "tinyint not null default 0"
             },
             {
                 "name": "creator",
-                "type": "int"
+                "type": "int not null"
             }
         ]
     },
@@ -87,15 +87,15 @@
         "columns": [
             {
                 "name": "initiator",
-                "type": "int"
+                "type": "int not null"
             },
             {
                 "name": "other",
-                "type": "int"
+                "type": "int not null"
             },
             {
                 "name": "accepted",
-                "type": "bool"
+                "type": "bool not null default 0"
             }
         ]
     },
@@ -104,15 +104,15 @@
         "columns": [
             {
                 "name": "quest",
-                "type": "int"
+                "type": "int not null"
             },
             {
                 "name": "player",
-                "type": "int"
+                "type": "int not null"
             },
             {
                 "name": "availablefrom",
-                "type": "bigint"
+                "type": "bigint not null default 0"
             }
         ]
     },
@@ -121,11 +121,11 @@
         "columns": [
             {
                 "name": "targetplayer",
-                "type": "int"
+                "type": "int not null"
             },
             {
                 "name": "type",
-                "type": "tinyint"
+                "type": "tinyint not null"
             }
         ]
     }
