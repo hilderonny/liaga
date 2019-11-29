@@ -139,9 +139,9 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.quests .list .invisible { color: #9D9D9D; }
 .card.quests .list .complete { background-image: url(./icons/questionyellow.png); }
 
-.card.friends .list .pending { color: #f0f000; }
-.card.friends .list .incoming { color: #f00000; }
-.card.friends .list .accepted { color: #00e000; }
+.card.friends .list .pending .username { color: #f0f000; }
+.card.friends .list .incoming .username { color: #f00000; }
+.card.friends .list .accepted .username { color: #00e000; }
 
 .card.playerquests .list .quest { padding-left: 18px; margin-left: 18px; }
 .card.playerquests .list .pending { background-image: url(./icons/asteriskyellow.png); }
@@ -259,6 +259,35 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     right: 15px;
 }
 
+.card.friends .list > div { display: flex; position: relative; padding: 2px 0px 6px 2px; }
+.card.friends .list .avatar {
+    width: 44px;
+    height: 44px;
+    background-image: url(./images/friend-frame.png), url(./icons/avatar.png);
+    background-position: center center;
+    background-size: auto, contain;
+    border: 4px solid transparent;
+    background-clip: border-box, content-box;
+}
+.card.friends .list .level {
+    position: absolute;
+    background-image: url(./images/ring.png);
+    width: 18px;
+    height: 16px;
+    top: 31px;
+    left: 28px;
+    z-index: 200;
+    background-color: #000000bb;
+    border-radius: 8px;
+    text-align: center;
+    color: #FFD100;
+    text-shadow: 2px 2px 1px #000;
+    font-size: 8px;
+    background-size: 18px 16px;
+    padding-top: 4px;
+}
+.card.friends .list .username { flex: 1; line-height: 40px; padding: 0 8px; }
+
 .card.input .content { display: flex; flex-direction: column; }
 .card.input .content label { display: block; line-height: 30px; }
 .card.input .content > input,.card.input .content > select {
@@ -296,21 +325,18 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     overflow: auto;
 }
 
-.list div {
-    padding: 3px 0px 3px 18px;
-    background-position: left 3px;
-    background-repeat: no-repeat;
-}
-
 .list .topic {
     padding: 0;
 }
 
-.list .quest, .tab.friends .list div {
+.list .quest {
+    padding: 3px 0px 3px 18px;
+    background-position: left 3px;
+    background-repeat: no-repeat;
     cursor: pointer;
 }
 
-.list .quest:hover, .tab.friends .list div:hover {
+.list .quest:hover {
     box-shadow: inset 0px 0px 10px -1px #FFD100;
     border-radius: 12px;
 }

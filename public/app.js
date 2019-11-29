@@ -28,6 +28,7 @@ var App = (function() {
 
     async function _fetchfriends() {
         friends = await _post('/api/friend/list');
+        friends.sort(function(a, b) { return a.username.localeCompare(b.username); });
         console.log('👪 friends', friends);
     }
 
@@ -105,10 +106,36 @@ var App = (function() {
             if (friend.incoming) node.classList.add('incoming');
             if (friend.accepted) node.classList.add('accepted');
             if (!friend.incoming && !friend.accepted) node.classList.add('pending');
-            node.addEventListener('click', function() {
-                _showeditfriendcard(friend);
-            });
-            node.innerHTML = friend.username;
+            node.innerHTML = '<div class="avatar"></div><div class="level">' + friend.level + '</div><div class="username">' + friend.username + '</div>';
+            if (friend.incoming && !friend.accepted) {
+                var acceptbutton = document.createElement('button');
+                acceptbutton.innerHTML = "Anfrage annehmen";
+                acceptbutton.addEventListener('click', async function() {
+                    await _post('/api/friend/accept', { id: friend.friendshipid });
+                    _showloggedincard();
+                    _showfriendstab();
+                });
+                node.appendChild(acceptbutton);
+                var rejectbutton = document.createElement('button');
+                rejectbutton.innerHTML = "Anfrage ablehnen";
+                rejectbutton.addEventListener('click', async function() {
+                    if (!confirm('Freundschaftsanfrage wirklich ablehnen?')) return;
+                    await _post('/api/friend/reject', { id: friend.friendshipid });
+                    _showloggedincard();
+                    _showfriendstab();
+                });
+                node.appendChild(rejectbutton);
+            } else {
+                var deletebutton = document.createElement('button');
+                deletebutton.innerHTML = (!friend.incoming && !friend.accepted) ? "Anfrage löschen" : "Freundschaft beenden";
+                deletebutton.addEventListener('click', async function() {
+                    if (!confirm((!friend.incoming && !friend.accepted) ? 'Anfrage wirklich löschen?' : 'Freundschaft wirklich beenden?')) return;
+                    await _post('/api/friend/delete', { id: friend.friendshipid });
+                    _showloggedincard();
+                    _showfriendstab();
+                });
+                node.appendChild(deletebutton);
+            }
             friendlist.appendChild(node);
         });
     }
@@ -222,49 +249,6 @@ var App = (function() {
             // Registrierung fehlgeschlagen
             errormessagediv.style.display = 'block';
         }
-    }
-
-    async function _showeditfriendcard(friend) {
-        var h1 = document.querySelector('.card.editfriend h1');
-        h1.innerHTML = friend.username;
-        var buttonrow = document.querySelector('.card.editfriend .buttonrow');
-        buttonrow.innerHTML = "";
-        if (friend.incoming && !friend.accepted) {
-            var acceptbutton = document.createElement('button');
-            acceptbutton.innerHTML = "Annehmen";
-            acceptbutton.addEventListener('click', async function() {
-                await _post('/api/friend/accept', { id: friend.friendshipid });
-                _showloggedincard();
-                _showfriendstab();
-            });
-            buttonrow.appendChild(acceptbutton);
-            var rejectbutton = document.createElement('button');
-            rejectbutton.innerHTML = "Ablehnen";
-            rejectbutton.addEventListener('click', async function() {
-                await _post('/api/friend/reject', { id: friend.friendshipid });
-                _showloggedincard();
-                _showfriendstab();
-            });
-            buttonrow.appendChild(rejectbutton);
-        } else {
-            var deletebutton = document.createElement('button');
-            deletebutton.innerHTML = "Löschen";
-            deletebutton.addEventListener('click', async function() {
-                if (!confirm('Freundschaft wirklich löschen?')) return;
-                await _post('/api/friend/delete', { id: friend.friendshipid });
-                _showloggedincard();
-                _showfriendstab();
-            });
-            buttonrow.appendChild(deletebutton);
-        }
-        var cancelbutton = document.createElement('button');
-        cancelbutton.innerHTML = "Abbrechen";
-        cancelbutton.addEventListener('click', async function() {
-            _showloggedincard();
-            _showfriendstab();
-        });
-        buttonrow.appendChild(cancelbutton);
-        document.body.setAttribute('class', 'editfriend');
     }
 
     async function _showeditquestcard(id) {
@@ -485,9 +469,8 @@ var App = (function() {
 
     return {
         addfriend: async function() {
-            event.preventDefault();
             var result = await _post('/api/friend/add', {
-                username: event.target.username.value,
+                username: document.querySelector('.card.addfriend [name="username"]').value,
             });
             if (result.error) {
                 alert(result.error);
@@ -514,8 +497,7 @@ var App = (function() {
         register: _register,
         setpassword: _setpassword,
         showaddfriendcard: async function() {
-            var form = document.querySelector('.card.addfriend form');
-            form.username.value = "";
+            document.querySelector('.card.addfriend [name="username"]').value = "";
             document.body.setAttribute('class', 'addfriend');
         },
         showaddquestcard: async function() {

@@ -160,18 +160,18 @@
         </div>
     </div>
 
-    <div class="card addfriend">
-        <form onsubmit="App.addfriend();return false;">
-            <h1>Neue Freundschaftsanfrage</h1>
-            <div><label>Spielername</label><input name="username" /></div>
-            <div><input type="submit" value="Absenden" /></div>
-        </form>
-        <button onclick="App.showloggedincard();">Abbrechen</button>
-    </div>
-
-    <div class="card editfriend">
-        <h1 class="name"></h1>
-        <div class="buttonrow"></div>
+    <div class="card addfriend details input">
+        <div class="buttonrow top">
+            <button onclick="App.showloggedincard();App.showfriendstab();">Zurück</button>
+        </div>
+        <div class="content">
+            <div class="title">Neue Freundschaftsanfrage</div>
+            <label>Spielername</label>
+            <input name="username" />
+        </div>
+        <div class="buttonrow bottom">
+            <button onclick="App.addfriend();">Absenden</button>
+        </div>
     </div>
 
     <div class="card playerquestdetails details">
