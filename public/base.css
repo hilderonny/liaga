@@ -52,12 +52,13 @@ button {
     background-position: left, right, center;
     border: none;
     height: 32px;
-    min-width: 80px;
+    min-width: 32px;
     padding: 0 9px;
     background-size: auto, auto, 100% 100%;
     background-clip: border-box, border-box, content-box;
     color: #FFD100;
     text-shadow: 2px 2px 1px #000;
+    align-self: center;
 }
 
 button:hover {
@@ -92,6 +93,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     display: none;
     flex-direction: column;
     flex: 1;
+    max-width: 100%;
 }
 
 .card.playerquests .tab.playerquests,
@@ -261,6 +263,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 
 .card.friends .list > div { display: flex; position: relative; padding: 2px 0px 6px 2px; }
 .card.friends .list .avatar {
+    min-width: 44px;
     width: 44px;
     height: 44px;
     background-image: url(./images/friend-frame.png), url(./icons/avatar.png);
@@ -286,7 +289,14 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     background-size: 18px 16px;
     padding-top: 4px;
 }
-.card.friends .list .username { flex: 1; line-height: 40px; padding: 0 8px; }
+.card.friends .list .username {
+    flex: 1;
+    line-height: 40px;
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .card.input .content { display: flex; flex-direction: column; }
 .card.input .content label { display: block; line-height: 30px; }
