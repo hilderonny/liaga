@@ -44,7 +44,7 @@ module.exports = function(router) {
     // Freunde und Freundschaftsanfragen auflisten
     router.post('/list', auth, async function(request, response) {
         var playerid = request.user.id;
-        var friendships = await db.query('select friendship.id friendshipid, friendship.accepted, friendship.initiator friendshipinitiator, friendship.other friendshipother, initiator.username initiatorusername, other.username otherusername, initiator.level initiatorlevel, other.level otherlevel from friendship left join player initiator on friendship.initiator = initiator.id left join player other on friendship.other = other.id where friendship.initiator = ? or friendship.other = ?;', [playerid, playerid]);
+        var friendships = await db.query('select friendship.id friendshipid, friendship.accepted, friendship.initiator friendshipinitiator, friendship.other friendshipother, initiator.username initiatorusername, other.username otherusername, initiator.level initiatorlevel, other.level otherlevel, initiator.avatarurl initiatoravatarurl, other.avatarurl otheravatarurl from friendship left join player initiator on friendship.initiator = initiator.id left join player other on friendship.other = other.id where friendship.initiator = ? or friendship.other = ?;', [playerid, playerid]);
         var result = friendships.map(function(friendship) {
             return {
                 friendid: friendship.friendshipinitiator === playerid ? friendship.friendshipother : friendship.friendshipinitiator,
@@ -52,7 +52,8 @@ module.exports = function(router) {
                 friendshipid: friendship.friendshipid,
                 accepted: friendship.accepted,
                 incoming: friendship.friendshipinitiator !== playerid,
-                level: friendship.friendshipinitiator === playerid ? friendship.otherlevel : friendship.initiatorlevel
+                level: friendship.friendshipinitiator === playerid ? friendship.otherlevel : friendship.initiatorlevel,
+                avatarurl: friendship.friendshipinitiator === playerid ? friendship.otheravatarurl : friendship.initiatoravatarurl
             };
         });
         response.status(200).json(result);

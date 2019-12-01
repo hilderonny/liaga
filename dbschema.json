@@ -21,6 +21,10 @@
             {
                 "name": "rubies",
                 "type": "int not null default 0"
+            },
+            {
+                "name": "avatarurl",
+                "type": "text"
             }
         ]
     },

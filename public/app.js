@@ -71,11 +71,17 @@ var App = (function() {
     async function _fetchstats() {
         stats = await _post('/api/player/getstats');
         var eppercent = (stats.ep - ((stats.level - 1) * 400)) / 4;
+        if (stats.avatarurl) {
+            document.querySelector('.card.loggedin .stats .avatar').style.background = 'url(' + stats.avatarurl + ') center/100%';
+        } else {
+            delete document.querySelector('.card.loggedin .stats .avatar').removeAttribute('style');
+        }
         document.querySelector('.card.loggedin .stats .level').innerHTML = stats.level;
         document.querySelector('.card.loggedin .stats .name').innerHTML = stats.username;
         document.querySelector('.card.loggedin .stats .ep .bar').style.width = eppercent + "%";
         document.querySelector('.card.loggedin .stats .ep .text').innerHTML = "EP: " + stats.ep + " / " + (stats.level * 400);
         document.querySelector('.card.loggedin .stats .rubies').innerHTML = "Rubine: " + _createrubieshtml(stats.rubies);
+        document.querySelector('.card.profile .title').innerHTML = stats.username;
         console.log('🧑 stats', stats);
     }
 
@@ -106,7 +112,8 @@ var App = (function() {
             if (friend.incoming) node.classList.add('incoming');
             if (friend.accepted) node.classList.add('accepted');
             if (!friend.incoming && !friend.accepted) node.classList.add('pending');
-            node.innerHTML = '<div class="avatar"></div><div class="level">' + friend.level + '</div><div class="username">' + friend.username + '</div>';
+            var avatarstyle = friend.avatarurl ? 'style="background-image: url(./images/friend-frame.png), url(' + friend.avatarurl + ')"' : '';
+            node.innerHTML = '<div class="avatar" ' + avatarstyle + '></div><div class="level">' + friend.level + '</div><div class="username">' + friend.username + '</div>';
             if (friend.incoming && !friend.accepted) {
                 var acceptbutton = document.createElement('button');
                 acceptbutton.innerHTML = "✔";
@@ -479,6 +486,11 @@ var App = (function() {
         _showplayerqueststab();
     }
 
+    function _updateprofileavatarimage() {
+        var url = document.querySelector('.card.profile [name="avatarurl"]').value;
+        document.querySelector('.card.profile .avatarimage').style.background = 'url(./images/friend-frame.png) center/auto border-box, url(' + url + ') center/contain content-box';
+    }
+
     async function _validateplayerquest(questid, playerid) {
         await _post('/api/playerquest/validate', { questid: questid, playerid: playerid });
     }
@@ -515,6 +527,24 @@ var App = (function() {
         login: _login,
         logout: _logout,
         register: _register,
+        saveprofile: async function() {
+            var errormessagediv = document.querySelector('.card.profile .errormessage');
+            errormessagediv.style.display = 'none';
+            var avatarurl = document.querySelector('.card.profile [name="avatarurl"]').value;
+            var password1 = document.querySelector('.card.profile [name="password1"]').value;
+            var password2 = document.querySelector('.card.profile [name="password2"]').value;
+            if ((password1 || password2) && password1 !== password2) {
+                errormessagediv.style.display = 'block';
+                return;
+            }
+            var data = { avatarurl: avatarurl };
+            if (password1) data.password = password1;
+            await _post('/api/player/saveprofile', data);
+            if (password1) _storeusercredentials(stats.username, password1);
+            _showloggedincard();
+            _showplayerqueststab();
+            _fetchstats();
+        },
         setpassword: _setpassword,
         showaddfriendcard: async function() {
             document.querySelector('.card.addfriend [name="username"]').value = "";
@@ -545,12 +575,19 @@ var App = (function() {
         showloggedincard: _showloggedincard,
         showlogincard: _showlogincard,
         showplayerqueststab: _showplayerqueststab,
+        showprofilecard: function() {
+            document.querySelector('.card.profile [name="avatarurl"]').value = stats.avatarurl;
+            _updateprofileavatarimage();
+            document.querySelector('.card.profile .errormessage').style.display = 'none';
+            document.body.setAttribute('class', 'profile');
+        },
         showregistercard: function() {
             document.querySelector('.card.register .errormessage').style.display = 'none';
             document.body.setAttribute('class', 'register');
         },
         showqueststab: _showqueststab,
         showfriendstab: _showfriendstab,
+        updateprofileavatarimage: _updateprofileavatarimage,
     };
 })();
 
