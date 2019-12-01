@@ -577,6 +577,8 @@ var App = (function() {
         showplayerqueststab: _showplayerqueststab,
         showprofilecard: function() {
             document.querySelector('.card.profile [name="avatarurl"]').value = stats.avatarurl;
+            document.querySelector('.card.profile [name="password1"]').value = "";
+            document.querySelector('.card.profile [name="password2"]').value = "";
             _updateprofileavatarimage();
             document.querySelector('.card.profile .errormessage').style.display = 'none';
             document.body.setAttribute('class', 'profile');
