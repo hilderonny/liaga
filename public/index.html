@@ -70,6 +70,7 @@
                 <div class="rubies"></div>
             </div>
         </div>
+        <div class="mail" onclick="App.showmailbox();"></div>
         <div class="tabbuttons">
             <button class="playerquests" onclick="App.showplayerqueststab();">Aufgaben</button>
             <button class="friends" onclick="App.showfriendstab();">Freunde</button>
@@ -221,6 +222,39 @@
             <div class="spacer"></div>
             <button onclick="App.logout();">Abmelden</button>
         </div>
+    </div>
+
+    <div class="card mailbox details">
+        <div class="buttonrow top">
+            <button onclick="App.showloggedincard();App.showplayerqueststab();">Zurück</button>
+        </div>
+        <div class="list"></div>
+    </div>
+
+    <div class="card messagedetails details">
+        <div class="buttonrow top">
+            <button onclick="App.showmailbox();">Zurück</button>
+        </div>
+        <div class="content">
+            <div class="avatar"></div>
+            <div class="title"></div>
+            <div class="description"></div>
+        </div>
+        <div class="buttonrow bottom"></div>
+    </div>
+
+    <div class="card createmessage details input">
+        <div class="buttonrow top">
+            <button onclick="App.showmailbox();">Zurück</button>
+        </div>
+        <div class="content">
+            <div class="avatar"></div>
+            <label>An</label>
+            <div class="toplayer"></div>
+            <label>Nachricht</label>
+            <textarea name="content"></textarea>
+        </div>
+        <div class="buttonrow bottom"></div>
     </div>
 
     <datalist id="topics"></datalist>

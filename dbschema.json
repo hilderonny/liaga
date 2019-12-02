@@ -136,5 +136,30 @@
                 "type": "tinyint not null"
             }
         ]
+    },
+    {
+        "tablename": "message",
+        "columns": [
+            {
+                "name": "fromplayer",
+                "type": "int not null"
+            },
+            {
+                "name": "toplayer",
+                "type": "int not null"
+            },
+            {
+                "name": "title",
+                "type": "varchar(255) not null"
+            },
+            {
+                "name": "content",
+                "type": "text"
+            },
+            {
+                "name": "isread",
+                "type": "bool not null default 0"
+            }
+        ]
     }
 ]
