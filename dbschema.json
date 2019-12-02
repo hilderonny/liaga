@@ -25,6 +25,10 @@
             {
                 "name": "avatarurl",
                 "type": "text"
+            },
+            {
+                "name": "canselfquest",
+                "type": "bool not null default 0"
             }
         ]
     },

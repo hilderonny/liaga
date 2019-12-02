@@ -9,7 +9,7 @@ module.exports = function(router) {
 
     // Eigenschaften von mir selbst
     router.post('/getstats', auth, async function(request, response) {
-        var stats = await db.query('select username, ep, rubies, level, avatarurl from player where id = ?', [ request.user.id ]);
+        var stats = await db.query('select username, ep, rubies, level, avatarurl, canselfquest from player where id = ?', [ request.user.id ]);
         response.status(200).json(stats[0]);
     });
 

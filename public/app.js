@@ -313,7 +313,7 @@ var App = (function() {
         document.querySelector('.card.editquest [name="type"]').value = quest.type;
         var playersdiv = document.querySelector('.card.editquest .players');
         var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });
-        players.unshift({ name: 'Ich', id: playerid });
+        if (stats.canselfquest) players.unshift({ name: 'Ich', id: playerid });
         playersdiv.innerHTML = "";
         players.forEach(function(player) {
             var div = document.createElement('div');
@@ -560,7 +560,7 @@ var App = (function() {
             document.querySelector('.card.addquest [name="type"]').value = 0;
             var playersdiv = document.querySelector('.card.addquest .players');
             var players = friends.filter(function(friend) { return friend.accepted; }).map(function(friend) { return { name: friend.username, id: friend.friendid }; });
-            players.unshift({ name: 'Ich', id: playerid });
+            if (stats.canselfquest) players.unshift({ name: 'Ich', id: playerid });
             playersdiv.innerHTML = players.map(function(player) {
                 return '<label><input type="checkbox" name="players" value="' + player.id + '" /><span>' + player.name + '</span></label>';
             }).join('');

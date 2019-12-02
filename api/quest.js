@@ -44,11 +44,12 @@ module.exports = function(router) {
             var params = [];
             var now = Date.now();
             players.forEach(function(idstring) {
-                var playerid = parseInt(idstring);
-                if (isNaN(playerid)) return;
+                var otherplayerid = parseInt(idstring);
+                if (isNaN(otherplayerid)) return;
+                if (otherplayerid === playerid && !request.user.canselfquest) return;
                 queries.push('insert into questavailability (quest, player, availablefrom) values (?, ?, ?);');
                 params.push(questid);
-                params.push(playerid);
+                params.push(otherplayerid);
                 params.push(now);
             });
             if (queries.length > 0) {
@@ -132,6 +133,7 @@ module.exports = function(router) {
         if (title.length > 255) title = title.subString(0, 255);
         var description = request.body.description;
         if (description.length > 65535) description = description.subString(0, 65535);
+        var playerid = request.user.id;
         // Quest speichern
         await db.query('update quest set topic = ?, title = ?, description = ?, effort = ?, type = ? where id = ? and creator = ?;', [
             topic,
@@ -140,7 +142,7 @@ module.exports = function(router) {
             effort,
             type,
             questid,
-            request.user.id
+            playerid
         ]);
         // Verfügbarkeit speichern
         await db.query('delete from questavailability where quest = ?', [ questid ]);
@@ -150,11 +152,12 @@ module.exports = function(router) {
             var params = [];
             var now = Date.now();
             players.forEach(function(idstring) {
-                var playerid = parseInt(idstring);
-                if (isNaN(playerid)) return;
+                var otherplayerid = parseInt(idstring);
+                if (isNaN(otherplayerid)) return;
+                if (otherplayerid === playerid && !request.user.canselfquest) return;
                 queries.push('insert into questavailability (quest, player, availablefrom) values (?, ?, ?);');
                 params.push(questid);
-                params.push(playerid);
+                params.push(otherplayerid);
                 params.push(now);
             });
             if (queries.length > 0) {
