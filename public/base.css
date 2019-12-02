@@ -316,6 +316,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     font-size: 16px;
     border: none;
     margin: 0px 6px 5px 3px;
+    -webkit-appearance: none;
 }
 .card.input .content > textarea {
     display: block;
