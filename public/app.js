@@ -7,7 +7,7 @@ var App = (function () {
     var playerid;
     var stats;
 
-    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [];
+    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], collapsedtopics = JSON.parse(localStorage.getItem('collapsedtopics') || '{}');
 
     async function _post(url, data) {
         var response = await fetch(url, {
@@ -50,7 +50,7 @@ var App = (function () {
     async function _fetchquests(showinvisible) {
         quests = await _post('/api/quest/list', { showinvisible: showinvisible });
         quests.sort(function (a, b) { // Erst nach solchen mit Spielern, dann nach zu validierenden, dann nach Aufwand absteigend, dann Titel alphabetisch
-            return b.assigned - a.assigned || b.complete - a.complete || b.effort - a.effort || a.title.localeCompare(b.title);
+            return (a.topic || "Sonstige").localeCompare(b.topic || "Sonstige") || b.assigned - a.assigned || b.complete - a.complete || b.effort - a.effort || a.title.localeCompare(b.title);
         });
         console.log('🧰 quests', quests);
     }
@@ -98,8 +98,15 @@ var App = (function () {
             var titlediv = document.createElement('div');
             titlediv.classList.add('title');
             titlediv.innerHTML = topic;
+            if (collapsedtopics[topic]) topicdiv.classList.add('closed');
             titlediv.addEventListener('click', function () {
                 topicdiv.classList.toggle('closed');
+                if (topicdiv.classList.contains('closed')) {
+                    collapsedtopics[topic] = 1;
+                } else {
+                    delete collapsedtopics[topic];
+                }
+                localStorage.setItem('collapsedtopics', JSON.stringify(collapsedtopics));
             });
             topicdiv.appendChild(titlediv);
             topicdivs[topic] = topicdiv;
