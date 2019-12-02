@@ -116,7 +116,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     background-clip: border-box, border-box, border-box, border-box, padding-box, padding-box;
     color: #FFD100;
     border-width: 7px 5px 4px 5px;
-    padding: 6px 5px 8px 5px;
+    padding: 8px 7px 10px 7px;
     top: 0;
 }
 
@@ -327,7 +327,11 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 }
 
 .card.input .players div { display: flex; }
-.card.input .players div label { margin-right: 6px; }
+.card.input .players div label {
+    margin-right: 6px;
+    padding: 2px 0;
+    flex: 1;
+}
 
 .card.login, .card.register { margin-bottom: 0; }
 .card.login .content, .card.register .content { flex: unset; }
@@ -365,8 +369,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 }
 
 .list .quest {
-    padding: 3px 0px 3px 18px;
-    background-position: left 3px;
+    padding: 5px 0px 5px 18px;
+    background-position: left 5px;
     background-repeat: no-repeat;
     cursor: pointer;
 }
@@ -379,9 +383,10 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .list .topic .title {
     cursor: pointer;
     background-repeat: no-repeat;
-    background-position: left 7px;
+    background-position: left 12px;
     background-image: url(./icons/minus.png);
-    padding: 6px 0px 2px 18px;
+    padding: 9px 0px 5px 18px;
+    font-size: 17px;
 }
 
 .list .topic.closed .title { background-image: url(./icons/plus.png); }
@@ -546,14 +551,15 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     background-origin: border-box;
     background-clip: border-box, border-box, padding-box;
     border-width: 7px 5px 0px 5px;
-    padding: 2px 5px 3px 5px;
+    padding: 4px 7px 5px 7px;
     background-color: transparent;
     top: 0px;
-    font-size: 13px;
+    font-size: 16px;
     height: auto;
     background-size: unset;
     min-width: unset;
     color: white;
+    margin: 0 -3px;
 }
 
 .tabbuttons button:active {
