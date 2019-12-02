@@ -24,7 +24,7 @@ module.exports = function(router) {
     // Alle an mich addressierten Nachrichten auflisten
     router.post('/list', auth, async function(request, response) {
         var playerid = request.user.id;
-        var messages = await db.query('select id, fromplayer, title, content, isread from message where toplayer = ?;', [playerid]);
+        var messages = await db.query('select id, fromplayer, title, content, isread from message where toplayer = ? order by id desc;', [playerid]);
         response.status(200).json(messages);
     });
 
