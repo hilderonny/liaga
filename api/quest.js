@@ -51,6 +51,9 @@ module.exports = function(router) {
                 params.push(questid);
                 params.push(otherplayerid);
                 params.push(now);
+                // Benachrichrigung erstellen
+                queries.push('insert into notification (targetplayer, type) values (?, 4);');
+                params.push(otherplayerid);
             });
             if (queries.length > 0) {
                 await db.query(queries.join(''), params);

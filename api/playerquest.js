@@ -21,10 +21,13 @@ module.exports = function (router) {
         var playerid = request.user.id;
         var playerquests = await db.query('select quest.creator from playerquest join quest on playerquest.quest = quest.id join questavailability on questavailability.quest = quest.id where playerquest.id = ? and playerquest.player = ? and questavailability.player = ?', [ playerquestid, playerid, playerid ]);
         if (playerquests.length < 1) return response.status(400).json({ error: 'playerquests not found' });
-        if (playerquests[0].creator === playerid) { // Wenn es meine ist, dann gleich abschliessen
+        var creator = playerquests[0].creator;
+        if (creator === playerid) { // Wenn es meine ist, dann gleich abschliessen
             await db.query('update playerquest set complete = 1, validated = 1, completedat = ? where id = ?', [ Date.now(), playerquestid ]);
         } else {
             await db.query('update playerquest set complete = 1, completedat = ? where id = ?', [ Date.now(), playerquestid ]);
+            // Benachrichrigung erstellen
+            await db.query('insert into notification (targetplayer, type) values (?, 6);', [creator]);
         }
         response.status(200).json({});
     });
@@ -105,6 +108,8 @@ module.exports = function (router) {
         var playerquests = await db.query('select playerquest.id from playerquest join quest on quest.id = playerquest.quest where quest.id = ? and playerquest.player = ? and quest.creator = ?', [ questid, otherplayerid, playerid ]);
         if (playerquests.length < 1) return response.status(400).json({ error: 'playerquests not found' });
         await db.query('update playerquest set complete = 1, validated = 1 where id = ?', [ playerquests[0].id ]);
+        // Benachrichrigung erstellen
+        await db.query('insert into notification (targetplayer, type) values (?, 5);', [otherplayerid]);
         response.status(200).json({});
     });
 

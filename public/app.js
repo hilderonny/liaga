@@ -593,6 +593,12 @@ var App = (function () {
             switch (notification) {
                 // Neue Nachrichten eingetroffen
                 case "0": _listmessages(); document.querySelector('.card.loggedin .mail').classList.add('newmail'); break;
+                case "1": _listfriends(); break;
+                case "2": _listfriends(); break;
+                case "3": _listfriends(); break;
+                case "4": _listplayerquests(); break;
+                case "5": _listplayerquests(); break;
+                case "6": _listquests(); break;
             }
         }
         console.log('ℹ notifications', notifications);

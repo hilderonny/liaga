@@ -7,7 +7,13 @@ module.exports = function(router) {
      * Benachrichtigungen werden von anderen APIs erzeugt.
      * 
      * Benachrichtigungstypen:
-     *  0 - Eine Neue Nachricht ist für mich vorhanden (message), sie sollte abgeholt werden
+     *  0 - Eine neue Nachricht ist für mich vorhanden (message), sie sollte abgeholt werden
+     *  1 - Ich habe eine Freundschaftsanfrage erhalten
+     *  2 - Eine von mir gesendete Freundschaftsanfragen wurde bestätigt
+     *  3 - Eine von mir gesendete Freundschaftsanfragen wurde abgelehnt
+     *  4 - Für mich ist eine neue Quest verfügbar
+     *  5 - Eine von mir abgeschlossene Quest wurde vom Ersteller validiert
+     *  6 - Eine von mir erstellte Quest hat jemand abgeschlossen und ist nun durch mich validierbar
      */
 
     // Liefert alle offenen Benachrichtigungen für mich und löscht diese anschließend
