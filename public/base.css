@@ -46,7 +46,8 @@ body.profile > .card.profile,
 body.mailbox > .card.mailbox,
 body.messagedetails > .card.messagedetails,
 body.createmessage > .card.createmessage,
-body.addshopitem > .card.addshopitem
+body.addshopitem > .card.addshopitem,
+body.editshopitem > .card.editshopitem
 {
     display: flex;
 }
@@ -537,10 +538,10 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     top: 74px;
 }
 
-.card.addshopitem input[name="iconurl"] {
+.card.addshopitem input[name="iconurl"], .card.editshopitem input[name="iconurl"] {
     margin-right: 56px;
 }
-.card.addshopitem .shopiconimage {
+.card.addshopitem .shopiconimage, .card.editshopitem .shopiconimage {
     min-width: 44px;
     width: 44px;
     height: 44px;

@@ -201,7 +201,7 @@ var App = (function () {
             var node = document.createElement('div');
             node.innerHTML = '<div class="icon" style="background-image: url(./images/shop-item-border.png), url(' + shopitem.iconurl + ');"></div><div class="details"><div class="title">' + shopitem.title + '</div><div class="rubies">' + _createrubieshtml(shopitem.rubies) + '</div></div>';
             node.addEventListener('click', function () {
-                _showshopitemcard(shopitem.id);
+                _showeditshopitemcard(shopitem.id);
             });
             itemlist.appendChild(node);
         });
@@ -340,12 +340,44 @@ var App = (function () {
         }
     }
 
+    async function _showeditshopitemcard(id) {
+        var shopitem = await _post('/api/shop/get', { id: id });
+        console.log('🏪 shopitem', shopitem);
+        document.querySelector('.card.editshopitem .saveshopitem').onclick = async function () {
+            await _post('/api/shop/save', {
+                id: id,
+                title: document.querySelector('.card.editshopitem [name="title"]').value,
+                description: document.querySelector('.card.editshopitem [name="description"]').value,
+                rubies: document.querySelector('.card.editshopitem [name="rubies"]').value,
+                iconurl: document.querySelector('.card.editshopitem [name="iconurl"]').value
+            });
+            _showloggedincard();
+            _showshoptab();
+        };
+        document.querySelector('.card.editshopitem .deleteshopitem').onclick = async function () {
+            event.preventDefault();
+            if (!confirm('Gegenstand wirklich löschen?')) return false;
+            await _post('/api/shop/delete', { id: id });
+            _showloggedincard();
+            _showshoptab();
+            return false;
+        };
+        document.querySelector('.card.editshopitem .title').innerHTML = shopitem.title;
+        document.querySelector('.card.editshopitem [name="title"]').value = shopitem.title;
+        document.querySelector('.card.editshopitem [name="description"]').value = shopitem.description;
+        document.querySelector('.card.editshopitem [name="rubies"]').value = shopitem.rubies;
+        document.querySelector('.card.editshopitem [name="iconurl"]').value = shopitem.iconurl;
+        document.querySelector('.card.editshopitem [name="iconurl"]').addEventListener('paste', function (e) {
+            _handleimagepaste(e, 'editshopitem');
+        });
+    document.body.setAttribute('class', 'editshopitem');
+    }
+
     async function _showeditquestcard(id) {
         await _fetchfriends();
         await _fetchtopics();
         var quest = await _post('/api/quest/get', { id: id });
         console.log('🧰 quest', quest);
-        var form = document.querySelector('.card.editquest form');
         document.querySelector('.card.editquest .savequest').onclick = async function () {
             await _post('/api/quest/save', {
                 id: id,
@@ -412,12 +444,16 @@ var App = (function () {
         document.body.setAttribute('class', 'mailbox');
     }
 
+    function _replacelinebreaks(str) {
+        return str.replace(/\n/g, '<br/>');
+    }
+
     async function _showmessagecard(message, friend) {
         if (friend && friend.avatarurl) {
             document.querySelector('.card.messagedetails .avatar').setAttribute('style', 'background-image: url(' + friend.avatarurl + ')');
         }
         document.querySelector('.card.messagedetails .title').innerHTML = message.title;
-        document.querySelector('.card.messagedetails .description').innerHTML = message.content;
+        document.querySelector('.card.messagedetails .description').innerHTML = _replacelinebreaks(message.content);
         var buttonrow = document.querySelector('.card.messagedetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         if (friend) {
@@ -434,7 +470,7 @@ var App = (function () {
         var deletebutton = document.createElement('button');
         deletebutton.innerHTML = "Löschen";
         deletebutton.addEventListener('click', async function () {
-            if (!confirm('Nachricht wirklich abbrechen?')) return;
+            if (!confirm('Nachricht wirklich löschen?')) return;
             await _post('/api/message/delete', { id: message.id });
             _showmailbox();
         });
@@ -465,7 +501,7 @@ var App = (function () {
         var titlediv = document.querySelector('.card.playerquestdetails .content .title');
         titlediv.innerHTML = playerquest.title;
         titlediv.setAttribute('class', 'title effort' + playerquest.effort);
-        document.querySelector('.card.playerquestdetails .description').innerHTML = playerquest.description;
+        document.querySelector('.card.playerquestdetails .description').innerHTML = _replacelinebreaks(playerquest.description);
         document.querySelector('.card.playerquestdetails .rewards .ep').innerHTML = playerquest.effort.toLocaleString();
         document.querySelector('.card.playerquestdetails .rewards .rubies').innerHTML = _createrubieshtml(Math.round(playerquest.effort / 2));
         console.log('🥅', playerquest);
@@ -638,6 +674,24 @@ var App = (function () {
         console.log('ℹ notifications', notifications);
     }
 
+    function _handleimagepaste(e, selector) {
+        // Von https://stackoverflow.com/questions/28644340/how-do-i-get-base64-encoded-image-from-clipboard-in-internet-explorer
+        // Zum reinkopieren von Bildern
+        for (var i = 0; i < e.clipboardData.items.length; i++) {
+            if (e.clipboardData.items[i].kind == "file" && e.clipboardData.items[i].type == "image/png") {
+                var imageFile = e.clipboardData.items[i].getAsFile();
+                var fileReader = new FileReader();
+                fileReader.onloadend = function () {
+                    console.log(fileReader.result);
+                    document.querySelector('.card.' + selector + ' [name="iconurl"]').value = fileReader.result;
+                    _updateshopitemimage(selector);
+                }
+                fileReader.readAsDataURL(imageFile);
+                break;
+            }
+        }
+    }
+
     window.addEventListener('load', function () {
         _tryautologin();
         // Zyklisch nach Benachrichtigungen gucken
@@ -710,24 +764,10 @@ var App = (function () {
             document.querySelector('.card.addshopitem [name="title"]').value = "";
             document.querySelector('.card.addshopitem [name="description"]').value = "";
             document.querySelector('.card.addshopitem [name="rubies"]').value = 1;
-            document.body.setAttribute('class', 'addshopitem');
             document.querySelector('.card.addshopitem [name="iconurl"]').addEventListener('paste', function (e) {
-                // Von https://stackoverflow.com/questions/28644340/how-do-i-get-base64-encoded-image-from-clipboard-in-internet-explorer
-                // Zum reinkopieren von Bildern
-                for (var i = 0; i < e.clipboardData.items.length; i++) {
-                    if (e.clipboardData.items[i].kind == "file" && e.clipboardData.items[i].type == "image/png") {
-                        var imageFile = e.clipboardData.items[i].getAsFile();
-                        var fileReader = new FileReader();
-                        fileReader.onloadend = function () {
-                            console.log(fileReader.result);
-                            document.querySelector('.card.addshopitem [name="iconurl"]').value = fileReader.result;
-                            _updateshopitemimage('addshopitem');
-                        }
-                        fileReader.readAsDataURL(imageFile);
-                        break;
-                    }
-                }
+                _handleimagepaste(e, 'addshopitem');
             });
+            document.body.setAttribute('class', 'addshopitem');
         },
         showaddquestcard: async function () {
             await _fetchfriends();

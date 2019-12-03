@@ -285,6 +285,29 @@
         </div>
     </div>
 
+    <div class="card editshopitem details input">
+        <div class="buttonrow top">
+            <button onclick="App.showloggedincard();App.showshoptab();">Zurück</button>
+        </div>
+        <div class="content">
+            <div class="title"></div>
+            <label>Icon URL</label>
+            <input name="iconurl" autocomplete="new-password" onchange="App.updateshopitemimage('editshopitem');" />
+            <div class="shopiconimage"></div>
+            <label>Titel</label>
+            <input name="title" />
+            <label>Beschreibung</label>
+            <textarea name="description"></textarea>
+            <label>Rubine</label>
+            <input name="rubies" type="number" min="1" />
+        </div>
+        <div class="buttonrow bottom">
+            <button class="saveshopitem">Speichern</button>
+            <div class="spacer"></div>
+            <button class="deleteshopitem">Löschen</button>
+        </div>
+    </div>
+
     <datalist id="topics"></datalist>
 
 </body>
