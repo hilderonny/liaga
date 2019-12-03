@@ -45,7 +45,8 @@ body.playerquestdetails > .card.playerquestdetails,
 body.profile > .card.profile,
 body.mailbox > .card.mailbox,
 body.messagedetails > .card.messagedetails,
-body.createmessage > .card.createmessage
+body.createmessage > .card.createmessage,
+body.addshopitem > .card.addshopitem
 {
     display: flex;
 }
@@ -106,14 +107,17 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.playerquests .tab.playerquests,
 .card.friends .tab.friends, 
 .card.quests .tab.quests,
+.card.shop .tab.shop,
 .card.friends .buttonrow.friends, 
-.card.quests .buttonrow.quests {
+.card.quests .buttonrow.quests, 
+.card.shop .buttonrow.shop {
     display: flex;
 }
 
 .card.playerquests button.playerquests,
 .card.quests button.quests,
-.card.friends button.friends {
+.card.friends button.friends,
+.card.shop button.shop {
     background-image: url(./images/tabs-border-top-left.png), url(./images/tabs-border-top-right.png), url(./images/tabs-border-bottom-left-out.png), url(./images/tabs-border-bottom-right-out.png), url(./images/button-highlight-yellow.png), url(./images/bg-marble.png);
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat;
     background-position: top left, top right, bottom left, bottom right, top left, top left;
@@ -126,7 +130,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 
 .card.playerquests button.playerquests::after,
 .card.quests button.quests::after,
-.card.friends button.friends::after {
+.card.friends button.friends::after,
+.card.shop button.shop::after {
     bottom: 7px;
 }
 
@@ -163,6 +168,60 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.playerquests .list .effort240 { color: #f00000; }
 .card.playerquests .list .effort1440 { color: #a335ee; }
 
+.card.shop .list > div {
+    width: 50%;
+    display: inline-block;
+    margin: 1px 0;
+    position: relative;
+    cursor: pointer;
+}
+
+.card.shop .list .icon {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-clip: border-box, content-box;
+    background-color: black;
+    background-size: auto, 100% 100%;
+    border: solid transparent;
+    border-width: 5px 6px 6px 5px;
+}
+
+.card.shop .list > div:hover .icon {
+    box-shadow: inset 0 0 5px 2px blue;
+}
+
+.card.shop .list .details {
+    box-shadow: inset -1px 1px 2px 0px #000, inset 1px -1px 2px -1px #fff6;
+    margin-left: 44px;
+    border-radius: 4px;
+    background-color: #ccc1;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    height: 57px;
+}
+
+.card.shop .list .details .title {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    -webkit-box-pack: center;
+    font-size: 11px;
+    letter-spacing: .5px;
+    flex: 1;
+}
+
+.card.shop .list .details .rubies {
+    font-size: 13px;
+}
+.card.shop .list .details .rubies span { width: 10px; height: 16px; display: inline-block; background-size: 70%; background-position: 0px 5px; background-repeat: no-repeat; margin: 0px 2px }
+.card.shop .list .details .rubies .green { background-image: url(./icons/rupee_green.png); }
+.card.shop .list .details .rubies .blue { background-image: url(./icons/rupee_blue.png); }
+.card.shop .list .details .rubies .red { background-image: url(./icons/rupee_red.png); }
 
 .card.details {
     background-image: url(./images/paper.png);
@@ -478,6 +537,24 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     top: 74px;
 }
 
+.card.addshopitem input[name="iconurl"] {
+    margin-right: 56px;
+}
+.card.addshopitem .shopiconimage {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+    background-image: url(./images/friend-frame.png), url(./images/mail.png);
+    background-position: center center;
+    background-size: auto, contain;
+    border: 4px solid transparent;
+    background-clip: border-box, content-box;
+    position: absolute;
+    right: 14px;
+    top: 119px;
+}
+
+
 .list {
     padding: 0 6px;
     margin: 6px 0;
@@ -729,6 +806,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     bottom: 1px;
     pointer-events: none;
 }
+
+.tabbuttons .shop { display: none; }
 
 @keyframes newmail {
     0% { transform: rotate(0deg); }

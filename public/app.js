@@ -7,7 +7,8 @@ var App = (function () {
     var playerid;
     var stats;
 
-    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], collapsedtopics = JSON.parse(localStorage.getItem('collapsedtopics') || '{}');
+    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], shopitems = [];
+    var collapsedtopics = JSON.parse(localStorage.getItem('collapsedtopics') || '{}');
 
     async function _post(url, data) {
         var response = await fetch(url, {
@@ -55,6 +56,12 @@ var App = (function () {
         console.log('🧰 quests', quests);
     }
 
+    async function _fetchshopitems() {
+        shopitems = await _post('/api/shop/list');
+        shopitems.sort(function (a, b) { return a.title.localeCompare(b.title); });
+        console.log('🏪 shopitems', shopitems);
+    }
+
     async function _fetchtopics() {
         topics = await _post('/api/quest/topics');
         document.getElementById("topics").innerHTML = topics.map(function (topic) { return topic.topic ? '<option value="' + topic.topic + '"/>' : ''; }).join('');
@@ -64,7 +71,7 @@ var App = (function () {
     function _createrubieshtml(rubies) {
         var rubiestext = "";
         var redrubies = Math.floor(rubies / 10000);
-        var bluerubies = Math.floor((rubies - redrubies) / 100);
+        var bluerubies = Math.floor((rubies - redrubies * 10000) / 100);
         var greenrubies = rubies - redrubies * 10000 - bluerubies * 100;
         if (redrubies > 0) rubiestext += redrubies + '<span class="red"></span>';
         if (bluerubies > 0) rubiestext += bluerubies + '<span class="blue"></span>';
@@ -87,6 +94,7 @@ var App = (function () {
         document.querySelector('.card.loggedin .stats .ep .text').innerHTML = "EP: " + stats.ep + " / " + (stats.level * 400);
         document.querySelector('.card.loggedin .stats .rubies').innerHTML = "Rubine: " + _createrubieshtml(stats.rubies);
         document.querySelector('.card.profile .title').innerHTML = stats.username;
+        if (stats.hasshop) document.querySelector('.card.loggedin .tabbuttons .shop').style.display = "inline-block";
         console.log('🧑 stats', stats);
     }
 
@@ -182,6 +190,20 @@ var App = (function () {
                 _showmessagecard(message, friend);
             });
             messagelist.appendChild(node);
+        });
+    }
+
+    async function _listshopitems() {
+        await _fetchshopitems();
+        var itemlist = document.querySelector('.card.loggedin .tab.shop .list');
+        itemlist.innerHTML = "";
+        shopitems.forEach(function (shopitem) {
+            var node = document.createElement('div');
+            node.innerHTML = '<div class="icon" style="background-image: url(./images/shop-item-border.png), url(' + shopitem.iconurl + ');"></div><div class="details"><div class="title">' + shopitem.title + '</div><div class="rubies">' + _createrubieshtml(shopitem.rubies) + '</div></div>';
+            node.addEventListener('click', function () {
+                _showshopitemcard(shopitem.id);
+            });
+            itemlist.appendChild(node);
         });
     }
 
@@ -394,8 +416,8 @@ var App = (function () {
         if (friend && friend.avatarurl) {
             document.querySelector('.card.messagedetails .avatar').setAttribute('style', 'background-image: url(' + friend.avatarurl + ')');
         }
-        document.querySelector('.card.messagedetails .title').innerHTML = _escapehtml(message.title);
-        document.querySelector('.card.messagedetails .description').innerHTML = _escapehtml(message.content);
+        document.querySelector('.card.messagedetails .title').innerHTML = message.title;
+        document.querySelector('.card.messagedetails .description').innerHTML = message.content;
         var buttonrow = document.querySelector('.card.messagedetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         if (friend) {
@@ -439,16 +461,11 @@ var App = (function () {
         document.body.setAttribute('class', 'createmessage');
     }
 
-    function _escapehtml(text) {
-        return text.replace(/\&/g, '&amp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br/>');
-    }
-
     function _showplayerquestdetails(playerquest) {
-        var efforts = { 5: "Trivial", 30: "Einfach", 60: "Mittel", 240: "Schwer", 1440: "Episch" };
         var titlediv = document.querySelector('.card.playerquestdetails .content .title');
-        titlediv.innerHTML = _escapehtml(playerquest.title);
+        titlediv.innerHTML = playerquest.title;
         titlediv.setAttribute('class', 'title effort' + playerquest.effort);
-        document.querySelector('.card.playerquestdetails .description').innerHTML = _escapehtml(playerquest.description);
+        document.querySelector('.card.playerquestdetails .description').innerHTML = playerquest.description;
         document.querySelector('.card.playerquestdetails .rewards .ep').innerHTML = playerquest.effort.toLocaleString();
         document.querySelector('.card.playerquestdetails .rewards .rubies').innerHTML = _createrubieshtml(Math.round(playerquest.effort / 2));
         console.log('🥅', playerquest);
@@ -529,6 +546,11 @@ var App = (function () {
         document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin playerquests');
     }
 
+    async function _showshoptab() {
+        await _listshopitems();
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin shop');
+    }
+
     async function _showqueststab() {
         await _listquests(false);
         document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin quests');
@@ -587,6 +609,11 @@ var App = (function () {
         document.querySelector('.card.profile .avatarimage').style.background = 'url(./images/friend-frame.png) center/auto border-box, url(' + url + ') center/contain content-box';
     }
 
+    function _updateshopitemimage(selector) {
+        var url = document.querySelector('.card.' + selector + ' [name="iconurl"]').value;
+        document.querySelector('.card.' + selector + ' .shopiconimage').style.background = 'url(./images/friend-frame.png) center/auto border-box, url(' + url + ') center/contain content-box';
+    }
+
     async function _validateplayerquest(questid, playerid) {
         await _post('/api/playerquest/validate', { questid: questid, playerid: playerid });
     }
@@ -629,6 +656,16 @@ var App = (function () {
             _showloggedincard();
             _showfriendstab();
         },
+        addshopitem: async function () {
+            await _post('/api/shop/add', {
+                title: document.querySelector('.card.addshopitem [name="title"]').value,
+                description: document.querySelector('.card.addshopitem [name="description"]').value,
+                rubies: document.querySelector('.card.addshopitem [name="rubies"]').value,
+                iconurl: document.querySelector('.card.addshopitem [name="iconurl"]').value
+            });
+            _showloggedincard();
+            _showshoptab();
+        },
         addquest: async function () {
             await _post('/api/quest/add', {
                 topic: document.querySelector('.card.addquest [name="topic"]').value,
@@ -668,6 +705,30 @@ var App = (function () {
             document.querySelector('.card.addfriend [name="username"]').value = "";
             document.body.setAttribute('class', 'addfriend');
         },
+        showaddshopitemcard: async function () {
+            document.querySelector('.card.addshopitem [name="iconurl"]').value = "";
+            document.querySelector('.card.addshopitem [name="title"]').value = "";
+            document.querySelector('.card.addshopitem [name="description"]').value = "";
+            document.querySelector('.card.addshopitem [name="rubies"]').value = 1;
+            document.body.setAttribute('class', 'addshopitem');
+            document.querySelector('.card.addshopitem [name="iconurl"]').addEventListener('paste', function (e) {
+                // Von https://stackoverflow.com/questions/28644340/how-do-i-get-base64-encoded-image-from-clipboard-in-internet-explorer
+                // Zum reinkopieren von Bildern
+                for (var i = 0; i < e.clipboardData.items.length; i++) {
+                    if (e.clipboardData.items[i].kind == "file" && e.clipboardData.items[i].type == "image/png") {
+                        var imageFile = e.clipboardData.items[i].getAsFile();
+                        var fileReader = new FileReader();
+                        fileReader.onloadend = function () {
+                            console.log(fileReader.result);
+                            document.querySelector('.card.addshopitem [name="iconurl"]').value = fileReader.result;
+                            _updateshopitemimage('addshopitem');
+                        }
+                        fileReader.readAsDataURL(imageFile);
+                        break;
+                    }
+                }
+            });
+        },
         showaddquestcard: async function () {
             await _fetchfriends();
             await _fetchtopics();
@@ -706,9 +767,11 @@ var App = (function () {
             document.querySelector('.card.register .errormessage').style.display = 'none';
             document.body.setAttribute('class', 'register');
         },
+        showshoptab: _showshoptab,
         showqueststab: _showqueststab,
         showfriendstab: _showfriendstab,
         updateprofileavatarimage: _updateprofileavatarimage,
+        updateshopitemimage: _updateshopitemimage
     };
 })();
 
