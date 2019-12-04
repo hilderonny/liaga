@@ -7,7 +7,7 @@ var App = (function () {
     var playerid;
     var stats;
 
-    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], shopitems = [];
+    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], shopitems = [], friendshopitems = [];
     var collapsedtopics = JSON.parse(localStorage.getItem('collapsedtopics') || '{}');
 
     var cardstack = [];
@@ -48,6 +48,12 @@ var App = (function () {
         friends = await _post('/api/friend/list');
         friends.sort(function (a, b) { return a.username.localeCompare(b.username); });
         console.log('👪 friends', friends);
+    }
+
+    async function _fetchfriendshopitems() {
+        friendshopitems = await _post('/api/shop/listfriend', { friendid: currentfriend.playerid });
+        friendshopitems.sort(function (a, b) { return a.title.localeCompare(b.title); });
+        console.log('🏪 friendshopitems', shopitems);
     }
 
     async function _fetchmessages() {
@@ -299,6 +305,20 @@ var App = (function () {
             });
             node.innerHTML = quest.title;
             _getorcreatetopicdiv(questlist, topicdivs, quest.topic || "Sonstige").appendChild(node);
+        });
+    }
+
+    async function _listfriendshopitems() {
+        await _fetchfriendshopitems();
+        var itemlist = document.querySelector('.card.friendshop .list .listcontent');
+        itemlist.innerHTML = "";
+        friendshopitems.forEach(function (shopitem) {
+            var node = document.createElement('div');
+            node.innerHTML = '<div class="icon" style="background-image: url(./images/shop-item-border.png), url(' + shopitem.iconurl + ');"></div><div class="details"><div class="title">' + shopitem.title + '</div><div class="rubies">' + _createrubieshtml(shopitem.rubies) + '</div></div>';
+            node.addEventListener('click', function () {
+                //_showeditshopitemcard(shopitem.id);
+            });
+            itemlist.appendChild(node);
         });
     }
 
@@ -598,6 +618,9 @@ var App = (function () {
             var shopnode = document.createElement('div');
             shopnode.classList.add('shop');
             shopnode.innerHTML = "Lass mich etwas in Deinen Waren stöbern!";
+            shopnode.addEventListener('click', function () {
+                _showfriendshopcard();
+            });
             detailsnode.appendChild(shopnode);
         }
         var buttonrow = document.querySelector('.card.frienddetails .buttonrow.bottom');
@@ -628,6 +651,15 @@ var App = (function () {
         await _listfriendquests();
         _showcard('frienddetails');
         console.log('👪 friend', friend);
+    }
+
+    async function _showfriendshopcard() {
+        await _listfriendshopitems();
+        if (currentfriend.avatarurl) {
+            document.querySelector('.card.friendshop .avatar').setAttribute('style', 'background-image: url(' + currentfriend.avatarurl + ')');
+        }
+        document.querySelector('.card.friendshop .title').innerHTML = "Shop von " + currentfriend.username;
+        _showcard('friendshop');
     }
 
     async function _shownewplayerquestdetailscard(questid) {
@@ -826,6 +858,7 @@ var App = (function () {
             _showcard('addfriend');
         },
         showaddshopitemcard: async function () {
+            document.querySelector('.card.addshopitem .shopiconimage').setAttribute('style', "");
             document.querySelector('.card.addshopitem [name="iconurl"]').value = "";
             document.querySelector('.card.addshopitem [name="title"]').value = "";
             document.querySelector('.card.addshopitem [name="description"]').value = "";

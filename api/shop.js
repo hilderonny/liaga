@@ -10,6 +10,15 @@ module.exports = function(router) {
         response.status(200).json(shopitems);
     });
 
+    // Alle Items auflisten, die ein Freund für mich verfügbar hat
+    router.post('/listfriend', auth, async function(request, response) {
+        if (!request.body.friendid) return response.status(400).json({ error: 'friendid required' });
+        var friendid = request.body.friendid;
+        var playerid = request.user.id;
+        var shopitems = await db.query('select id, iconurl, title, rubies from shopitem join (select ? playerid from friendship where accepted = 1 and ((initiator = ? and other = ?) or (initiator = ? and other = ?))) f on f.playerid = shopitem.creator;', [ friendid, playerid, friendid, friendid, playerid ]);
+        response.status(200).json(shopitems);
+    });
+
     // Shop Item erstellen
     router.post('/add', auth, async function(request, response) {
         if (!request.user.hasshop) return response.status(400).json({ error: 'player has no shop' });
