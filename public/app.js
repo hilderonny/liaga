@@ -94,7 +94,7 @@ var App = (function () {
         document.querySelector('.card.loggedin .stats .ep .text').innerHTML = "EP: " + stats.ep + " / " + (stats.level * 400);
         document.querySelector('.card.loggedin .stats .rubies').innerHTML = "Rubine: " + _createrubieshtml(stats.rubies);
         document.querySelector('.card.profile .title').innerHTML = stats.username;
-        if (stats.hasshop) document.querySelector('.card.loggedin .tabbuttons .shop').style.display = "inline-block";
+        document.querySelector('.card.loggedin .tabbuttons .shop').style.display = stats.hasshop ? "inline-block" : "none";
         console.log('🧑 stats', stats);
     }
 
@@ -133,7 +133,46 @@ var App = (function () {
             if (friend.accepted) node.classList.add('accepted');
             if (!friend.incoming && !friend.accepted) node.classList.add('pending');
             var avatarstyle = friend.avatarurl ? 'style="background-image: url(./images/friend-frame.png), url(' + friend.avatarurl + ')"' : '';
-            node.innerHTML = '<div class="avatar" ' + avatarstyle + '></div><div class="level">' + friend.level + '</div><div class="username">' + friend.username + '</div>';
+            node.innerHTML = '<div class="avatar" ' + avatarstyle + '></div><div class="level">' + friend.level + '</div><div class="details"><div class="username">' + friend.username + '</div><div class="greeting">' + (friend.greeting || "") + '</div></div><div class="icons"></div>';
+            var iconsnode = node.querySelector('.icons');
+            if (!friend.accepted) {
+                if (friend.incoming) {
+                    var acceptbutton = document.createElement('button');
+                    acceptbutton.innerHTML = "✔";
+                    acceptbutton.addEventListener('click', async function () {
+                        await _post('/api/friend/accept', { id: friend.friendshipid });
+                        _showloggedincard();
+                        _showfriendstab();
+                    });
+                    iconsnode.appendChild(acceptbutton);
+                    var rejectbutton = document.createElement('button');
+                    rejectbutton.innerHTML = "❌";
+                    rejectbutton.addEventListener('click', async function () {
+                        if (!confirm('Freundschaftsanfrage wirklich ablehnen?')) return;
+                        await _post('/api/friend/reject', { id: friend.friendshipid });
+                        _showloggedincard();
+                        _showfriendstab();
+                    });
+                    iconsnode.appendChild(rejectbutton);
+                } else {
+                    var deletebutton = document.createElement('button');
+                    deletebutton.innerHTML = "❌";
+                    deletebutton.addEventListener('click', async function () {
+                        if (!confirm('Anfrage wirklich löschen?')) return;
+                        await _post('/api/friend/delete', { id: friend.friendshipid });
+                        _showloggedincard();
+                        _showfriendstab();
+                    });
+                    iconsnode.appendChild(deletebutton);
+                }
+            } else{
+                if (friend.hasquests) iconsnode.innerHTML += '<div class="quests"></div>';
+                if (friend.hasshop) iconsnode.innerHTML += '<div class="shop"></div>';
+                node.addEventListener('click', function() {
+                    _showfrienddetailscard(friend);
+                });
+            }
+            /*
             if (friend.accepted) {
                 var messagebutton = document.createElement('button');
                 messagebutton.innerHTML = "✉";
@@ -171,6 +210,7 @@ var App = (function () {
                 });
                 node.appendChild(deletebutton);
             }
+            */
             friendlist.appendChild(node);
         });
     }
@@ -183,7 +223,7 @@ var App = (function () {
         messages.forEach(function (message) {
             var node = document.createElement('div');
             if (message.isread) node.classList.add('isread');
-            var friend = friends.find(function (f) { return f.friendid === message.fromplayer; });
+            var friend = friends.find(function (f) { return f.playerid === message.fromplayer; });
             var avatarstyle = (friend && friend.avatarurl) ? 'style="background-image: url(./images/friend-frame.png), url(' + friend.avatarurl + ')"' : '';
             node.innerHTML = '<div class="avatar" ' + avatarstyle + '></div><div class="title">' + message.title + '</div><div class="text">' + message.content + '</div>';
             node.addEventListener('click', function () {
@@ -370,7 +410,7 @@ var App = (function () {
         document.querySelector('.card.editshopitem [name="iconurl"]').addEventListener('paste', function (e) {
             _handleimagepaste(e, 'editshopitem');
         });
-    document.body.setAttribute('class', 'editshopitem');
+        document.body.setAttribute('class', 'editshopitem');
     }
 
     async function _showeditquestcard(id) {
@@ -406,7 +446,7 @@ var App = (function () {
         document.querySelector('.card.editquest [name="effort"]').value = quest.effort;
         document.querySelector('.card.editquest [name="type"]').value = quest.type;
         var playersdiv = document.querySelector('.card.editquest .players');
-        var players = friends.filter(function (friend) { return friend.accepted; }).map(function (friend) { return { name: friend.username, id: friend.friendid }; });
+        var players = friends.filter(function (friend) { return friend.accepted; }).map(function (friend) { return { name: friend.username, id: friend.playerid }; });
         if (stats.canselfquest) players.unshift({ name: 'Ich', id: playerid });
         playersdiv.innerHTML = "";
         players.forEach(function (player) {
@@ -490,7 +530,7 @@ var App = (function () {
         sendbutton.innerHTML = "Absenden";
         sendbutton.addEventListener('click', async function () {
             var content = document.querySelector('.card.createmessage [name="content"]').value;
-            await _post('/api/message/send', { to: friend.friendid, content: content });
+            await _post('/api/message/send', { to: friend.playerid, content: content });
             _showmailbox();
         });
         buttonrow.appendChild(sendbutton);
@@ -597,17 +637,6 @@ var App = (function () {
         document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin friends');
     }
 
-    async function _setpassword() {
-        event.preventDefault();
-        var password = event.target.password.value;
-        var result = await _post('/api/player/setpassword', { password: password });
-        if (result === undefined) {
-            // Update succeeded
-            _storeusercredentials(localStorage.getItem(USERNAMEKEY), password);
-        }
-        _log(result);
-    }
-
     // Store username and password after successful login for future auto login
     // Call without parameters to clear the storage after logout
     function _storeusercredentials(username, password) {
@@ -666,7 +695,7 @@ var App = (function () {
                 case "1": _listfriends(); break;
                 case "2": _listfriends(); break;
                 case "3": _listfriends(); break;
-                case "4": _listplayerquests(); break;
+                case "4": _listfriends(); break;
                 case "5": _listplayerquests(); break;
                 case "6": _listquests(); break;
             }
@@ -740,13 +769,14 @@ var App = (function () {
             var errormessagediv = document.querySelector('.card.profile .errormessage');
             errormessagediv.style.display = 'none';
             var avatarurl = document.querySelector('.card.profile [name="avatarurl"]').value;
+            var greeting = document.querySelector('.card.profile [name="greeting"]').value;
             var password1 = document.querySelector('.card.profile [name="password1"]').value;
             var password2 = document.querySelector('.card.profile [name="password2"]').value;
             if ((password1 || password2) && password1 !== password2) {
                 errormessagediv.style.display = 'block';
                 return;
             }
-            var data = { avatarurl: avatarurl };
+            var data = { avatarurl: avatarurl, greeting: greeting };
             if (password1) data.password = password1;
             await _post('/api/player/saveprofile', data);
             if (password1) _storeusercredentials(stats.username, password1);
@@ -754,7 +784,6 @@ var App = (function () {
             _showplayerqueststab();
             _fetchstats();
         },
-        setpassword: _setpassword,
         showaddfriendcard: async function () {
             document.querySelector('.card.addfriend [name="username"]').value = "";
             document.body.setAttribute('class', 'addfriend');
@@ -778,7 +807,7 @@ var App = (function () {
             document.querySelector('.card.addquest [name="effort"]').value = 5;
             document.querySelector('.card.addquest [name="type"]').value = 0;
             var playersdiv = document.querySelector('.card.addquest .players');
-            var players = friends.filter(function (friend) { return friend.accepted; }).map(function (friend) { return { name: friend.username, id: friend.friendid }; });
+            var players = friends.filter(function (friend) { return friend.accepted; }).map(function (friend) { return { name: friend.username, id: friend.playerid }; });
             if (stats.canselfquest) players.unshift({ name: 'Ich', id: playerid });
             playersdiv.innerHTML = players.map(function (player) {
                 return '<label><input type="checkbox" name="players" value="' + player.id + '" /><span>' + player.name + '</span></label>';
@@ -797,6 +826,7 @@ var App = (function () {
         showplayerqueststab: _showplayerqueststab,
         showprofilecard: function () {
             document.querySelector('.card.profile [name="avatarurl"]').value = stats.avatarurl;
+            document.querySelector('.card.profile [name="greeting"]').value = stats.greeting;
             document.querySelector('.card.profile [name="password1"]').value = "";
             document.querySelector('.card.profile [name="password2"]').value = "";
             _updateprofileavatarimage();

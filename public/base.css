@@ -329,6 +329,11 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 }
 
 .card.friends .list > div { display: flex; position: relative; padding: 2px 0px 6px 2px; }
+.card.friends .list .accepted { cursor: pointer; }
+.card.friends .list .accepted:hover {
+    box-shadow: inset 0 0 5px -1px #FFD100;
+    border-radius: 5px;
+}
 .card.friends .list .avatar {
     min-width: 44px;
     width: 44px;
@@ -356,13 +361,39 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     background-size: 18px 16px;
     padding-top: 4px;
 }
-.card.friends .list .username {
+.card.friends .list .details {
     flex: 1;
-    line-height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
     padding: 0 8px;
+    min-width: 0;
+}
+.card.friends .list .username {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.card.friends .list .greeting {
+    font-size: 13px;
+    color: #aaa;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.card.friends .list .icons {
+    align-self: center;
+    display: flex;
+}
+.card.friends .list .icons div {
+    width: 16px;
+    height: 16px;
+}
+.card.friends .list .icons .shop {
+    background-image: url(./icons/bag.png);
+}
+.card.friends .list .icons .quests {
+    background-image: url(./icons/asteriskyellow.png);
 }
 
 .card.input .content { display: flex; flex-direction: column; }

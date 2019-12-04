@@ -9,7 +9,7 @@ module.exports = function(router) {
 
     // Eigenschaften von mir selbst
     router.post('/getstats', auth, async function(request, response) {
-        var stats = await db.query('select username, ep, rubies, level, avatarurl, canselfquest, hasshop from player where id = ?', [ request.user.id ]);
+        var stats = await db.query('select username, ep, rubies, level, avatarurl, canselfquest, hasshop, greeting from player where id = ?', [ request.user.id ]);
         response.status(200).json(stats[0]);
     });
 
@@ -58,28 +58,11 @@ module.exports = function(router) {
 
     router.post('/saveprofile', auth, async function(request, response) {
         var avatarurl = request.body.avatarurl;
+        var greeting = request.body.greeting;
         var password = request.body.password;
-        if (avatarurl) {
-            await db.query('update player set avatarurl = ? where id = ?;', [
-                avatarurl,
-                request.user.id
-            ]);
-        }
-        if (password) {
-            await db.query('update player set password = ? where id = ?;', [
-                bcryptjs.hashSync(request.body.password),
-                request.user.id
-            ]);
-        }
-        response.status(200).json({});
-    });
-
-    router.post('/setpassword', auth, async function(request, response) {
-        if (!request.body.password) return response.status(400).json({ error: 'Password required' });
-        await db.query('update player set password = ? where id = ?;', [
-            bcryptjs.hashSync(request.body.password),
-            request.user.id
-        ]);
+        if (avatarurl) await db.query('update player set avatarurl = ? where id = ?;', [ avatarurl, request.user.id ]);
+        if (greeting) await db.query('update player set greeting = ? where id = ?;', [ greeting, request.user.id ]);
+        if (password) await db.query('update player set password = ? where id = ?;', [ bcryptjs.hashSync(request.body.password), request.user.id ]);
         response.status(200).json({});
     });
 

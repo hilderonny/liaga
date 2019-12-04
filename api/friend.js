@@ -46,19 +46,8 @@ module.exports = function(router) {
     // Freunde und Freundschaftsanfragen auflisten
     router.post('/list', auth, async function(request, response) {
         var playerid = request.user.id;
-        var friendships = await db.query('select friendship.id friendshipid, friendship.accepted, friendship.initiator friendshipinitiator, friendship.other friendshipother, initiator.username initiatorusername, other.username otherusername, initiator.level initiatorlevel, other.level otherlevel, initiator.avatarurl initiatoravatarurl, other.avatarurl otheravatarurl from friendship left join player initiator on friendship.initiator = initiator.id left join player other on friendship.other = other.id where friendship.initiator = ? or friendship.other = ?;', [playerid, playerid]);
-        var result = friendships.map(function(friendship) {
-            return {
-                friendid: friendship.friendshipinitiator === playerid ? friendship.friendshipother : friendship.friendshipinitiator,
-                username: friendship.friendshipinitiator === playerid ? friendship.otherusername : friendship.initiatorusername,
-                friendshipid: friendship.friendshipid,
-                accepted: friendship.accepted,
-                incoming: friendship.friendshipinitiator !== playerid,
-                level: friendship.friendshipinitiator === playerid ? friendship.otherlevel : friendship.initiatorlevel,
-                avatarurl: friendship.friendshipinitiator === playerid ? friendship.otheravatarurl : friendship.initiatoravatarurl
-            };
-        });
-        response.status(200).json(result);
+        var friendships = await db.query('select f.*, player.username, player.level, player.avatarurl, player.greeting, player.hasshop, (select case when count(*) > 0 then 1 else 0 end from questavailability qa join quest on quest.id = qa.quest where quest.creator = player.id and qa.player = ?) hasquests from (select id friendshipid, case when initiator = ? then 0 else 1 end incoming, case when initiator = ? then other else initiator end playerid, accepted from friendship where initiator = ? or other = ?) f join player on player.id = f.playerid;', [playerid, playerid, playerid, playerid, playerid]);
+        response.status(200).json(friendships);
     });
 
     // Freundschaftsanfrage ablehnen

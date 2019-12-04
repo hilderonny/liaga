@@ -33,6 +33,10 @@
             {
                 "name": "hasshop",
                 "type": "bool not null default 0"
+            },
+            {
+                "name": "greeting",
+                "type": "text"
             }
         ]
     },
