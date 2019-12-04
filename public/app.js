@@ -10,6 +10,23 @@ var App = (function () {
     var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], shopitems = [];
     var collapsedtopics = JSON.parse(localStorage.getItem('collapsedtopics') || '{}');
 
+    var cardstack = [];
+    var currentcard;
+    var currentfriend;
+
+    function _showcard(selector, clearstack) {
+        if (clearstack) while (cardstack.length > 1) _hidecurrentcard();
+        currentcard = document.querySelector('.card.' + selector);
+        cardstack.push(currentcard);
+        currentcard.style.zIndex = cardstack.length * 1000;
+    }
+
+    function _hidecurrentcard() {
+        currentcard.style.zIndex = 0;
+        cardstack.pop();
+        currentcard = cardstack[cardstack.length - 1];
+    }
+
     async function _post(url, data) {
         var response = await fetch(url, {
             method: "POST",
@@ -141,8 +158,7 @@ var App = (function () {
                     acceptbutton.innerHTML = "✔";
                     acceptbutton.addEventListener('click', async function () {
                         await _post('/api/friend/accept', { id: friend.friendshipid });
-                        _showloggedincard();
-                        _showfriendstab();
+                        _listfriends();
                     });
                     iconsnode.appendChild(acceptbutton);
                     var rejectbutton = document.createElement('button');
@@ -150,8 +166,7 @@ var App = (function () {
                     rejectbutton.addEventListener('click', async function () {
                         if (!confirm('Freundschaftsanfrage wirklich ablehnen?')) return;
                         await _post('/api/friend/reject', { id: friend.friendshipid });
-                        _showloggedincard();
-                        _showfriendstab();
+                        _listfriends();
                     });
                     iconsnode.appendChild(rejectbutton);
                 } else {
@@ -160,58 +175,18 @@ var App = (function () {
                     deletebutton.addEventListener('click', async function () {
                         if (!confirm('Anfrage wirklich löschen?')) return;
                         await _post('/api/friend/delete', { id: friend.friendshipid });
-                        _showloggedincard();
-                        _showfriendstab();
+                        _listfriends();
                     });
                     iconsnode.appendChild(deletebutton);
                 }
-            } else{
+            } else {
                 if (friend.hasnewquests) iconsnode.innerHTML += '<div class="newquests"></div>';
                 if (friend.hasrunningquests) iconsnode.innerHTML += '<div class="runningquests"></div>';
                 if (friend.hasshop) iconsnode.innerHTML += '<div class="shop"></div>';
-                node.addEventListener('click', function() {
+                node.addEventListener('click', function () {
                     _showfrienddetailscard(friend);
                 });
             }
-            /*
-            if (friend.accepted) {
-                var messagebutton = document.createElement('button');
-                messagebutton.innerHTML = "✉";
-                messagebutton.addEventListener('click', function () {
-                    _showcreatemessagecard(friend);
-                });
-                node.appendChild(messagebutton);
-            }
-            if (friend.incoming && !friend.accepted) {
-                var acceptbutton = document.createElement('button');
-                acceptbutton.innerHTML = "✔";
-                acceptbutton.addEventListener('click', async function () {
-                    await _post('/api/friend/accept', { id: friend.friendshipid });
-                    _showloggedincard();
-                    _showfriendstab();
-                });
-                node.appendChild(acceptbutton);
-                var rejectbutton = document.createElement('button');
-                rejectbutton.innerHTML = "❌";
-                rejectbutton.addEventListener('click', async function () {
-                    if (!confirm('Freundschaftsanfrage wirklich ablehnen?')) return;
-                    await _post('/api/friend/reject', { id: friend.friendshipid });
-                    _showloggedincard();
-                    _showfriendstab();
-                });
-                node.appendChild(rejectbutton);
-            } else {
-                var deletebutton = document.createElement('button');
-                deletebutton.innerHTML = "❌";
-                deletebutton.addEventListener('click', async function () {
-                    if (!confirm((!friend.incoming && !friend.accepted) ? 'Anfrage wirklich löschen?' : 'Freundschaft wirklich beenden?')) return;
-                    await _post('/api/friend/delete', { id: friend.friendshipid });
-                    _showloggedincard();
-                    _showfriendstab();
-                });
-                node.appendChild(deletebutton);
-            }
-            */
             friendlist.appendChild(node);
         });
     }
@@ -392,15 +367,15 @@ var App = (function () {
                 rubies: document.querySelector('.card.editshopitem [name="rubies"]').value,
                 iconurl: document.querySelector('.card.editshopitem [name="iconurl"]').value
             });
-            _showloggedincard();
-            _showshoptab();
+            _listshopitems();
+            _hidecurrentcard();
         };
         document.querySelector('.card.editshopitem .deleteshopitem').onclick = async function () {
             event.preventDefault();
             if (!confirm('Gegenstand wirklich löschen?')) return false;
             await _post('/api/shop/delete', { id: id });
-            _showloggedincard();
-            _showshoptab();
+            _listshopitems();
+            _hidecurrentcard();
             return false;
         };
         document.querySelector('.card.editshopitem .title').innerHTML = shopitem.title;
@@ -411,7 +386,7 @@ var App = (function () {
         document.querySelector('.card.editshopitem [name="iconurl"]').addEventListener('paste', function (e) {
             _handleimagepaste(e, 'editshopitem');
         });
-        document.body.setAttribute('class', 'editshopitem');
+        _showcard('editshopitem');
     }
 
     async function _showeditquestcard(id) {
@@ -429,15 +404,15 @@ var App = (function () {
                 type: document.querySelector('.card.editquest [name="type"]').value,
                 players: Array.from(document.querySelectorAll('.card.editquest .players input')).filter(function (a) { return a.checked; }).map(function (b) { return b.value; }),
             });
-            _showloggedincard();
-            _showqueststab();
+            _listquests();
+            _hidecurrentcard();
         };
         document.querySelector('.card.editquest .deletequest').onclick = async function () {
             event.preventDefault();
             if (!confirm('Quest wirklich löschen?')) return false;
             await _post('/api/quest/delete', { id: id });
-            _showloggedincard();
-            _showqueststab();
+            _listquests();
+            _hidecurrentcard();
             return false;
         };
         document.querySelector('.card.editquest [name="topic"]').value = quest.topic;
@@ -460,29 +435,23 @@ var App = (function () {
                 button.innerHTML = "Validieren";
                 button.addEventListener('click', async function () {
                     await _validateplayerquest(id, player.id);
-                    await _showeditquestcard(id);
+                    div.removeChild(button);
                 });
                 div.appendChild(button);
             }
             playersdiv.appendChild(div);
         });
-        document.body.setAttribute('class', 'editquest');
+        _showcard('editquest');
     }
 
     async function _showloggedincard() {
         await _fetchstats();
-        document.body.setAttribute('class', 'loggedin');
+        _showcard('loggedin');
     }
 
     function _showlogincard() {
         document.querySelector('.card.login .errormessage').style.display = 'none';
-        document.body.setAttribute('class', 'login');
-    }
-
-    async function _showmailbox() {
-        await _listmessages();
-        document.querySelector('.card.loggedin .mail').classList.remove('newmail');
-        document.body.setAttribute('class', 'mailbox');
+        _showcard('login', true);
     }
 
     function _replacelinebreaks(str) {
@@ -513,10 +482,11 @@ var App = (function () {
         deletebutton.addEventListener('click', async function () {
             if (!confirm('Nachricht wirklich löschen?')) return;
             await _post('/api/message/delete', { id: message.id });
-            _showmailbox();
+            _listmessages();
+            _hidecurrentcard();
         });
         buttonrow.appendChild(deletebutton);
-        document.body.setAttribute('class', 'messagedetails');
+        _showcard('messagedetails');
         await _post('/api/message/markasread', { id: message.id });
         console.log('✉ message', message, friend);
     }
@@ -532,10 +502,10 @@ var App = (function () {
         sendbutton.addEventListener('click', async function () {
             var content = document.querySelector('.card.createmessage [name="content"]').value;
             await _post('/api/message/send', { to: friend.playerid, content: content });
-            _showmailbox();
+            _hidecurrentcard();
         });
         buttonrow.appendChild(sendbutton);
-        document.body.setAttribute('class', 'createmessage');
+        _showcard('createmessage');
     }
 
     function _showplayerquestdetails(playerquest) {
@@ -558,7 +528,9 @@ var App = (function () {
             completebutton.innerHTML = "Abschließen";
             completebutton.addEventListener('click', async function () {
                 await _post('/api/playerquest/complete', { playerquestid: playerquestid });
-                _showexistingplayerquestdetailscard(playerquestid);
+                _listplayerquests();
+                _listfriendquests();
+                _hidecurrentcard();
             });
             buttonrow.appendChild(completebutton);
         }
@@ -567,8 +539,9 @@ var App = (function () {
             rewardbutton.innerHTML = "Belohnung abholen";
             rewardbutton.addEventListener('click', async function () {
                 await _post('/api/playerquest/reward', { playerquestid: playerquestid });
-                _showloggedincard();
-                _showplayerqueststab();
+                _listplayerquests();
+                _listfriendquests();
+                _hidecurrentcard();
             });
             buttonrow.appendChild(rewardbutton);
         }
@@ -588,30 +561,32 @@ var App = (function () {
         cancelbutton.addEventListener('click', async function () {
             if (!confirm('Quest wirklich abbrechen?')) return;
             await _post('/api/playerquest/cancel', { playerquestid: playerquestid });
-            _showloggedincard();
-            _showplayerqueststab();
+            _listplayerquests();
+            _listfriendquests();
+            _hidecurrentcard();
         });
         buttonrow.appendChild(cancelbutton);
-        document.body.setAttribute('class', 'playerquestdetails');
+        _showcard('playerquestdetails');
     }
 
-    async function _showfrienddetailscard(friend) {
-        var friendquests = await _post('/api/friend/quests', { friendid: friend.playerid });
-        friendquests.sort(function(a, b) { return (a.isrunning - b.isrunning) || a.title.localeCompare(b.title); });
-        if (friend.avatarurl) {
-            document.querySelector('.card.frienddetails .avatar').setAttribute('style', 'background-image: url(' + friend.avatarurl + ')');
+    async function _listfriendquests() {
+        if (!currentfriend) return;
+        var friendquests = await _post('/api/friend/quests', { friendid: currentfriend.playerid });
+        friendquests.sort(function (a, b) { return (a.isrunning - b.isrunning) || a.title.localeCompare(b.title); });
+        if (currentfriend.avatarurl) {
+            document.querySelector('.card.frienddetails .avatar').setAttribute('style', 'background-image: url(' + currentfriend.avatarurl + ')');
         }
-        document.querySelector('.card.frienddetails .title').innerHTML = friend.username;
-        document.querySelector('.card.frienddetails .greeting').innerHTML = _replacelinebreaks(friend.greeting || "");
+        document.querySelector('.card.frienddetails .title').innerHTML = currentfriend.username;
+        document.querySelector('.card.frienddetails .greeting').innerHTML = _replacelinebreaks(currentfriend.greeting || "");
         var detailsnode = document.querySelector('.card.frienddetails .content .details');
         detailsnode.innerHTML = "";
-        friendquests.forEach(function(quest) {
+        friendquests.forEach(function (quest) {
             var questnode = document.createElement('div');
             questnode.classList.add('quest');
             if (quest.isrunning) questnode.classList.add('isrunning');
             questnode.innerHTML = quest.title;
             detailsnode.appendChild(questnode);
-            questnode.addEventListener('click', function() {
+            questnode.addEventListener('click', function () {
                 if (quest.isrunning) {
                     _showexistingplayerquestdetailscard(quest.playerquestid);
                 } else {
@@ -619,7 +594,7 @@ var App = (function () {
                 }
             });
         });
-        if (friend.hasshop) {
+        if (currentfriend.hasshop) {
             var shopnode = document.createElement('div');
             shopnode.classList.add('shop');
             shopnode.innerHTML = "Lass mich etwas in Deinen Waren stöbern!";
@@ -630,7 +605,7 @@ var App = (function () {
         var messagebutton = document.createElement('button');
         messagebutton.innerHTML = "✉";
         messagebutton.addEventListener('click', function () {
-            _showcreatemessagecard(friend);
+            _showcreatemessagecard(currentfriend);
         });
         buttonrow.appendChild(messagebutton);
         var spacer = document.createElement('div');
@@ -640,13 +615,19 @@ var App = (function () {
         deletebutton.innerHTML = "Löschen";
         deletebutton.addEventListener('click', async function () {
             if (!confirm('Freundschaft wirklich löschen?')) return;
-            await _post('/api/friend/delete', { id: friend.friendshipid });
-            _showloggedincard();
-            _showfriendstab();
+            await _post('/api/friend/delete', { id: currentfriend.friendshipid });
+            _listfriends();
+            _hidecurrentcard();
         });
         buttonrow.appendChild(deletebutton);
-        document.body.setAttribute('class', 'frienddetails');
-        console.log('👪 friend', friend, friendquests);
+        console.log('👪 friendquests', friendquests);
+    }
+
+    async function _showfrienddetailscard(friend) {
+        currentfriend = friend;
+        await _listfriendquests();
+        _showcard('frienddetails');
+        console.log('👪 friend', friend);
     }
 
     async function _shownewplayerquestdetailscard(questid) {
@@ -658,7 +639,8 @@ var App = (function () {
         startbutton.innerHTML = "Beginnen";
         startbutton.addEventListener('click', async function () {
             var result = await _post('/api/playerquest/start', { questid: questid });
-            _showexistingplayerquestdetailscard(result.id);
+            _listfriendquests();
+            _hidecurrentcard();
         });
         buttonrow.appendChild(startbutton);
         if (quest.ismyquest) {
@@ -669,7 +651,7 @@ var App = (function () {
             });
             buttonrow.appendChild(editbutton);
         }
-        document.body.setAttribute('class', 'playerquestdetails');
+        _showcard('playerquestdetails');
     }
 
     async function _showplayerqueststab() {
@@ -791,8 +773,8 @@ var App = (function () {
                 alert(result.error);
                 return false;
             }
-            _showloggedincard();
-            _showfriendstab();
+            _listfriends();
+            _hidecurrentcard();
         },
         addshopitem: async function () {
             await _post('/api/shop/add', {
@@ -801,8 +783,8 @@ var App = (function () {
                 rubies: document.querySelector('.card.addshopitem [name="rubies"]').value,
                 iconurl: document.querySelector('.card.addshopitem [name="iconurl"]').value
             });
-            _showloggedincard();
-            _showshoptab();
+            _listshopitems();
+            _hidecurrentcard();
         },
         addquest: async function () {
             await _post('/api/quest/add', {
@@ -813,9 +795,10 @@ var App = (function () {
                 type: document.querySelector('.card.addquest [name="type"]').value,
                 players: Array.from(document.querySelectorAll('.card.addquest .players input')).filter(function (a) { return a.checked; }).map(function (b) { return b.value; }),
             });
-            _showloggedincard();
-            _showqueststab();
+            _listquests();
+            _hidecurrentcard();
         },
+        hidecurrentcard: _hidecurrentcard,
         log: _log,
         login: _login,
         logout: _logout,
@@ -835,13 +818,12 @@ var App = (function () {
             if (password1) data.password = password1;
             await _post('/api/player/saveprofile', data);
             if (password1) _storeusercredentials(stats.username, password1);
-            _showloggedincard();
-            _showplayerqueststab();
             _fetchstats();
+            _hidecurrentcard();
         },
         showaddfriendcard: async function () {
             document.querySelector('.card.addfriend [name="username"]').value = "";
-            document.body.setAttribute('class', 'addfriend');
+            _showcard('addfriend');
         },
         showaddshopitemcard: async function () {
             document.querySelector('.card.addshopitem [name="iconurl"]').value = "";
@@ -851,7 +833,7 @@ var App = (function () {
             document.querySelector('.card.addshopitem [name="iconurl"]').addEventListener('paste', function (e) {
                 _handleimagepaste(e, 'addshopitem');
             });
-            document.body.setAttribute('class', 'addshopitem');
+            _showcard('addshopitem');
         },
         showaddquestcard: async function () {
             await _fetchfriends();
@@ -867,7 +849,7 @@ var App = (function () {
             playersdiv.innerHTML = players.map(function (player) {
                 return '<label><input type="checkbox" name="players" value="' + player.id + '" /><span>' + player.name + '</span></label>';
             }).join('');
-            document.body.setAttribute('class', 'addquest');
+            _showcard('addquest');
         },
         showinvisiblequests: async function (showinvisible) {
             await _listquests(showinvisible);
@@ -877,7 +859,11 @@ var App = (function () {
         },
         showloggedincard: _showloggedincard,
         showlogincard: _showlogincard,
-        showmailbox: _showmailbox,
+        showmailbox: async function() {
+            await _listmessages();
+            document.querySelector('.card.loggedin .mail').classList.remove('newmail');
+            _showcard('mailbox');
+        },
         showplayerqueststab: _showplayerqueststab,
         showprofilecard: function () {
             document.querySelector('.card.profile [name="avatarurl"]').value = stats.avatarurl;
@@ -886,11 +872,11 @@ var App = (function () {
             document.querySelector('.card.profile [name="password2"]').value = "";
             _updateprofileavatarimage();
             document.querySelector('.card.profile .errormessage').style.display = 'none';
-            document.body.setAttribute('class', 'profile');
+            _showcard('profile');
         },
         showregistercard: function () {
             document.querySelector('.card.register .errormessage').style.display = 'none';
-            document.body.setAttribute('class', 'register');
+            _showcard('register', true);
         },
         showshoptab: _showshoptab,
         showqueststab: _showqueststab,

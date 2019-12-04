@@ -11,15 +11,14 @@ html {
 }
 
 body {
-    display: flex;
     margin: 0;
     height: 100%;
     color: white;
     text-shadow: 2px 2px 1px #000;
-    padding: 14px 16px 12px 14px;
     background-image: url(./images/body-border-top-left.png), url(./images/body-border-top-right.png), url(./images/body-border-bottom-left.png), url(./images/body-border-bottom-right.png), url(./images/body-border-top.png), url(./images/body-border-left.png), url(./images/body-border-right.png), url(./images/body-border-bottom.png), url(./images/bg-dark-sandstone.png);
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-y, repeat-y, repeat-x, repeat;
     background-position: top left, top right, bottom left, bottom right, top left, top left, top right, bottom left, top left;
+    position: relative;
 }
 
 input, textarea { user-select: unset; }
@@ -27,13 +26,19 @@ input, textarea { user-select: unset; }
 .buttonrow .spacer { flex: 1; }
 
 .card {
-    display: none;
+    display: flex;
     flex: 1;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    bottom: 12px;
+    left: 14px;
+    background-image: url(./images/bg-dark-sandstone.png);
 }
 
+/*
 body.loggedin > .card.loggedin,
 body.login > .card.login,
 body.register > .card.register,
@@ -52,7 +57,7 @@ body.editshopitem > .card.editshopitem
 {
     display: flex;
 }
-
+*/
 button {
     cursor: pointer;
     background-image: url(./images/button-red-up-left.png), url(./images/button-red-up-right.png), url(./images/button-red-up-middle.png);
@@ -226,11 +231,13 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.shop .list .details .rubies .red { background-image: url(./icons/rupee_red.png); }
 
 .card.details {
-    background-image: url(./images/paper.png);
-    background-size: 100% 100%;
+    background-image: url(./images/paper.png), url(./images/bg-dark-sandstone.png);
+    background-size: 100% 100%, auto;
     color: black;
     text-shadow: none;
-    margin-bottom: 32px;
+    padding-bottom: 32px;
+    background-origin: content-box, border-box;
+    background-repeat: no-repeat, repeat;
 }
 
 .card.details .buttonrow.top {
@@ -487,7 +494,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 
 .card.loggedin .buttonrow { display: none; margin: -3px 3px 1px 3px; }
 
-.card.mailbox { margin-bottom: 0px; position: relative; }
+.card.mailbox { padding-bottom: 0px; }
 
 .card.mailbox .list > div {
     text-shadow: 1px 1px 1px #000;
