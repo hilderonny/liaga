@@ -627,6 +627,12 @@ var App = (function () {
         }
         var buttonrow = document.querySelector('.card.frienddetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
+        var messagebutton = document.createElement('button');
+        messagebutton.innerHTML = "✉";
+        messagebutton.addEventListener('click', function () {
+            _showcreatemessagecard(friend);
+        });
+        buttonrow.appendChild(messagebutton);
         var spacer = document.createElement('div');
         spacer.classList.add('spacer');
         buttonrow.appendChild(spacer);
