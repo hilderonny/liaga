@@ -166,7 +166,8 @@ var App = (function () {
                     iconsnode.appendChild(deletebutton);
                 }
             } else{
-                if (friend.hasquests) iconsnode.innerHTML += '<div class="quests"></div>';
+                if (friend.hasnewquests) iconsnode.innerHTML += '<div class="newquests"></div>';
+                if (friend.hasrunningquests) iconsnode.innerHTML += '<div class="runningquests"></div>';
                 if (friend.hasshop) iconsnode.innerHTML += '<div class="shop"></div>';
                 node.addEventListener('click', function() {
                     _showfrienddetailscard(friend);
@@ -592,6 +593,54 @@ var App = (function () {
         });
         buttonrow.appendChild(cancelbutton);
         document.body.setAttribute('class', 'playerquestdetails');
+    }
+
+    async function _showfrienddetailscard(friend) {
+        var friendquests = await _post('/api/friend/quests', { friendid: friend.playerid });
+        friendquests.sort(function(a, b) { return (a.isrunning - b.isrunning) || a.title.localeCompare(b.title); });
+        if (friend.avatarurl) {
+            document.querySelector('.card.frienddetails .avatar').setAttribute('style', 'background-image: url(' + friend.avatarurl + ')');
+        }
+        document.querySelector('.card.frienddetails .title').innerHTML = friend.username;
+        document.querySelector('.card.frienddetails .greeting').innerHTML = _replacelinebreaks(friend.greeting || "");
+        var detailsnode = document.querySelector('.card.frienddetails .content .details');
+        detailsnode.innerHTML = "";
+        friendquests.forEach(function(quest) {
+            var questnode = document.createElement('div');
+            questnode.classList.add('quest');
+            if (quest.isrunning) questnode.classList.add('isrunning');
+            questnode.innerHTML = quest.title;
+            detailsnode.appendChild(questnode);
+            questnode.addEventListener('click', function() {
+                if (quest.isrunning) {
+                    _showexistingplayerquestdetailscard(quest.playerquestid);
+                } else {
+                    _shownewplayerquestdetailscard(quest.questid);
+                }
+            });
+        });
+        if (friend.hasshop) {
+            var shopnode = document.createElement('div');
+            shopnode.classList.add('shop');
+            shopnode.innerHTML = "Lass mich etwas in Deinen Waren stöbern!";
+            detailsnode.appendChild(shopnode);
+        }
+        var buttonrow = document.querySelector('.card.frienddetails .buttonrow.bottom');
+        buttonrow.innerHTML = "";
+        var spacer = document.createElement('div');
+        spacer.classList.add('spacer');
+        buttonrow.appendChild(spacer);
+        var deletebutton = document.createElement('button');
+        deletebutton.innerHTML = "Löschen";
+        deletebutton.addEventListener('click', async function () {
+            if (!confirm('Freundschaft wirklich löschen?')) return;
+            await _post('/api/friend/delete', { id: friend.friendshipid });
+            _showloggedincard();
+            _showfriendstab();
+        });
+        buttonrow.appendChild(deletebutton);
+        document.body.setAttribute('class', 'frienddetails');
+        console.log('👪 friend', friend, friendquests);
     }
 
     async function _shownewplayerquestdetailscard(questid) {

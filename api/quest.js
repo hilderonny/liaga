@@ -112,9 +112,11 @@ module.exports = function(router) {
     });
 
     // Liste von Quests, die ich beginnen kann und für die für mich noch keine playerquests existieren
+    // Es werden nur dann welche angezeigt, wenn sie von mir stammen. Neue Quests von anderen werden in
+    // der Freundeliste angezeigt
     router.post('/listnewforme', auth, async function(request, response) {
         var playerid = request.user.id;
-        var quests = await db.query('select quest.id, quest.topic, quest.title, quest.effort from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and (quest.type = 99 or questavailability.availablefrom <= ?);', [ playerid, Date.now() ]);
+        var quests = await db.query('select quest.id, quest.topic, quest.title, quest.effort from quest join questavailability on questavailability.quest = quest.id left join playerquest on (playerquest.quest = quest.id and playerquest.player = questavailability.player) where playerquest.id is null and questavailability.player = ? and (quest.type = 99 or questavailability.availablefrom <= ?) and quest.creator = ?;', [ playerid, Date.now(), playerid ]);
         response.status(200).json(quests);
     });
 
