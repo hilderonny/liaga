@@ -957,6 +957,15 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
         var serviceWorkerFile = 'serviceworker.js';
         console.log('%c🧰 load: Registriere service worker aus Datei ' + serviceWorkerFile, 'color:yellow');
-        navigator.serviceWorker.register(serviceWorkerFile);
+        navigator.serviceWorker.register(serviceWorkerFile).then(reg => {
+            reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        location.reload(); // Neu laden, wenn Service worker aktualisiert wurde
+                    }
+                };
+            };
+        });
     });
 }
