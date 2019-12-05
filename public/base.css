@@ -141,6 +141,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 
 /* Quest difficulty colors */
 .card.quests .list .quest { padding-left: 18px; margin-left: 18px; background-repeat: no-repeat; background-position-x: left; }
+.card.quests .list .quest span { margin-right: 8px; }
+.card.quests .list .quest img { width: 14px; height: 14px; margin: 0 2px; }
 .card.quests .list .effort5 { color: #00e000; }
 .card.quests .list .effort30 { color: #f0f000; }
 .card.quests .list .effort60 { color: #f08000; }
@@ -154,6 +156,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.friends .list .accepted .username { color: #00e000; }
 
 .card.playerquests .list .quest { padding-left: 18px; margin-left: 18px; }
+.card.playerquests .list .quest span { margin-right: 8px; }
+.card.playerquests .list .quest img { width: 14px; height: 14px; margin: 0 2px; }
 .card.playerquests .list .pending { background-image: url(./icons/asteriskyellow.png); }
 .card.playerquests .list .running { background-image: url(./icons/questiongrey.png); }
 .card.playerquests .list .complete { background-image: url(./icons/questionblue.png); }

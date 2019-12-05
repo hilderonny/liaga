@@ -45,7 +45,7 @@ module.exports = function (router) {
     // Alle von mir laufenden Quests liefern
     router.post('/list', auth, async function (request, response) {
         var playerid = request.user.id;
-        var playerquests = await db.query('select quest.topic, quest.title, quest.effort, playerquest.id, playerquest.complete, playerquest.validated from playerquest join quest on playerquest.quest = quest.id where playerquest.player = ?', [playerid]);
+        var playerquests = await db.query('select quest.topic, quest.title, quest.effort, playerquest.id, playerquest.complete, playerquest.validated, player.avatarurl from playerquest join quest on playerquest.quest = quest.id join player on player.id = quest.creator where playerquest.player = ?', [playerid]);
         response.status(200).json(playerquests);
     });
 

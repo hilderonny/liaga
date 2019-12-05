@@ -264,7 +264,8 @@ var App = (function () {
             node.addEventListener('click', function () {
                 _showexistingplayerquestdetailscard(playerquest.id);
             });
-            node.innerHTML = playerquest.title;
+            node.innerHTML = "<span>" + playerquest.title + "</span>";
+            node.innerHTML += '<img src="' + (playerquest.avatarurl || "./icons/avatar.png") + '"/>';
             _getorcreatetopicdiv(playerquestlist, topicdivs, playerquest.topic || "Sonstige").appendChild(node);
         });
         // Dann die neu verfügbaren Quests
@@ -303,7 +304,10 @@ var App = (function () {
             node.addEventListener('click', function () {
                 _showeditquestcard(quest.id);
             });
-            node.innerHTML = quest.title;
+            node.innerHTML = "<span>" + quest.title + "</span>";
+            if (quest.players) quest.players.forEach(function(player) {
+                node.innerHTML += '<img src="' + (player.avatarurl || "./icons/avatar.png") + '"/>';
+            });
             _getorcreatetopicdiv(questlist, topicdivs, quest.topic || "Sonstige").appendChild(node);
         });
     }
@@ -484,6 +488,7 @@ var App = (function () {
                 button.innerHTML = "Validieren";
                 button.addEventListener('click', async function () {
                     await _validateplayerquest(id, player.id);
+                    _listquests();
                     div.removeChild(button);
                 });
                 div.appendChild(button);
