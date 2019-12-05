@@ -590,6 +590,7 @@ var App = (function () {
                 await _post('/api/playerquest/reward', { playerquestid: playerquestid });
                 _listplayerquests();
                 _listfriendquests();
+                _fetchstats();
                 _hidecurrentcard();
             });
             buttonrow.appendChild(rewardbutton);
@@ -699,7 +700,8 @@ var App = (function () {
         var startbutton = document.createElement('button');
         startbutton.innerHTML = "Beginnen";
         startbutton.addEventListener('click', async function () {
-            var result = await _post('/api/playerquest/start', { questid: questid });
+            await _post('/api/playerquest/start', { questid: questid });
+            _listplayerquests();
             _listfriendquests();
             _hidecurrentcard();
         });
