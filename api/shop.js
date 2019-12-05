@@ -45,6 +45,28 @@ module.exports = function(router) {
         response.status(200).json({});
     });
 
+    // Item kaufen
+    router.post('/buy', auth, async function(request, response) {
+        if (!request.body.id) return response.status(400).json({ error: 'id required' });
+        var itemid = request.body.id;
+        var items = await db.query('select id, iconurl, title, description, rubies, creator from shopitem where id = ?;', [ itemid ]);
+        if (items.length < 1) return response.status(400).json({ error: 'shop item not found' });
+        var item = items[0];
+        if (item.rubies > request.user.rubies) return response.status(400).json({ error: 'not enough rubies' });
+        // Kauf durchführen
+        await db.query('update player set rubies = rubies - ? where id = ?;', [ item.rubies, request.user.id ]);
+        // Nachricht erstellen
+        var message = 'Hallo,\n\nich habe gerade den Gegenstand <div class="link" onclick="App.showshopitemdetailscard(' + item.id + ');">' + item.title + '</div> in Deinem Shop gekauft.\n\nMelde Dich doch mal bei mir!';
+        await db.query('insert into message (fromplayer, toplayer, title, content) values (?, ?, ?, ?);', [
+            request.user.id,
+            item.creator,
+            "Ich habe einen Gegenstand gekauft",
+            message
+        ]);
+        await db.query('insert into notification (targetplayer, type) values (?, 0);', [ item.creator ]);
+        response.status(200).json({});
+    });
+
     // Item löschen, wenn ich der Ersteller bin
     router.post('/delete', auth, async function(request, response) {
         if (!request.body.id) return response.status(400).json({ error: 'id required' });
@@ -56,7 +78,7 @@ module.exports = function(router) {
         response.status(200).json({});
     });
 
-    // Itemdetails zum Bearbeiten laden
+    // Itemdetails zum Bearbeiten und anzeigen laden
     router.post('/get', auth, async function(request, response) {
         if (!request.body.id) return response.status(400).json({ error: 'id required' });
         var itemid = request.body.id;

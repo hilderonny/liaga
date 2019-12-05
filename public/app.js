@@ -316,10 +316,39 @@ var App = (function () {
             var node = document.createElement('div');
             node.innerHTML = '<div class="icon" style="background-image: url(./images/shop-item-border.png), url(' + shopitem.iconurl + ');"></div><div class="details"><div class="title">' + shopitem.title + '</div><div class="rubies">' + _createrubieshtml(shopitem.rubies) + '</div></div>';
             node.addEventListener('click', function () {
-                //_showeditshopitemcard(shopitem.id);
+                _showshopitemdetailscard(shopitem.id, true);
             });
             itemlist.appendChild(node);
         });
+    }
+
+    async function _showshopitemdetailscard(shopitemid, showbuybutton) {
+        var shopitem = await _post('/api/shop/get', { id: shopitemid });
+        var titlediv = document.querySelector('.card.shopitemdetails .content .title');
+        titlediv.innerHTML = shopitem.title;
+        if (shopitem.iconurl) {
+            document.querySelector('.card.shopitemdetails .shopiconimage').setAttribute('style', 'background-image: url(./images/friend-frame.png), url(' + shopitem.iconurl + ')');
+        }
+        document.querySelector('.card.shopitemdetails .description').innerHTML = _replacelinebreaks(shopitem.description);
+        document.querySelector('.card.shopitemdetails .rewards .rubies').innerHTML = _createrubieshtml(Math.round(shopitem.rubies / 2));
+        var buttonrow = document.querySelector('.card.shopitemdetails .buttonrow.bottom');
+        buttonrow.innerHTML = "";
+        if (showbuybutton) {
+            var buybutton = document.createElement('button');
+            buybutton.innerHTML = "Kaufen";
+            if (stats.rubies >= shopitem.rubies) {
+                buybutton.addEventListener('click', async function () {
+                    await _post('/api/shop/buy', { id: shopitemid });
+                    _fetchstats();
+                    _hidecurrentcard();
+                });
+            } else {
+                buybutton.setAttribute('disabled', 'disabled');
+            }
+            buttonrow.appendChild(buybutton);
+        }
+        _showcard('shopitemdetails');
+        console.log('🏪 shopitem', shopitem);
     }
 
     async function _login() {
@@ -892,7 +921,7 @@ var App = (function () {
         },
         showloggedincard: _showloggedincard,
         showlogincard: _showlogincard,
-        showmailbox: async function() {
+        showmailbox: async function () {
             await _listmessages();
             document.querySelector('.card.loggedin .mail').classList.remove('newmail');
             _showcard('mailbox');
@@ -912,6 +941,7 @@ var App = (function () {
             _showcard('register', true);
         },
         showshoptab: _showshoptab,
+        showshopitemdetailscard: _showshopitemdetailscard,
         showqueststab: _showqueststab,
         showfriendstab: _showfriendstab,
         updateprofileavatarimage: _updateprofileavatarimage,

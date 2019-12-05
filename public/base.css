@@ -38,26 +38,6 @@ input, textarea { user-select: unset; }
     background-image: url(./images/bg-dark-sandstone.png);
 }
 
-/*
-body.loggedin > .card.loggedin,
-body.login > .card.login,
-body.register > .card.register,
-body.addquest > .card.addquest,
-body.editquest > .card.editquest,
-body.addfriend > .card.addfriend,
-body.editfriend > .card.editfriend,
-body.frienddetails > .card.frienddetails,
-body.playerquestdetails > .card.playerquestdetails,
-body.profile > .card.profile,
-body.mailbox > .card.mailbox,
-body.messagedetails > .card.messagedetails,
-body.createmessage > .card.createmessage,
-body.addshopitem > .card.addshopitem,
-body.editshopitem > .card.editshopitem
-{
-    display: flex;
-}
-*/
 button {
     cursor: pointer;
     background-image: url(./images/button-red-up-left.png), url(./images/button-red-up-right.png), url(./images/button-red-up-middle.png);
@@ -93,6 +73,15 @@ button:active {
 }
 
 button:focus { outline:0; }
+
+button:disabled, button:disabled:hover {
+    background-image: url(./images/button-grey-left.png), url(./images/button-grey-right.png), url(./images/button-grey-middle.png);
+    color: #888;
+    background-position: left, right, center;
+    background-size: auto, auto, 100% 100%;
+    background-clip: border-box, border-box, content-box;
+    cursor: auto;
+}
 
 input[type="checkbox"] { visibility: hidden; }
 input[type="checkbox"]::before { content: ""; display: block; width: 16px; height: 16px; background: url('./icons/checkbox-unselected.png'); visibility: visible; }
@@ -447,9 +436,9 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     border-radius: 10px;    
 }
 .card.frienddetails .content .details .quest { background-image: url(./icons/asteriskyellow.png); }
-.card.frienddetails .content .details .quest:hover { background-image: url(./icons/asteriskyellow.png), radial-gradient(#FFD100, transparent);; }
+.card.frienddetails .content .details .quest:hover { background-image: url(./icons/asteriskyellow.png), radial-gradient(#FFD100, transparent); }
 .card.frienddetails .content .details .quest.isrunning { background-image: url(./icons/questionyellow.png); }
-.card.frienddetails .content .details .quest.isrunning:hover { background-image: url(./icons/questionyellow.png), radial-gradient(#FFD100, transparent);; }
+.card.frienddetails .content .details .quest.isrunning:hover { background-image: url(./icons/questionyellow.png), radial-gradient(#FFD100, transparent); }
 .card.frienddetails .content .details .shop { background-image: url(./icons/bag.png);margin-top: 20px; }
 .card.frienddetails .content .details .shop:hover { background-image: url(./icons/bag.png), radial-gradient(#FFD100, transparent);; }
 
@@ -628,6 +617,16 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     margin: 20px 0 40px 80px;
 }
 
+.card.messagedetails .content .link {
+    color: #FFD100;
+    text-shadow: 1px 2px 1px #000;
+    margin: 7px 0;
+    cursor: pointer;
+}
+
+.card.messagedetails .content .link:hover { background-image: radial-gradient(#FFD100, transparent); }
+
+
 .card.createmessage .content {
     position: relative;
 }
@@ -696,6 +695,25 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     right: 14px;
     top: 119px;
 }
+
+.card.shopitemdetails .content .title {
+    color: #FFD100;
+    margin: 8px 0px 28px 0;
+}
+.card.shopitemdetails .shopiconimage {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+    background-image: url(./images/friend-frame.png), url(./images/mail.png);
+    background-position: center center;
+    background-size: auto, contain;
+    border: 4px solid transparent;
+    background-clip: border-box, content-box;
+    position: absolute;
+    right: 14px;
+    top: 58px;
+}
+
 
 
 .list {
