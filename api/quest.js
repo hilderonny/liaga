@@ -7,6 +7,7 @@ module.exports = function(router) {
         0, // Einmalig
         1, // Täglich
         2, // Wöchentlich
+        3, // Monatlich
         99, // Beliebig oft
     ]
 

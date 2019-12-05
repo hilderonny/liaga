@@ -68,6 +68,11 @@ module.exports = function (router) {
         // Verfügbarkeit der Quest für mich löschen, wenn es eine Einmalsache ist.
         if (playerquest.type === 0) {
             await db.query('delete from questavailability where player = ? and quest = ?', [ playerid, playerquest.questid ]);
+            // Außerdem Quest löschen, wenn es keine weiteren Spieler dafür gibt
+            var otherplayers = await db.query(' select id from questavailability where quest = ?;', [ playerquest.questid ]);
+            if (otherplayers.length < 1) {
+                await db.query('delete from quest where id = ?', [ playerquest.questid ]);
+            }
         } else if (playerquest.type === 1) {
             // Täglich
             var tomorrow = Math.floor(Date.now() / 86400000) * 86400000 + 86400000;
@@ -76,6 +81,11 @@ module.exports = function (router) {
             // Wöchentlich
             var nextmonday = Math.floor(Date.now() / 604800000) * 604800000 + 950400000; // Der 1.1.1970 war ein Donnerstag, wir fangen aber montags an
             await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ nextmonday, playerid, playerquest.questid ])
+        } else if (playerquest.type === 3) {
+            // Monatlich
+            var date = new Date();date.setDate(1);date.setHours(0);date.setMinutes(0);date.setSeconds(0);date.setMonth(date.getMonth() + 1);
+            var nextmonthfirst = date.getTime();
+            await db.query('update questavailability set availablefrom = ? where player = ? and quest = ?', [ nextmonthfirst, playerid, playerquest.questid ])
         }
         response.status(200).json({});
     });
