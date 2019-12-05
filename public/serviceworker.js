@@ -8,10 +8,10 @@
 // Dieser Name ist ein Hilfsmittel, das beim Löschen des alten und Neuaufbau des neuen Caches hilft.
 // Wenn dieser Name geändert wird und der Service worker neu installiert wird. führt das bei activate()
 // dazu, dass der alte Cache gelöscht und bei fetch() dazu, dass alle zu cachenden Dateien neu geladen werden.
-var CACHE_NAME = 'liaga-13';
+var CACHE_NAME = 'liaga-14';
 
 // Diese Funktion wird bei der Neuinstallation des Service workers aufgerufen.
-self.addEventListener('install', function(evt) {
+self.addEventListener('install', function (evt) {
     console.log('%c⚙ install: Neuinstallation nach Änderung der Service worker Datei', 'color:lightgrey');
     // skipWaiting dient dazu, dass die vorherige Version des workers beendet und diese neue
     // Version gleich installiert und aktiviert wird, ohne zu warten
@@ -36,26 +36,18 @@ self.addEventListener('activate', function (evt) {
     self.clients.claim();
 });
 
-// Netzwerkabfragen abfangen und im Offline Betrieb aus Cache bereit stellen
+// Netzwerkabfragen abfangen und im aus Cache bereit stellen
+// Prinzip: Cache first: https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker#on_network_response
 self.addEventListener('fetch', function (evt) {
     evt.respondWith(
-        caches.open(CACHE_NAME).then(async function (cache) {
-            try {
-                // Versuchen, die Datei aus dem Netz zu laden. 'reload' umgeht dabei den Browser-eigenen Cache, damit die Dateien
-                // zwangsweise neu geladen werden. Ist bei js-Dateien ganz hilfreich, weil der Browser diese sonst nicht neu lädt
-                var response = await fetch(evt.request, {cache: 'reload'});
-                // Wenn der Zugriff auf das Netz geklappt hat, die Datei im Cache speichern, außer es ist ein POST Request
-                if (response.status === 200 && evt.request.method !== 'POST') {
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.match(evt.request).then(function (response) {
+                return response || fetch(evt.request).then(function (response) {
                     console.log('%c⚙ fetch: Speichere im Cache: ' + evt.request.url, 'color:lightgrey');
-                    cache.put(evt.request.url, response.clone());
-                }
-                return response;
-            }
-            catch (err) {
-                // Netzwerkzugriff fehlgeschlagen, also aus dem Cache holen
-                console.log('%c⚙ fetch: Liefere aus dem Cache: ' + evt.request.url, 'color:lightgrey');
-                return cache.match(evt.request);
-            }
+                    cache.put(evt.request, response.clone());
+                    return response;
+                });
+            });
         })
     );
 });
