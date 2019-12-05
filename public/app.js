@@ -7,7 +7,7 @@ var App = (function () {
     var playerid;
     var stats;
 
-    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], shopitems = [], friendshopitems = [];
+    var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], shopitems = [], friendshopitems = [], showinvisiblequests = false;
     var collapsedtopics = JSON.parse(localStorage.getItem('collapsedtopics') || '{}');
 
     var cardstack = [];
@@ -286,8 +286,8 @@ var App = (function () {
         _sortquestlist(playerquestlist);
     }
 
-    async function _listquests(showinvisible) {
-        await _fetchquests(showinvisible);
+    async function _listquests() {
+        await _fetchquests(showinvisiblequests);
         var questlist = document.querySelector('.card.loggedin .tab.quests .list');
         questlist.innerHTML = "";
         var topicdivs = {};
@@ -728,7 +728,8 @@ var App = (function () {
     }
 
     async function _showqueststab() {
-        await _listquests(false);
+        showinvisiblequests = false;
+        await _listquests();
         document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin quests');
     }
 
@@ -916,7 +917,8 @@ var App = (function () {
             _showcard('addquest');
         },
         showinvisiblequests: async function (showinvisible) {
-            await _listquests(showinvisible);
+            showinvisiblequests = showinvisible;
+            await _listquests();
             var card = document.querySelector('.card.quests');
             if (showinvisible) card.classList.add('showinvisible');
             else card.classList.remove('showinvisible');

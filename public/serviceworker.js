@@ -8,10 +8,10 @@
 // Dieser Name ist ein Hilfsmittel, das beim Löschen des alten und Neuaufbau des neuen Caches hilft.
 // Wenn dieser Name geändert wird und der Service worker neu installiert wird. führt das bei activate()
 // dazu, dass der alte Cache gelöscht und bei fetch() dazu, dass alle zu cachenden Dateien neu geladen werden.
-var CACHE_NAME = 'liaga-18';
+var CACHE_NAME = 'liaga-19';
 
 // Diese Funktion wird bei der Neuinstallation des Service workers aufgerufen.
-self.addEventListener('install', function (evt) {
+self.addEventListener('install', function () {
     console.log('%c⚙ install: Neuinstallation nach Änderung der Service worker Datei', 'color:lightgrey');
     // skipWaiting dient dazu, dass die vorherige Version des workers beendet und diese neue
     // Version gleich installiert und aktiviert wird, ohne zu warten
