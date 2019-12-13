@@ -1,5 +1,6 @@
 var db = require('../utils/db');
 var auth = require('../utils/auth');
+var pushmessages = require('../utils/pushmessages');
 
 module.exports = function(router) {
 
@@ -55,6 +56,7 @@ module.exports = function(router) {
                 // Benachrichrigung erstellen
                 queries.push('insert into notification (targetplayer, type) values (?, 4);');
                 params.push(otherplayerid);
+                pushmessages.notifynewquest(otherplayerid, request.user.username);
             });
             if (queries.length > 0) {
                 await db.query(queries.join(''), params);
@@ -159,6 +161,7 @@ module.exports = function(router) {
             playerid
         ]);
         // Verfügbarkeit speichern
+        var previousplayers = (await db.query('select player from questavailability where quest = ?', [ questid ])).map(function(qa) { return qa.player; });
         await db.query('delete from questavailability where quest = ?', [ questid ]);
         if (request.body.players && request.body.players.length) {
             var players = request.body.players;
@@ -173,6 +176,9 @@ module.exports = function(router) {
                 params.push(questid);
                 params.push(otherplayerid);
                 params.push(now);
+                if (previousplayers.indexOf(otherplayerid) < 0) {
+                    pushmessages.notifynewquest(otherplayerid, request.user.username);
+                }
             });
             if (queries.length > 0) {
                 await db.query(queries.join(''), params);

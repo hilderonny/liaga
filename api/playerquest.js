@@ -1,5 +1,6 @@
 var db = require('../utils/db');
 var auth = require('../utils/auth');
+var pushmessages = require('../utils/pushmessages');
 
 module.exports = function (router) {
 
@@ -29,6 +30,7 @@ module.exports = function (router) {
             // Benachrichrigung erstellen
             await db.query('insert into notification (targetplayer, type) values (?, 6);', [creator]);
         }
+        pushmessages.notifyquesttovalidate(creator, request.user.username);
         response.status(200).json({});
     });
 

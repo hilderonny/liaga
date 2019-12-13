@@ -44,6 +44,28 @@ pm.notifynewmessage = function (playerid, fromplayer, messagecontent) {
     notify(playerid, payload);
 }
 
+pm.notifynewquest = function (playerid, fromplayer) {
+    var payload = {
+        title: "Neue Quest verfügbar",
+        options: {
+            body: fromplayer + " hat eine neue Quest für Dich!",
+            icon: '/icons/asteriskyellow.png'
+        }
+    }
+    notify(playerid, payload);
+}
+
+pm.notifyquesttovalidate = function (playerid, fromplayer) {
+    var payload = {
+        title: "Quest abgeschlossen",
+        options: {
+            body: fromplayer + " hat eine Deiner Quests abgeschlossen!",
+            icon: '/icons/questionyellow.png'
+        }
+    }
+    notify(playerid, payload);
+}
+
 function notify(playerid, payload) {
     var playerentry = pm.playerendpoints[playerid];
     if (!playerentry) return;
