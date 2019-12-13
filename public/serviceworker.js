@@ -8,7 +8,7 @@
 // Dieser Name ist ein Hilfsmittel, das beim Löschen des alten und Neuaufbau des neuen Caches hilft.
 // Wenn dieser Name geändert wird und der Service worker neu installiert wird. führt das bei activate()
 // dazu, dass der alte Cache gelöscht und bei fetch() dazu, dass alle zu cachenden Dateien neu geladen werden.
-var CACHE_NAME = 'liaga-26';
+var CACHE_NAME = 'liaga-28';
 
 // Diese Funktion wird bei der Neuinstallation des Service workers aufgerufen.
 self.addEventListener('install', function () {
@@ -55,6 +55,21 @@ self.addEventListener('fetch', function (evt) {
 
 self.addEventListener('push', function (event) {
     var data = event.data.json();
-    console.log('Received a push message', event, data);
+    console.log('%c⚙ Received a push message', 'color:lightgrey', event, data);
     self.registration.showNotification(data.title, data.options)
+});
+
+self.addEventListener('notificationclick', function (event) {
+    console.log('%c⚙ On notification click: ', 'color:lightgrey', event.notification);
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({
+            type: "window"
+        }).then(function (clientList) {
+            for (var i = 0; i < clientList.length; i++) {
+                var client = clientList[i];
+                return client.focus();
+            }
+        })
+    );
 });
