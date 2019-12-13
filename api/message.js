@@ -1,5 +1,6 @@
 var db = require('../utils/db');
 var auth = require('../utils/auth');
+var pushmessages = require('../utils/pushmessages');
 
 module.exports = function(router) {
 
@@ -18,6 +19,7 @@ module.exports = function(router) {
             request.body.content
         ]);
         await db.query('insert into notification (targetplayer, type) values (?, 0);', [toplayerid]);
+        pushmessages.notifynewmessage(toplayerid, request.user.username, request.body.content);
         response.status(200).json({});
     });
 

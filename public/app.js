@@ -6,6 +6,8 @@ var App = (function () {
     var token;
     var playerid;
     var stats;
+    var serviceworkerregistration;
+    var pushnotificationsallowed;
 
     var newquestsforplayer = [], playerquests = [], quests = [], friends = [], messages = [], shopitems = [], friendshopitems = [], showinvisiblequests = false;
     var collapsedtopics = JSON.parse(localStorage.getItem('collapsedtopics') || '{}');
@@ -42,7 +44,23 @@ var App = (function () {
 
     var _log = console.log;
 
-
+    async function _enablepushmessages() {
+        if (!pushnotificationsallowed) return;
+        var publickey = localStorage.getItem('notificationkey');
+        var publickeyfromserver = (await _post('/api/pushmessages/checkpublickey', { publickey: publickey })).publickey;
+        if (publickey !== publickeyfromserver) {
+            var existingsubscription = await serviceworkerregistration.pushManager.getSubscription();
+            if (existingsubscription) await existingsubscription.unsubscribe();
+        }
+        // Save the key for future use
+        localStorage.setItem('notificationkey', publickeyfromserver);
+        var subscription = await serviceworkerregistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: publickeyfromserver
+        });
+        await _post('/api/pushmessages/setendpoint', { publickey: publickeyfromserver, subscription: subscription })
+        console.log('✉ push messages enabled', subscription);
+    }
 
     async function _fetchfriends() {
         friends = await _post('/api/friend/list');
@@ -305,7 +323,7 @@ var App = (function () {
                 _showeditquestcard(quest.id);
             });
             node.innerHTML = "<span>" + quest.title + "</span>";
-            if (quest.players) quest.players.forEach(function(player) {
+            if (quest.players) quest.players.forEach(function (player) {
                 node.innerHTML += '<img src="' + (player.avatarurl || "./icons/avatar.png") + '"/>';
             });
             _getorcreatetopicdiv(questlist, topicdivs, quest.topic || "Sonstige").appendChild(node);
@@ -366,6 +384,7 @@ var App = (function () {
             playerid = result.id;
             token = result.token;
             _storeusercredentials(username, password);
+            _enablepushmessages();
             _showloggedincard();
             _showplayerqueststab();
             _checkfornotifications();
@@ -400,6 +419,7 @@ var App = (function () {
             playerid = result.id;
             token = result.token;
             _storeusercredentials(username, password1);
+            _enablepushmessages();
             _showloggedincard();
             _showplayerqueststab();
             _checkfornotifications();
@@ -770,6 +790,7 @@ var App = (function () {
         }
         playerid = result.id;
         token = result.token;
+        _enablepushmessages();
         _showloggedincard();
         _showplayerqueststab();
         _checkfornotifications();
@@ -827,7 +848,28 @@ var App = (function () {
         }
     }
 
-    window.addEventListener('load', function () {
+    window.addEventListener('load', async function () {
+        // Service worker einbinden. Dieser muss im Stammverzeichnis der App in der Datei "serviceworker.js"
+        // enthalten sein.
+        if ('serviceWorker' in navigator) {
+            var serviceWorkerFile = 'serviceworker.js';
+            console.log('%c🧰 load: Registriere service worker aus Datei ' + serviceWorkerFile, 'color:yellow');
+            serviceworkerregistration = await navigator.serviceWorker.register(serviceWorkerFile);
+            // Bei Aktualisierung des serviceworkers soll die Seite gleich neu geladen werden, um neue Daten anzuzeigen
+            serviceworkerregistration.onupdatefound = function () {
+                const installingWorker = serviceworkerregistration.installing;
+                installingWorker.onstatechange = function () {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        location.reload(); // Neu laden, wenn Service worker aktualisiert wurde
+                    }
+                };
+            };
+        }
+        // Benachrichtigungsberechtigung erfragen
+        Notification.requestPermission(function (result) {
+            pushnotificationsallowed = result === 'granted';
+            if (playerid && token) _enablepushmessages();
+        });
         _tryautologin();
         // Zyklisch nach Benachrichtigungen gucken
         setInterval(_checkfornotifications, 15000);
@@ -957,22 +999,3 @@ var App = (function () {
         updateshopitemimage: _updateshopitemimage
     };
 })();
-
-// Service worker einbinden. Dieser muss im Stammverzeichnis der App in der Datei "serviceworker.js"
-// enthalten sein.
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        var serviceWorkerFile = 'serviceworker.js';
-        console.log('%c🧰 load: Registriere service worker aus Datei ' + serviceWorkerFile, 'color:yellow');
-        navigator.serviceWorker.register(serviceWorkerFile).then(reg => {
-            reg.onupdatefound = () => {
-                const installingWorker = reg.installing;
-                installingWorker.onstatechange = () => {
-                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        location.reload(); // Neu laden, wenn Service worker aktualisiert wurde
-                    }
-                };
-            };
-        });
-    });
-}
