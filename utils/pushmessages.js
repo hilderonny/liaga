@@ -60,7 +60,7 @@ pm.notifyquesttovalidate = function (playerid, fromplayer) {
         title: "Quest abgeschlossen",
         options: {
             body: fromplayer + " hat eine Deiner Quests abgeschlossen!",
-            icon: '/icons/questionyellow.png'
+            icon: '/icons/questionmark.png'
         }
     }
     notify(playerid, payload);
@@ -71,7 +71,7 @@ pm.notifyquestvalidated = function (playerid, fromplayer) {
         title: "Quest validiert",
         options: {
             body: fromplayer + " hat eine Deiner Quests validiert!",
-            icon: '/icons/questionyellow.png'
+            icon: '/icons/questionmark.png'
         }
     }
     notify(playerid, payload);

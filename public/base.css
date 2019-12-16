@@ -161,7 +161,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.quests .list .effort240 { color: #f00000; }
 .card.quests .list .effort1440 { color: #a335ee; }
 .card.quests .list .invisible { color: #9D9D9D; }
-.card.quests .list .complete { background-image: url(./icons/questionyellow.png); }
+.card.quests .list .complete { background-image: url(./icons/questionmark.png); }
 
 .card.friends .list .pending .username { color: #f0f000; }
 .card.friends .list .incoming .username { color: #f00000; }
@@ -171,9 +171,9 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.playerquests .list .quest span { margin-right: 8px; }
 .card.playerquests .list .quest img { width: 14px; height: 14px; margin: 0 2px; }
 .card.playerquests .list .pending { background-image: url(./icons/asteriskyellow.png); }
-.card.playerquests .list .running { background-image: url(./icons/questiongrey.png); }
-.card.playerquests .list .complete { background-image: url(./icons/questionblue.png); }
-.card.playerquests .list .validated { background-image: url(./icons/questionyellow.png); }
+.card.playerquests .list .running { background-image: url(./icons/questionmark.png); }
+.card.playerquests .list .complete { background-image: url(./icons/questionmark.png); }
+.card.playerquests .list .validated { background-image: url(./icons/questionmark.png); }
 .card.playerquests .list .effort5 { color: #00e000; }
 .card.playerquests .list .effort30 { color: #f0f000; }
 .card.playerquests .list .effort60 { color: #f08000; }
@@ -402,6 +402,11 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     width: 16px;
     height: 16px;
 }
+.card.friends .list .icons .validatequests {
+    line-height: 17px;
+    color: #00e000;
+    font-weight: bold;
+}
 .card.friends .list .icons .shop {
     background-image: url(./icons/bag.png);
 }
@@ -409,7 +414,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     background-image: url(./icons/asteriskyellow.png);
 }
 .card.friends .list .icons .runningquests {
-    background-image: url(./icons/questionyellow.png);
+    background-image: url(./icons/questionmark.png);
 }
 
 .card.frienddetails .content, .card.friendshop .content {
@@ -454,8 +459,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 }
 .card.frienddetails .content .details .quest { background-image: url(./icons/asteriskyellow.png); }
 .card.frienddetails .content .details .quest:hover { background-image: url(./icons/asteriskyellow.png), radial-gradient(#FFD100, transparent); }
-.card.frienddetails .content .details .quest.isrunning { background-image: url(./icons/questionyellow.png); }
-.card.frienddetails .content .details .quest.isrunning:hover { background-image: url(./icons/questionyellow.png), radial-gradient(#FFD100, transparent); }
+.card.frienddetails .content .details .quest.isrunning { background-image: url(./icons/questionmark.png); }
+.card.frienddetails .content .details .quest.isrunning:hover { background-image: url(./icons/questionmark.png), radial-gradient(#FFD100, transparent); }
 .card.frienddetails .content .details .shop { background-image: url(./icons/bag.png);margin-top: 20px; }
 .card.frienddetails .content .details .shop:hover { background-image: url(./icons/bag.png), radial-gradient(#FFD100, transparent);; }
 

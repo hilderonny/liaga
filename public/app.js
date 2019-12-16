@@ -208,6 +208,7 @@ var App = (function () {
                     iconsnode.appendChild(deletebutton);
                 }
             } else {
+                //TODO: Validierbare Quests einbinden if (friend.hasnewquests) iconsnode.innerHTML += '<div class="icon validatequests">✔</div>';
                 if (friend.hasnewquests) iconsnode.innerHTML += '<div class="icon newquests"></div>';
                 if (friend.hasrunningquests) iconsnode.innerHTML += '<div class="icon runningquests"></div>';
                 if (friend.hasshop) iconsnode.innerHTML += '<div class="icon shop"></div>';
