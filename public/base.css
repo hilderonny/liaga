@@ -64,6 +64,8 @@ body.loading .card {
     border-image-slice: 7;
     border-image-repeat: stretch;
     background-color: #680200;
+    font-size: 12px;
+    line-height: 19px;
 }
 
 .button:hover {

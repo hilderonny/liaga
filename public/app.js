@@ -853,10 +853,12 @@ var App = (function () {
             };
         }
         // Benachrichtigungsberechtigung erfragen
-        Notification.requestPermission(function (result) {
-            pushnotificationsallowed = result === 'granted';
-            if (playerid && token) _enablepushmessages();
-        });
+        try {
+            Notification.requestPermission(function (result) {
+                pushnotificationsallowed = result === 'granted';
+                if (playerid && token) _enablepushmessages();
+            });
+        } catch(e) {} // Passiert in Browsern, die das nicht können (Oculus Browser)
         _tryautologin();
         // Zyklisch nach Benachrichtigungen gucken
         setInterval(_checkfornotifications, 15000);
