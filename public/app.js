@@ -18,15 +18,17 @@ var App = (function () {
 
     function _showcard(selector, clearstack) {
         if (clearstack) while (cardstack.length > 1) _hidecurrentcard();
+        if (currentcard) currentcard.classList.remove('visible');
         currentcard = document.querySelector('.card.' + selector);
         cardstack.push(currentcard);
-        currentcard.style.zIndex = cardstack.length * 1000;
+        currentcard.classList.add('visible');
     }
 
     function _hidecurrentcard() {
-        currentcard.style.zIndex = 0;
+        currentcard.classList.remove('visible');
         cardstack.pop();
         currentcard = cardstack[cardstack.length - 1];
+        if (currentcard) currentcard.classList.add('visible');
     }
 
     async function _post(url, data) {
@@ -164,6 +166,14 @@ var App = (function () {
         return topicdivs[topic];
     }
 
+    function _createbutton(text, handler) {
+        var button = document.createElement('div');
+        button.classList.add('button');
+        button.innerHTML = text;
+        button.addEventListener('click', handler);
+        return button;
+    }
+
     async function _listfriends() {
         await _fetchfriends();
         var friendlist = document.querySelector('.card.loggedin .tab.friends .list');
@@ -178,25 +188,19 @@ var App = (function () {
             var iconsnode = node.querySelector('.icons');
             if (!friend.accepted) {
                 if (friend.incoming) {
-                    var acceptbutton = document.createElement('button');
-                    acceptbutton.innerHTML = "✔";
-                    acceptbutton.addEventListener('click', async function () {
+                    var acceptbutton = _createbutton("✔", async function () {
                         await _post('/api/friend/accept', { id: friend.friendshipid });
                         _listfriends();
                     });
                     iconsnode.appendChild(acceptbutton);
-                    var rejectbutton = document.createElement('button');
-                    rejectbutton.innerHTML = "❌";
-                    rejectbutton.addEventListener('click', async function () {
+                    var rejectbutton = _createbutton("❌", async function () {
                         if (!confirm('Freundschaftsanfrage wirklich ablehnen?')) return;
                         await _post('/api/friend/reject', { id: friend.friendshipid });
                         _listfriends();
                     });
                     iconsnode.appendChild(rejectbutton);
                 } else {
-                    var deletebutton = document.createElement('button');
-                    deletebutton.innerHTML = "❌";
-                    deletebutton.addEventListener('click', async function () {
+                    var deletebutton = _createbutton("❌", async function () {
                         if (!confirm('Anfrage wirklich löschen?')) return;
                         await _post('/api/friend/delete', { id: friend.friendshipid });
                         _listfriends();
@@ -204,9 +208,9 @@ var App = (function () {
                     iconsnode.appendChild(deletebutton);
                 }
             } else {
-                if (friend.hasnewquests) iconsnode.innerHTML += '<div class="newquests"></div>';
-                if (friend.hasrunningquests) iconsnode.innerHTML += '<div class="runningquests"></div>';
-                if (friend.hasshop) iconsnode.innerHTML += '<div class="shop"></div>';
+                if (friend.hasnewquests) iconsnode.innerHTML += '<div class="icon newquests"></div>';
+                if (friend.hasrunningquests) iconsnode.innerHTML += '<div class="icon runningquests"></div>';
+                if (friend.hasshop) iconsnode.innerHTML += '<div class="icon shop"></div>';
                 node.addEventListener('click', function () {
                     _showfrienddetailscard(friend);
                 });
@@ -356,15 +360,14 @@ var App = (function () {
         var buttonrow = document.querySelector('.card.shopitemdetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         if (showbuybutton) {
-            var buybutton = document.createElement('button');
-            buybutton.innerHTML = "Kaufen";
-            if (stats.rubies >= shopitem.rubies) {
-                buybutton.addEventListener('click', async function () {
+            var buybutton = _createbutton("Kaufen", async function () {
+                if (stats.rubies >= shopitem.rubies) {
                     await _post('/api/shop/buy', { id: shopitemid });
                     _fetchstats();
                     _hidecurrentcard();
-                });
-            } else {
+                }
+            });
+            if (stats.rubies < shopitem.rubies) {
                 buybutton.setAttribute('disabled', 'disabled');
             }
             buttonrow.appendChild(buybutton);
@@ -504,9 +507,7 @@ var App = (function () {
             label.innerHTML = '<input type="checkbox" name="players" value="' + player.id + '"' + (quest.players.indexOf(player.id) < 0 ? '' : ' checked') + ' /><span>' + player.name + '</span>';
             div.appendChild(label);
             if (quest.completedplayers.indexOf(player.id) >= 0) {
-                var button = document.createElement('button');
-                button.innerHTML = "Validieren";
-                button.addEventListener('click', async function () {
+                var button = _createbutton("Validieren", async function () {
                     await _validateplayerquest(id, player.id);
                     _listquests();
                     div.removeChild(button);
@@ -541,9 +542,7 @@ var App = (function () {
         var buttonrow = document.querySelector('.card.messagedetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         if (friend) {
-            var replybutton = document.createElement('button');
-            replybutton.innerHTML = "Antworten";
-            replybutton.addEventListener('click', async function () {
+            var replybutton = _createbutton("Antworten", async function () {
                 _showcreatemessagecard(friend);
             });
             buttonrow.appendChild(replybutton);
@@ -551,9 +550,7 @@ var App = (function () {
         var spacer = document.createElement('div');
         spacer.classList.add('spacer');
         buttonrow.appendChild(spacer);
-        var deletebutton = document.createElement('button');
-        deletebutton.innerHTML = "Löschen";
-        deletebutton.addEventListener('click', async function () {
+        var deletebutton = _createbutton("Löschen", async function () {
             if (!confirm('Nachricht wirklich löschen?')) return;
             await _post('/api/message/delete', { id: message.id });
             _listmessages();
@@ -571,9 +568,7 @@ var App = (function () {
         document.querySelector('.card.createmessage [name="content"]').value = "";
         var buttonrow = document.querySelector('.card.createmessage .buttonrow.bottom');
         buttonrow.innerHTML = "";
-        var sendbutton = document.createElement('button');
-        sendbutton.innerHTML = "Absenden";
-        sendbutton.addEventListener('click', async function () {
+        var sendbutton = _createbutton("Absenden", async function () {
             var content = document.querySelector('.card.createmessage [name="content"]').value;
             await _post('/api/message/send', { to: friend.playerid, content: content });
             _hidecurrentcard();
@@ -598,9 +593,7 @@ var App = (function () {
         var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         if (!playerquest.complete) {
-            var completebutton = document.createElement('button');
-            completebutton.innerHTML = "Abschließen";
-            completebutton.addEventListener('click', async function () {
+            var completebutton = _createbutton("Abschließen", async function () {
                 await _post('/api/playerquest/complete', { playerquestid: playerquestid });
                 _listplayerquests();
                 _listfriendquests();
@@ -609,9 +602,7 @@ var App = (function () {
             buttonrow.appendChild(completebutton);
         }
         if (playerquest.validated) {
-            var rewardbutton = document.createElement('button');
-            rewardbutton.innerHTML = "Belohnung abholen";
-            rewardbutton.addEventListener('click', async function () {
+            var rewardbutton = _createbutton("Belohnung abholen", async function () {
                 await _post('/api/playerquest/reward', { playerquestid: playerquestid });
                 _listplayerquests();
                 _listfriendquests();
@@ -621,9 +612,7 @@ var App = (function () {
             buttonrow.appendChild(rewardbutton);
         }
         if (playerquest.ismyquest) {
-            var editbutton = document.createElement('button');
-            editbutton.innerHTML = "Bearbeiten";
-            editbutton.addEventListener('click', async function () {
+            var editbutton = _createbutton("Bearbeiten", async function () {
                 _showeditquestcard(playerquest.quest);
             });
             buttonrow.appendChild(editbutton);
@@ -631,9 +620,7 @@ var App = (function () {
         var spacer = document.createElement('div');
         spacer.classList.add('spacer');
         buttonrow.appendChild(spacer);
-        var cancelbutton = document.createElement('button');
-        cancelbutton.innerHTML = "Abbrechen";
-        cancelbutton.addEventListener('click', async function () {
+        var cancelbutton = _createbutton("Abbrechen", async function () {
             if (!confirm('Quest wirklich abbrechen?')) return;
             await _post('/api/playerquest/cancel', { playerquestid: playerquestid });
             _listplayerquests();
@@ -680,18 +667,14 @@ var App = (function () {
         }
         var buttonrow = document.querySelector('.card.frienddetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
-        var messagebutton = document.createElement('button');
-        messagebutton.innerHTML = "✉";
-        messagebutton.addEventListener('click', function () {
+        var messagebutton = _createbutton("✉", function () {
             _showcreatemessagecard(currentfriend);
         });
         buttonrow.appendChild(messagebutton);
         var spacer = document.createElement('div');
         spacer.classList.add('spacer');
         buttonrow.appendChild(spacer);
-        var deletebutton = document.createElement('button');
-        deletebutton.innerHTML = "Löschen";
-        deletebutton.addEventListener('click', async function () {
+        var deletebutton = _createbutton("Löschen", async function () {
             if (!confirm('Freundschaft wirklich löschen?')) return;
             await _post('/api/friend/delete', { id: currentfriend.friendshipid });
             _listfriends();
@@ -722,9 +705,7 @@ var App = (function () {
         _showplayerquestdetails(quest);
         var buttonrow = document.querySelector('.card.playerquestdetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
-        var startbutton = document.createElement('button');
-        startbutton.innerHTML = "Beginnen";
-        startbutton.addEventListener('click', async function () {
+        var startbutton = _createbutton("Beginnen", async function () {
             await _post('/api/playerquest/start', { questid: questid });
             _listplayerquests();
             _listfriendquests();
@@ -732,9 +713,7 @@ var App = (function () {
         });
         buttonrow.appendChild(startbutton);
         if (quest.ismyquest) {
-            var editbutton = document.createElement('button');
-            editbutton.innerHTML = "Bearbeiten";
-            editbutton.addEventListener('click', async function () {
+            var editbutton = _createbutton("Bearbeiten", async function () {
                 _showeditquestcard(questid);
             });
             buttonrow.appendChild(editbutton);
@@ -744,23 +723,23 @@ var App = (function () {
 
     async function _showplayerqueststab() {
         await _listplayerquests();
-        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin playerquests');
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin visible playerquests');
     }
 
     async function _showshoptab() {
         await _listshopitems();
-        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin shop');
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin visible shop');
     }
 
     async function _showqueststab() {
         showinvisiblequests = false;
         await _listquests();
-        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin quests');
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin visible quests');
     }
 
     async function _showfriendstab() {
         await _listfriends();
-        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin friends');
+        document.querySelector('.card.loggedin').setAttribute('class', 'card loggedin visible friends');
     }
 
     // Store username and password after successful login for future auto login
@@ -772,6 +751,10 @@ var App = (function () {
         else localStorage.setItem(PASSWORDKEY, password);
     }
 
+    function _removeloading() {
+        document.body.classList.remove('loading');
+    }
+
     // Tries to login with the credentials stored in local memory.
     // Returns true on success, false otherwise.
     async function _tryautologin() {
@@ -780,6 +763,7 @@ var App = (function () {
         if (!username || !password) {
             _log("No username or password stored");
             _showlogincard();
+            _removeloading();
             return;
         }
         var result = await _post('/api/player/login', { username: username, password: password });
@@ -787,13 +771,16 @@ var App = (function () {
             // Clear stored credentials on failure
             _storeusercredentials();
             _showlogincard();
+            _removeloading();
+            return;
         }
         playerid = result.id;
         token = result.token;
-        _enablepushmessages();
-        _showloggedincard();
-        _showplayerqueststab();
-        _checkfornotifications();
+        await _enablepushmessages();
+        await _showplayerqueststab();
+        await _showloggedincard();
+        await _checkfornotifications();
+        _removeloading();
     }
 
     function _updateprofileavatarimage() {

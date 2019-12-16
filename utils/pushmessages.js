@@ -66,6 +66,17 @@ pm.notifyquesttovalidate = function (playerid, fromplayer) {
     notify(playerid, payload);
 }
 
+pm.notifyquestvalidated = function (playerid, fromplayer) {
+    var payload = {
+        title: "Quest validiert",
+        options: {
+            body: fromplayer + " hat eine Deiner Quests validiert!",
+            icon: '/icons/questionyellow.png'
+        }
+    }
+    notify(playerid, payload);
+}
+
 function notify(playerid, payload) {
     var playerentry = pm.playerendpoints[playerid];
     if (!playerentry) return;

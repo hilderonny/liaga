@@ -23,7 +23,7 @@
     </script>
 </head>
 
-<body>
+<body class="loading">
 
     <div class="card login details input">
         <form class="content">
@@ -35,8 +35,8 @@
             <div class="errormessage">Anmeldung fehlgeschlagen</div>
         </form>
         <div class="buttonrow">
-            <button onclick="App.login();">Anmelden</button>
-            <button onclick="App.showregistercard();">Zur Registrierung</button>
+            <div class="button" onclick="App.login();">Anmelden</div>
+            <div class="button" onclick="App.showregistercard();">Zur Registrierung</div>
         </div>
     </div>
 
@@ -52,8 +52,8 @@
             <div class="errormessage">Registrierung fehlgeschlagen</div>
         </form>
         <div class="buttonrow">
-            <button onclick="App.register();">Registrierung</button>
-            <button onclick="App.showlogincard();">Zur Anmeldung</button>
+            <div class="button" onclick="App.register();">Registrierung</div>
+            <div class="button" onclick="App.showlogincard();">Zur Anmeldung</div>
         </div>
     </div>
 
@@ -72,10 +72,10 @@
         </div>
         <div class="mail" onclick="App.showmailbox();"></div>
         <div class="tabbuttons">
-            <button class="playerquests" onclick="App.showplayerqueststab();">Aufgaben</button>
-            <button class="friends" onclick="App.showfriendstab();">Freunde</button>
-            <button class="quests" onclick="App.showqueststab();">Quests</button>
-            <button class="shop" onclick="App.showshoptab();">Shop</button>
+            <div class="button playerquests" onclick="App.showplayerqueststab();">Aufgaben</div>
+            <div class="button friends" onclick="App.showfriendstab();">Freunde</div>
+            <div class="button quests" onclick="App.showqueststab();">Quests</div>
+            <div class="button shop" onclick="App.showshoptab();">Shop</div>
         </div>
         <div class="tabs">
             <div class="tab playerquests">
@@ -92,22 +92,22 @@
             </div>
         </div>
         <div class="buttonrow quests">
-            <button onclick="App.showaddquestcard();">Neue Quest</button>
+            <div class="button" onclick="App.showaddquestcard();">Neue Quest</div>
             <div class="spacer"></div>
-            <button class="showinvisible" onclick="App.showinvisiblequests(true);">Ausgeblendete anzeigen</button>
-            <button class="hideinvisible" onclick="App.showinvisiblequests(false);">Ausgeblendete verbergen</button>
+            <div class="button showinvisible" onclick="App.showinvisiblequests(true);">Ausgeblendete anzeigen</div>
+            <div class="button hideinvisible" onclick="App.showinvisiblequests(false);">Ausgeblendete verbergen</div>
         </div>
         <div class="buttonrow friends">
-            <button onclick="App.showaddfriendcard();">Neuer Freund</button>
+            <div class="button" onclick="App.showaddfriendcard();">Neuer Freund</div>
         </div>
         <div class="buttonrow shop">
-            <button onclick="App.showaddshopitemcard();">Neuer Gegenstand</button>
+            <div class="button" onclick="App.showaddshopitemcard();">Neuer Gegenstand</div>
         </div>
     </div>
 
     <div class="card addquest details input">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="title">Neue Quest erstellen</div>
@@ -137,13 +137,13 @@
             <div class="players"></div>
         </div>
         <div class="buttonrow bottom">
-            <button onclick="App.addquest();">Erstellen</button>
+            <div class="button" onclick="App.addquest();">Erstellen</div>
         </div>
     </div>
 
     <div class="card editquest details input">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="title"></div>
@@ -173,15 +173,15 @@
             <div class="players"></div>
         </div>
         <div class="buttonrow bottom">
-            <button class="savequest">Speichern</button>
+            <div class="button savequest">Speichern</div>
             <div class="spacer"></div>
-            <button class="deletequest">Löschen</button>
+            <div class="button deletequest">Löschen</div>
         </div>
     </div>
 
     <div class="card addfriend details input">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="title">Neue Freundschaftsanfrage</div>
@@ -189,13 +189,13 @@
             <input name="username" />
         </div>
         <div class="buttonrow bottom">
-            <button onclick="App.addfriend();">Absenden</button>
+            <div class="button" onclick="App.addfriend();">Absenden</div>
         </div>
     </div>
 
     <div class="card frienddetails details">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="avatar"></div>
@@ -208,7 +208,7 @@
 
     <div class="card friendshop details">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="avatar"></div>
@@ -221,7 +221,7 @@
 
     <div class="card playerquestdetails details">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="title"></div>
@@ -239,7 +239,7 @@
 
     <div class="card profile details input">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <form class="content">
             <div class="title"></div>
@@ -255,22 +255,22 @@
             <div class="errormessage">Speichern fehlgeschlagen</div>
         </form>
         <div class="buttonrow bottom">
-            <button onclick="App.saveprofile();">Speichern</button>
+            <div class="button" onclick="App.saveprofile();">Speichern</div>
             <div class="spacer"></div>
-            <button onclick="App.logout();">Abmelden</button>
+            <div class="button" onclick="App.logout();">Abmelden</div>
         </div>
     </div>
 
     <div class="card mailbox details">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="list"></div>
     </div>
 
     <div class="card messagedetails details">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="avatar"></div>
@@ -282,7 +282,7 @@
 
     <div class="card createmessage details input">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="avatar"></div>
@@ -296,7 +296,7 @@
 
     <div class="card addshopitem details input">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="title">Neuer Gegenstand</div>
@@ -311,13 +311,13 @@
             <input name="rubies" type="number" min="1" />
         </div>
         <div class="buttonrow bottom">
-            <button onclick="App.addshopitem();">Erstellen</button>
+            <div class="button" onclick="App.addshopitem();">Erstellen</div>
         </div>
     </div>
 
     <div class="card editshopitem details input">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="title"></div>
@@ -332,15 +332,15 @@
             <input name="rubies" type="number" min="1" />
         </div>
         <div class="buttonrow bottom">
-            <button class="saveshopitem">Speichern</button>
+            <div class="button saveshopitem">Speichern</div>
             <div class="spacer"></div>
-            <button class="deleteshopitem">Löschen</button>
+            <div class="button deleteshopitem">Löschen</div>
         </div>
     </div>
 
     <div class="card shopitemdetails details">
         <div class="buttonrow top">
-            <button onclick="App.hidecurrentcard();">Zurück</button>
+            <div class="button" onclick="App.hidecurrentcard();">Zurück</div>
         </div>
         <div class="content">
             <div class="shopiconimage"></div>

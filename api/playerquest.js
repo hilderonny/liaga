@@ -122,6 +122,7 @@ module.exports = function (router) {
         await db.query('update playerquest set complete = 1, validated = 1 where id = ?', [ playerquests[0].id ]);
         // Benachrichrigung erstellen
         await db.query('insert into notification (targetplayer, type) values (?, 5);', [otherplayerid]);
+        pushmessages.notifyquestvalidated(otherplayerid, request.user.username);
         response.status(200).json({});
     });
 
