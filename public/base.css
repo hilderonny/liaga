@@ -18,6 +18,7 @@ body {
     position: relative;
     border: solid transparent;
     border-width: 14px 15px 12px 13px;
+    border-color: white; /* https://stackoverflow.com/a/39769333/12127220 */
     border-image-source: url(./images/body-border.png);
     border-image-slice: 14 15 12 13;
     border-image-repeat: repeat;
@@ -59,6 +60,7 @@ body.loading .card {
     text-shadow: 2px 2px 1px #000;
     align-self: center;
     border: solid transparent;
+    border-color: white; /* https://stackoverflow.com/a/39769333/12127220 */
     border-width: 7px;
     border-image-source: url(./images/button-red-up.png);
     border-image-slice: 7;
@@ -271,6 +273,8 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
 .card.details .content .title.effort60 { color: #f08000; }
 .card.details .content .title.effort240 { color: #f00000; }
 .card.details .content .title.effort1440 { color: #a335ee; }
+
+.card.details .description { user-select: auto; }
 
 .card.details .rewards {
     background-color: #442211cc;
@@ -541,7 +545,7 @@ input[type="checkbox"]:checked::before { background: url('./icons/checkbox-selec
     border: none;
     margin: 2px 6px 10px 3px;
     flex: 1;
-    min-height: 100px;
+    min-height: 240px;
 }
 
 .card.input .players div { display: flex; }
