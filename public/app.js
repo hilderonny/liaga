@@ -357,7 +357,7 @@ var App = (function () {
             document.querySelector('.card.shopitemdetails .shopiconimage').setAttribute('style', 'background-image: url(./images/friend-frame.png), url(' + shopitem.iconurl + ')');
         }
         document.querySelector('.card.shopitemdetails .description').innerHTML = _replacelinebreaks(shopitem.description);
-        document.querySelector('.card.shopitemdetails .rewards .rubies').innerHTML = _createrubieshtml(Math.round(shopitem.rubies / 2));
+        document.querySelector('.card.shopitemdetails .rewards .rubies').innerHTML = _createrubieshtml(shopitem.rubies);
         var buttonrow = document.querySelector('.card.shopitemdetails .buttonrow.bottom');
         buttonrow.innerHTML = "";
         if (showbuybutton) {
